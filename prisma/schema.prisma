@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    clerkId   String   @unique
+    email     String   @unique
+    name      String?
+    legion    Int      @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    characters Character[] // One-to-many to Character
+
+    @@map("user")
+}
+
+model Character {
+    id          String   @id @default(cuid())
+    name        String   @default("Unnamed")
+    level       Int      @default(1)
+    class       String   @default("beginner")
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    combatPower Int      @default(0)
+    arcaneForce Int      @default(0)
+    sacredPower Int      @default(0)
+
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    gears GearItem[] // One-to-many to Gear
+
+    @@map("character")
+}
+
+model GearItem {
+    id                  Int    @id @default(autoincrement())
+    name                String @default("Unnamed")
+    type                String @default("Ring")
+    rarity              String @default("None")
+    tradeStatus         String @map("trade_status")
+    attackPowerIncrease Int    @map("attack_power_increase")
+    combatPowerIncrease Int    @map("combat_power_increase")
+    requiredLevel       Int    @map("required_level")
+
+    characterId String
+    character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+    stats Json @default("{}")
+
+    potential Json @default("{}")
+}
