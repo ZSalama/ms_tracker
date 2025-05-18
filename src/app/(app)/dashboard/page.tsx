@@ -7,7 +7,7 @@ import type { Character } from '@prisma/client'
 export default async function DashboardPage() {
     /* 1️⃣  Get the logged-in Clerk user */
     const { userId } = await auth()
-    if (!userId) redirect('/sign-in') // not signed in ⇒ bounce
+    if (!userId) redirect('/dashboard/login') // not signed in ⇒ bounce
 
     /* 2️⃣  Look up the *internal* User row tied to that Clerk user.  
          ▸ Adjust where() if you store the Clerk ID differently. */

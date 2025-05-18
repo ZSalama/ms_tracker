@@ -1,5 +1,8 @@
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
+import Link from 'next/link'
+
+//should check if user is logged in
 
 export default async function page({
     params,
@@ -9,7 +12,6 @@ export default async function page({
     const { character } = await params
 
     // call prisma for character data
-
     const characterData = await prisma.character.findUnique({
         where: { id: character },
         select: {
@@ -28,6 +30,7 @@ export default async function page({
         <div>
             <Suspense fallback={<Loading />}>
                 <DisplayCharacterData characterProp={characterData} />
+                <Link href={`/${character}/newgear`}>New Gear</Link>
             </Suspense>
         </div>
     )
