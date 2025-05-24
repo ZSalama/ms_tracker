@@ -12,14 +12,15 @@ export default async function page({
     const { character } = await params
 
     // call prisma for character data
-    const characterData = await prisma.character.findUnique({
-        where: { id: character },
+    const characterData = await prisma.character.findFirst({
+        where: { name: character },
         select: {
             id: true,
             name: true,
             level: true,
             class: true,
             combatPower: true,
+            gears: true,
         },
     })
 
@@ -27,12 +28,27 @@ export default async function page({
         return <div>Character not found</div>
     }
     return (
-        <div>
-            <Suspense fallback={<Loading />}>
-                <DisplayCharacterData characterProp={characterData} />
-                <Link href={`/${character}/newgear`}>New Gear</Link>
-            </Suspense>
-        </div>
+        <>
+            <div>
+                <Suspense fallback={<Loading />}>
+                    <DisplayCharacterData characterProp={characterData} />
+                    <Link href={`/${character}/newgear`}>New Gear</Link>
+                </Suspense>
+            </div>
+            <div>
+                {characterData.gears.map((gear) => (
+                    <div key={gear.id}>
+                        <h1>{gear.name}</h1>
+                        <p>Level: {gear.type}</p>
+                        <p>Class: {gear.starForce}</p>
+                        <p>Combat Power: {gear.combatPowerIncrease}</p>
+                        <Link href={`/${character}/editgear/${gear.id}`}>
+                            Edit Gear
+                        </Link>
+                    </div>
+                ))}
+            </div>
+        </>
     )
 }
 
@@ -41,7 +57,7 @@ function Loading() {
 }
 
 type CharacterInfo = {
-    id: string
+    id: number
     name: string
     level: number
     class: string

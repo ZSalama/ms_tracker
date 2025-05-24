@@ -23,14 +23,22 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-export default function NewGearForm({ character }: { character: string }) {
+import { useTransition } from 'react'
+
+export default function NewGearForm({
+    character,
+    characterId,
+}: {
+    character: string
+    characterId: number
+}) {
     const router = useRouter()
+    const [isPending, startTransition] = useTransition()
 
     /* ---------------- RHF setup ---------------- */
     const form = useForm<GearSchema>({
         resolver: zodResolver(gearSchema),
         defaultValues: {
-            characterId: character,
             name: '',
             starForce: 22,
             type: 'Ring',
@@ -39,38 +47,74 @@ export default function NewGearForm({ character }: { character: string }) {
             combatPowerIncrease: 0,
             requiredLevel: 0,
             potential: '',
+            isEquipped: false,
+            str: 0,
+            flameStr: 0,
+            starStr: 0,
+            dex: 0,
+            flameDex: 0,
+            starDex: 0,
+            int: 0,
+            flameInt: 0,
+            starInt: 0,
+            luk: 0,
+            flameLuk: 0,
+            starLuk: 0,
+            maxHP: 0,
+            flameMaxHP: 0,
+            starMaxHP: 0,
+            maxMP: 0,
+            flameMaxMP: 0,
+            starMaxMP: 0,
+            attackPower: 0,
+            flameAttackPower: 0,
+            starAttackPower: 0,
+            magicAttackPower: 0,
+            flameMagicAttackPower: 0,
+            starMagicAttackPower: 0,
+            allStat: '',
+            flameAllStat: '',
+            starAllStat: '',
+            bossDamage: '',
+            flameBossDamage: '',
+            starBossDamage: '',
+            ignoreEnemyDefense: '',
+            flameIgnoreEnemyDefense: '',
         },
     })
 
-    /* ---------------- submit wrapper ---------------- */
-    const onSubmit = form.handleSubmit(async (values) => {
-        const fd = new FormData()
-        Object.entries(values).forEach(([k, v]) =>
-            fd.append(k, typeof v === 'string' ? v : String(v))
-        )
+    async function onSubmit(values: GearSchema) {
+        // console.log('onSubmit', values)
+        startTransition(async () => {
+            const fd = new FormData()
+            Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
+            const result = await createGearItem(fd, characterId)
 
-        const result = await createGearItem(fd)
-
-        if ((result as any)?.errors) {
-            // Map server-side field errors back into RHF
-            Object.entries(result.errors).forEach(([field, messages]) => {
-                form.setError(field as keyof GearSchema, {
-                    type: 'server',
-                    message: messages?.[0] ?? 'Invalid value',
-                })
-            })
-        } else {
-            /* redirect() inside the server action will navigate,
-         but force-refresh as a fallback for browsers blocking it */
-            router.refresh()
-        }
-    })
+            if (result?.error) {
+                // Push Zod errors back into react-hook-form
+                Object.entries(result.error).forEach(([field, messages]) =>
+                    form.setError(field as keyof GearSchema, {
+                        message: (messages as string[])[0],
+                    })
+                )
+            } else if (result?.success) {
+                form.reset() // clear the form
+                // redirect to dasbhoard
+                router.push('/dashboard')
+            }
+        })
+    }
 
     return (
         <Form {...form}>
-            <form onSubmit={onSubmit} className='space-y-6 max-w-xl'>
-                <input type='hidden' {...form.register('characterId')} />
-
+            <form
+                onSubmit={form.handleSubmit(onSubmit, (errors) =>
+                    console.log('validation errors', errors)
+                )}
+                className='space-y-6 max-w-xl'
+            >
+                {/* <input type='hidden' {...form.register('characterId')} /> */}
+                <div>{character}</div>
                 <FormField
                     control={form.control}
                     name='name'
@@ -178,9 +222,15 @@ export default function NewGearForm({ character }: { character: string }) {
                 {/* ----- numeric trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'attackPowerIncrease', label: 'Atk ↑' },
-                        { name: 'combatPowerIncrease', label: 'Combat ↑' },
-                        { name: 'requiredLevel', label: 'Required Lv' },
+                        {
+                            name: 'attackPowerIncrease',
+                            label: 'attack Power Increase',
+                        },
+                        {
+                            name: 'combatPowerIncrease',
+                            label: 'combat Power Increase',
+                        },
+                        { name: 'requiredLevel', label: 'Required Lvl' },
                     ].map(({ name, label }) => (
                         <FormField
                             key={name}
@@ -197,8 +247,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                                 typeof field.value ===
                                                     'boolean' ||
                                                 typeof field.value ===
-                                                    'undefined'
-                                                    ? ''
+                                                    'undefined' ||
+                                                field.value === null
+                                                    ? undefined
                                                     : field.value
                                             }
                                         />
@@ -229,12 +280,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -264,12 +312,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -299,12 +344,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -334,12 +376,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -369,12 +408,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -404,12 +440,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -442,12 +475,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -486,12 +516,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -524,12 +551,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -562,12 +586,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -600,12 +621,9 @@ export default function NewGearForm({ character }: { character: string }) {
                                             type='number'
                                             {...field}
                                             value={
-                                                typeof field.value ===
-                                                    'boolean' ||
-                                                typeof field.value ===
-                                                    'undefined'
+                                                typeof field.value === 'boolean'
                                                     ? ''
-                                                    : field.value
+                                                    : field.value ?? ''
                                             }
                                         />
                                     </FormControl>
@@ -640,13 +658,10 @@ export default function NewGearForm({ character }: { character: string }) {
                     />
                 ))}
 
-                <Button type='submit' className='w-full sm:w-auto'>
-                    Save gear
+                <Button type='submit' disabled={isPending} className='w-full'>
+                    {isPending ? 'Saving…' : 'Add gear'}
                 </Button>
             </form>
         </Form>
     )
 }
-
-//     ignoreEnemyDefense: z.coerce.number().min(0).optional(),
-//     flameIgnoreEnemyDefense: z.coerce.number().min(0).optional(),

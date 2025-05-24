@@ -5,7 +5,8 @@ import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
-export async function createGearItem(formData: FormData) {
+export async function createGearItem(formData: FormData, characterId: number) {
+    // console.log('createGearItem', formData)
     /* 1. Clerk auth --------------------------------------------------------- */
     const { userId: clerkId } = await auth()
     if (!clerkId) throw new Error('Unauthenticated')
@@ -13,26 +14,28 @@ export async function createGearItem(formData: FormData) {
     /* 2. Zod validation ----------------------------------------------------- */
     const parsed = gearSchema.safeParse(Object.fromEntries(formData))
     if (!parsed.success) {
-        return { errors: parsed.error.flatten().fieldErrors }
+        return { error: parsed.error.flatten().fieldErrors }
     }
     const data = parsed.data
 
     /* 3. Character ownership check ----------------------------------------- */
     const character = await prisma.character.findFirst({
-        where: { id: data.characterId, user: { clerkId } },
-        select: { id: true },
+        where: { id: characterId },
+        select: { id: true, name: true },
     })
-    if (!character) return { errors: { _form: ['Character not found'] } }
+    // console.log('character', character)
+    if (!character) redirect('/')
 
     /* 4. Persist ------------------------------------------------------------ */
     await prisma.gearItem.create({
         data: {
             /* ─── linkage & meta ─────────────────────────────── */
-            characterId: data.characterId,
+            // characterId: character.id,
+            character: { connect: { id: character.id } },
             name: data.name,
             type: data.type,
             rarity: data.rarity,
-            tradeStatus: data.tradeStatus ?? 'untradeable',
+            tradeStatus: 'untradeable',
             starForce: Number(data.starForce),
             requiredLevel: Number(data.requiredLevel),
             isEquipped: Boolean(data.isEquipped),
@@ -42,64 +45,65 @@ export async function createGearItem(formData: FormData) {
             combatPowerIncrease: Number(data.combatPowerIncrease),
 
             /* ─── main stats ─────────────────────────────────── */
-            str: Number(data.str),
-            flameStr: Number(data.flameStr),
-            starStr: Number(data.starStr),
+            str: Number(data.str) ?? null,
+            flameStr: Number(data.flameStr) ?? null,
+            starStr: Number(data.starStr) ?? null,
 
-            Dex: Number(data.Dex),
-            flameDex: Number(data.flameDex),
-            starDex: Number(data.starDex),
+            dex: Number(data.dex) ?? null,
+            flameDex: Number(data.flameDex) ?? null,
+            starDex: Number(data.starDex) ?? null,
 
-            int: Number(data.int),
-            flameint: Number(data.flameint),
-            starint: Number(data.starint),
+            int: Number(data.int) ?? null,
+            flameInt: Number(data.flameInt) ?? null,
+            starInt: Number(data.starInt) ?? null,
 
-            LUK: Number(data.LUK),
-            flameLUK: Number(data.flameLUK),
-            starLUK: Number(data.starLUK),
+            luk: Number(data.luk) ?? null,
+            flameLuk: Number(data.flameLuk) ?? null,
+            starLuk: Number(data.starLuk) ?? null,
 
             /* ─── HP / MP ────────────────────────────────────── */
-            maxHP: Number(data.maxHP),
-            flameMaxHP: Number(data.flameMaxHP),
-            starMaxHP: Number(data.starMaxHP),
+            maxHP: Number(data.maxHP) ?? null,
+            flameMaxHP: Number(data.flameMaxHP) ?? null,
+            starMaxHP: Number(data.starMaxHP) ?? null,
 
-            maxMP: Number(data.maxMP),
-            flameMaxMP: Number(data.flameMaxMP),
-            starMaxMP: Number(data.starMaxMP),
+            maxMP: Number(data.maxMP) ?? null,
+            flameMaxMP: Number(data.flameMaxMP) ?? null,
+            starMaxMP: Number(data.starMaxMP) ?? null,
 
             /* ─── offensive / defensive ──────────────────────── */
-            attackPower: Number(data.attackPower),
-            flameAttackPower: Number(data.flameAttackPower),
-            starAttackPower: Number(data.starAttackPower),
+            attackPower: Number(data.attackPower) ?? null,
+            flameAttackPower: Number(data.flameAttackPower) ?? null,
+            starAttackPower: Number(data.starAttackPower) ?? null,
 
-            magicAttackPower: Number(data.magicAttackPower),
-            flameMagicAttackPower: Number(data.flameMagicAttackPower),
-            starMagicAttackPower: Number(data.starMagicAttackPower),
+            magicAttackPower: Number(data.magicAttackPower) ?? null,
+            flameMagicAttackPower: Number(data.flameMagicAttackPower) ?? null,
+            starMagicAttackPower: Number(data.starMagicAttackPower) ?? null,
 
-            defense: Number(data.defense),
-            flameDefense: Number(data.flameDefense),
-            starDefense: Number(data.starDefense),
+            defense: null,
+            flameDefense: null,
+            starDefense: null,
 
             /* ─── mobility ───────────────────────────────────── */
-            jump: Number(data.jump),
-            flameJump: Number(data.flameJump),
-            starJump: Number(data.starJump),
+            jump: null,
+            flameJump: null,
+            starJump: null,
 
-            speed: Number(data.speed),
-            flameSpeed: Number(data.flameSpeed),
-            starSpeed: Number(data.starSpeed),
+            speed: null,
+            flameSpeed: null,
+            starSpeed: null,
 
             /* ─── percentage-based lines (Strings in Prisma) ─── */
-            allStat: String(data.allStat),
-            flameAllStat: String(data.flameAllStat),
-            starAllStat: String(data.starAllStat),
+            allStat: Number(data.allStat) ?? undefined,
+            flameAllStat: Number(data.flameAllStat) ?? undefined,
+            starAllStat: Number(data.starAllStat) ?? undefined,
 
-            bossDamage: String(data.bossDamage),
-            flameBossDamage: String(data.flameBossDamage),
-            starBossDamage: String(data.starBossDamage),
+            bossDamage: Number(data.bossDamage) ?? undefined,
+            flameBossDamage: Number(data.flameBossDamage) ?? undefined,
+            starBossDamage: Number(data.starBossDamage) ?? undefined,
 
-            ignoreEnemyDefense: String(data.ignoreEnemyDefense),
-            flameIgnoreEnemyDefense: String(data.flameIgnoreEnemyDefense),
+            ignoreEnemyDefense: Number(data.ignoreEnemyDefense) ?? undefined,
+            flameIgnoreEnemyDefense:
+                Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
             /* ─── JSON block ─────────────────────────────────── */
             potential: data.potential ? JSON.parse(data.potential) : {},
@@ -107,5 +111,6 @@ export async function createGearItem(formData: FormData) {
     })
 
     /* 5. Redirect – Next will client-navigate automatically ---------------- */
-    redirect(`/dashboard/${character.id}`)
+    redirect(`/${character.name}`)
+    return { success: true }
 }

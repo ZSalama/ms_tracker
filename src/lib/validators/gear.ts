@@ -1,84 +1,68 @@
 import { z } from 'zod'
 
 export const gearSchema = z.object({
-    /* ------------ linkage ------------ */
-    characterId: z.string().cuid(),
-
     /* ------------ basic meta ------------ */
     name: z.string().min(1, 'Name is required').max(100),
     type: z.string().min(1),
     rarity: z.string().min(1),
-    tradeStatus: z.string().min(1),
-    starForce: z.coerce.number().int().min(0),
+    tradeStatus: z.string().optional(),
+    starForce: z.coerce.number().int().optional(),
 
-    attackPowerIncrease: z.coerce.number().int().min(0),
-    combatPowerIncrease: z.coerce.number().int().min(0),
-    requiredLevel: z.coerce.number().int().min(0),
+    attackPowerIncrease: z.coerce.number().int(),
+    combatPowerIncrease: z.coerce.number().int(),
+    requiredLevel: z.coerce.number().int(),
 
     isEquipped: z.coerce.boolean().optional(),
 
     /* ------------ core stats ------------ */
-    str: z.coerce.number().int().min(0).optional(),
-    flameStr: z.coerce.number().int().min(0).optional(),
-    starStr: z.coerce.number().int().min(0).optional(),
+    str: z.coerce.number().int().optional(),
+    flameStr: z.coerce.number().int().optional(),
+    starStr: z.coerce.number().int().optional(),
 
-    Dex: z.coerce.number().int().min(0).optional(),
-    flameDex: z.coerce.number().int().min(0).optional(),
-    starDex: z.coerce.number().int().min(0).optional(),
+    dex: z.coerce.number().int().optional(),
+    flameDex: z.coerce.number().int().optional(),
+    starDex: z.coerce.number().int().optional(),
 
-    int: z.coerce.number().int().min(0).optional(),
-    flameint: z.coerce.number().int().min(0).optional(),
-    starint: z.coerce.number().int().min(0).optional(),
+    int: z.coerce.number().int().optional(),
+    flameInt: z.coerce.number().int().optional(),
+    starInt: z.coerce.number().int().optional(),
 
-    LUK: z.coerce.number().int().min(0).optional(),
-    flameLUK: z.coerce.number().int().min(0).optional(),
-    starLUK: z.coerce.number().int().min(0).optional(),
+    luk: z.coerce.number().int().optional(),
+    flameLuk: z.coerce.number().int().optional(),
+    starLuk: z.coerce.number().int().optional(),
 
     /* ------------ HP / MP ------------ */
-    maxHP: z.coerce.number().int().min(0).optional(),
-    flameMaxHP: z.coerce.number().int().min(0).optional(),
-    starMaxHP: z.coerce.number().int().min(0).optional(),
+    maxHP: z.coerce.number().int().optional(),
+    flameMaxHP: z.coerce.number().int().optional(),
+    starMaxHP: z.coerce.number().int().optional(),
 
-    maxMP: z.coerce.number().int().min(0).optional(),
-    flameMaxMP: z.coerce.number().int().min(0).optional(),
-    starMaxMP: z.coerce.number().int().min(0).optional(),
+    maxMP: z.coerce.number().int().optional(),
+    flameMaxMP: z.coerce.number().int().optional(),
+    starMaxMP: z.coerce.number().int().optional(),
 
     /* ------------ attack / magic / defense ------------ */
-    attackPower: z.coerce.number().int().min(0).optional(),
-    flameAttackPower: z.coerce.number().int().min(0).optional(),
-    starAttackPower: z.coerce.number().int().min(0).optional(),
+    attackPower: z.coerce.number().int().optional(),
+    flameAttackPower: z.coerce.number().int().optional(),
+    starAttackPower: z.coerce.number().int().optional(),
 
-    magicAttackPower: z.coerce.number().int().min(0).optional(),
-    flameMagicAttackPower: z.coerce.number().int().min(0).optional(),
-    starMagicAttackPower: z.coerce.number().int().min(0).optional(),
-
-    defense: z.coerce.number().int().min(0).optional(),
-    flameDefense: z.coerce.number().int().min(0).optional(),
-    starDefense: z.coerce.number().int().min(0).optional(),
-
-    /* ------------ mobility ------------ */
-    jump: z.coerce.number().int().min(0).optional(),
-    flameJump: z.coerce.number().int().min(0).optional(),
-    starJump: z.coerce.number().int().min(0).optional(),
-
-    speed: z.coerce.number().int().min(0).optional(),
-    flameSpeed: z.coerce.number().int().min(0).optional(),
-    starSpeed: z.coerce.number().int().min(0).optional(),
+    magicAttackPower: z.coerce.number().int().optional(),
+    flameMagicAttackPower: z.coerce.number().int().optional(),
+    starMagicAttackPower: z.coerce.number().int().optional(),
 
     /* ------------ percentage lines (stored as strings in Prisma) ------------ */
-    allStat: z.coerce.number().min(0).optional(),
-    flameAllStat: z.coerce.number().min(0).optional(),
-    starAllStat: z.coerce.number().min(0).optional(),
+    allStat: z.string().optional(),
+    flameAllStat: z.string().optional(),
+    starAllStat: z.string().optional(),
 
-    bossDamage: z.coerce.number().min(0).optional(),
-    flameBossDamage: z.coerce.number().min(0).optional(),
-    starBossDamage: z.coerce.number().min(0).optional(),
+    bossDamage: z.string().optional(),
+    flameBossDamage: z.string().optional(),
+    starBossDamage: z.string().optional(),
 
-    ignoreEnemyDefense: z.coerce.number().min(0).optional(),
-    flameIgnoreEnemyDefense: z.coerce.number().min(0).optional(),
+    ignoreEnemyDefense: z.string().optional(),
+    flameIgnoreEnemyDefense: z.string().optional(),
 
     /* ------------ optional JSON block ------------ */
-    potential: z.string().optional(), // raw JSON string typed into a <textarea>
+    potential: z.string().optional(),
 })
 
 export type GearSchema = z.infer<typeof gearSchema>

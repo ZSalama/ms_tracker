@@ -13,9 +13,10 @@ export default async function DashboardPage() {
          ▸ Adjust where() if you store the Clerk ID differently. */
     const internalUser = await prisma.user.findUnique({
         where: { clerkId: userId }, // e.g. “clerkId” is a string column
-        select: { id: true },
+        select: { id: true, email: true },
     })
     if (!internalUser) redirect('/') // first-time users
+    console.log('internalUser', internalUser)
 
     /* 3️⃣  Fetch all their characters */
     const characters: Character[] = await prisma.character.findMany({
@@ -26,8 +27,10 @@ export default async function DashboardPage() {
     /* 4️⃣  Render */
     return (
         <main className='mx-auto max-w-4xl px-6 py-12'>
-            <header className='mb-8 flex items-center justify-between'>
-                <h1 className='text-3xl font-extrabold'>Your Characters</h1>
+            <div className='mb-8 flex items-center justify-between'>
+                <h1 className='text-3xl font-extrabold'>
+                    {internalUser.email}&apos;s Characters
+                </h1>
 
                 {/* -- optional “New” button -- */}
                 <Link
@@ -36,7 +39,7 @@ export default async function DashboardPage() {
                 >
                     + New Character
                 </Link>
-            </header>
+            </div>
 
             {characters.length === 0 ? (
                 <p className='text-gray-500'>
@@ -48,7 +51,7 @@ export default async function DashboardPage() {
                     {characters.map((c) => (
                         <li key={c.id}>
                             <Link
-                                href={`/${c.id}`}
+                                href={`/${c.name}`}
                                 className='block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md'
                             >
                                 <h2 className='truncate text-lg font-semibold'>

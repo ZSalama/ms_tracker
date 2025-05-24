@@ -15,8 +15,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 export default function NewCharacterForm() {
+    const router = useRouter()
     const [isPending, startTransition] = useTransition()
 
     const form = useForm<CharacterSchema>({
@@ -47,7 +49,7 @@ export default function NewCharacterForm() {
             } else if (result?.success) {
                 form.reset() // clear the form
                 // redirect to dasbhoard
-                window.location.href = '/dashboard'
+                router.push('/dashboard/characters')
             }
         })
     }
