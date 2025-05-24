@@ -6,7 +6,7 @@ import Link from 'next/link'
 export default async function Page({
     params,
 }: {
-    params: { character: string }
+    params: Promise<{ character: string }>
 }) {
     const { character } = await params
 
