@@ -45,7 +45,3 @@ export async function POST(req: Request) {
     // 4️⃣ Ack promptly – Clerk retries on non-2xx
     return NextResponse.json({ received: true }, { status: 200 })
 }
-
-export async function GET() {
-    return Response.json({ message: 'Hello World!' })
-}

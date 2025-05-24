@@ -24,6 +24,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useTransition } from 'react'
+import Link from 'next/link'
 
 export default function NewGearForm({
     character,
@@ -72,14 +73,14 @@ export default function NewGearForm({
             magicAttackPower: 0,
             flameMagicAttackPower: 0,
             starMagicAttackPower: 0,
-            allStat: '',
-            flameAllStat: '',
-            starAllStat: '',
-            bossDamage: '',
-            flameBossDamage: '',
-            starBossDamage: '',
-            ignoreEnemyDefense: '',
-            flameIgnoreEnemyDefense: '',
+            allStat: 0,
+            flameAllStat: 0,
+            starAllStat: 0,
+            bossDamage: 0,
+            flameBossDamage: 0,
+            starBossDamage: 0,
+            ignoreEnemyDefense: 0,
+            flameIgnoreEnemyDefense: 0,
         },
     })
 
@@ -114,7 +115,11 @@ export default function NewGearForm({
                 className='space-y-6 max-w-xl'
             >
                 {/* <input type='hidden' {...form.register('characterId')} /> */}
-                <div>{character}</div>
+                <Link href={`/${character}`}>
+                    <Button className='cursor-pointer'>
+                        back to characters
+                    </Button>
+                </Link>
                 <FormField
                     control={form.control}
                     name='name'

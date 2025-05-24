@@ -39,19 +39,7 @@ export default async function page({
 
     // check to see if the gear exists
     const gearData = await prisma.gearItem.findFirst({
-        where: { id: gear, characterId: characterData.id },
-        select: {
-            id: true,
-            name: true,
-            type: true,
-            rarity: true,
-            starForce: true,
-            requiredLevel: true,
-            isEquipped: true,
-            attackPowerIncrease: true,
-            combatPowerIncrease: true,
-            characterId: true,
-        },
+        where: { id: Number(gear), characterId: characterData.id },
     })
     if (!gearData) {
         return <div>Gear not found</div>
@@ -68,6 +56,7 @@ export default async function page({
                 character={character}
                 characterId={characterData.id}
                 gearId={gear}
+                gearData={gearData}
             />
         </div>
     )

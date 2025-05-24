@@ -1,7 +1,13 @@
 import { SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import React from 'react'
 
-export default function Login() {
+export default async function Login() {
+    // check to see if the user loged in
+    const { userId } = await auth()
+    // if logged in, redirect to dashboard
+    if (userId) redirect('/dashboard')
     return (
         <SignedOut>
             <div className='flex justify-center gap-4'>

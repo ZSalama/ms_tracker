@@ -50,16 +50,16 @@ export const gearSchema = z.object({
     starMagicAttackPower: z.coerce.number().int().optional(),
 
     /* ------------ percentage lines (stored as strings in Prisma) ------------ */
-    allStat: z.string().optional(),
-    flameAllStat: z.string().optional(),
-    starAllStat: z.string().optional(),
+    allStat: z.coerce.number().int().optional(),
+    flameAllStat: z.coerce.number().int().optional(),
+    starAllStat: z.coerce.number().int().optional(),
 
-    bossDamage: z.string().optional(),
-    flameBossDamage: z.string().optional(),
-    starBossDamage: z.string().optional(),
+    bossDamage: z.coerce.number().int().optional(),
+    flameBossDamage: z.coerce.number().int().optional(),
+    starBossDamage: z.coerce.number().int().optional(),
 
-    ignoreEnemyDefense: z.string().optional(),
-    flameIgnoreEnemyDefense: z.string().optional(),
+    ignoreEnemyDefense: z.coerce.number().int().optional(),
+    flameIgnoreEnemyDefense: z.coerce.number().int().optional(),
 
     /* ------------ optional JSON block ------------ */
     potential: z.string().optional(),
