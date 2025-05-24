@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     console.log(payload)
 
     const svix = new Webhook(process.env.CLERK_WEBHOOK_SECRET!)
-    let evt: { type: string; data: any }
+    let evt: WebhookEvent
 
     try {
         evt = svix.verify(

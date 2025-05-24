@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { auth } from '@clerk/nextjs/server'
 
 // TODO: add auth guard once auth flow is set up
 export default async function Page({
@@ -9,6 +10,7 @@ export default async function Page({
     params: Promise<{ character: string }>
 }) {
     const { character } = await params
+    const { userId } = await auth()
 
     // Fetch character data from Prisma
     const characterData = await prisma.character.findFirst({
@@ -19,6 +21,7 @@ export default async function Page({
             level: true,
             class: true,
             combatPower: true,
+            user: true,
             gears: {
                 select: {
                     id: true,
@@ -81,28 +84,33 @@ export default async function Page({
                             Power: {gear.magicAttackPower ?? 0}
                         </p>
 
-                        <Link
-                            href={`/${character}/editgear/${gear.id}`}
-                            className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
-                        >
-                            Edit Gear
-                        </Link>
-
-                        <Link
-                            href={`/${character}/editgear/${gear.id}`}
-                            className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
-                        >
-                            Delete Gear(WIP)
-                        </Link>
+                        {userId === String(characterData.user.clerkId) ? (
+                            <Link
+                                href={`/${character}/editgear/${gear.id}`}
+                                className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
+                            >
+                                Edit Gear
+                            </Link>
+                        ) : null}
+                        {userId === String(characterData.user.clerkId) ? (
+                            <Link
+                                href={`/${character}/editgear/${gear.id}`}
+                                className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
+                            >
+                                Delete Gear(WIP)
+                            </Link>
+                        ) : null}
                     </div>
                 ))}
             </div>
-            <Link
-                href={`/${character}/newgear`}
-                className='inline-block mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 transition'
-            >
-                + Add New Gear
-            </Link>
+            {userId === String(characterData.user.clerkId) ? (
+                <Link
+                    href={`/${character}/newgear`}
+                    className='inline-block mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 transition'
+                >
+                    + Add New Gear
+                </Link>
+            ) : null}
         </div>
     )
 }
