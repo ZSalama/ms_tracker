@@ -105,7 +105,7 @@ export default async function Page({
             </div>
             {userId === String(characterData.user.clerkId) ? (
                 <Link
-                    href={`/${character}/newgear`}
+                    href={`/${character}/newgearplus`}
                     className='inline-block mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 transition'
                 >
                     + Add New Gear
