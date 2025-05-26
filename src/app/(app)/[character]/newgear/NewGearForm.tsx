@@ -49,37 +49,35 @@ export default function NewGearForm({
             requiredLevel: 0,
             potential: '',
             isEquipped: false,
-            str: 0,
+            baseStr: 0,
             flameStr: 0,
             starStr: 0,
-            dex: 0,
+            baseDex: 0,
             flameDex: 0,
             starDex: 0,
-            int: 0,
+            baseInt: 0,
             flameInt: 0,
             starInt: 0,
-            luk: 0,
+            baseLuk: 0,
             flameLuk: 0,
             starLuk: 0,
-            maxHP: 0,
+            baseMaxHP: 0,
             flameMaxHP: 0,
             starMaxHP: 0,
-            maxMP: 0,
+            baseMaxMP: 0,
             flameMaxMP: 0,
             starMaxMP: 0,
-            attackPower: 0,
+            baseAttackPower: 0,
             flameAttackPower: 0,
             starAttackPower: 0,
-            magicAttackPower: 0,
+            baseMagicAttackPower: 0,
             flameMagicAttackPower: 0,
             starMagicAttackPower: 0,
-            allStat: 0,
+            baseAllStat: 0,
             flameAllStat: 0,
-            starAllStat: 0,
-            bossDamage: 0,
+            baseBossDamage: 0,
             flameBossDamage: 0,
-            starBossDamage: 0,
-            ignoreEnemyDefense: 0,
+            baseIgnoreEnemyDefense: 0,
             flameIgnoreEnemyDefense: 0,
         },
     })
@@ -269,7 +267,7 @@ export default function NewGearForm({
                 {/* ----- str trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'str', label: 'str' },
+                        { name: 'baseStr', label: 'base str' },
                         { name: 'flameStr', label: 'flame str' },
                         { name: 'starStr', label: 'star str' },
                     ].map(({ name, label }) => (
@@ -301,7 +299,7 @@ export default function NewGearForm({
                 {/* ----- dex trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'dex', label: 'dex' },
+                        { name: 'baseDex', label: 'base dex' },
                         { name: 'flameDex', label: 'flame dex' },
                         { name: 'starDex', label: 'star dex' },
                     ].map(({ name, label }) => (
@@ -333,7 +331,7 @@ export default function NewGearForm({
                 {/* ----- int trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'int', label: 'int' },
+                        { name: 'baseInt', label: 'base int' },
                         { name: 'flameInt', label: 'flame int' },
                         { name: 'starInt', label: 'star int' },
                     ].map(({ name, label }) => (
@@ -365,7 +363,7 @@ export default function NewGearForm({
                 {/* ----- luk trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'luk', label: 'luk' },
+                        { name: 'baseLuk', label: 'base luk' },
                         { name: 'flameLuk', label: 'flame luk' },
                         { name: 'starLuk', label: 'star luk' },
                     ].map(({ name, label }) => (
@@ -397,7 +395,7 @@ export default function NewGearForm({
                 {/* ----- maxHP trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'maxHP', label: 'maxHP' },
+                        { name: 'baseMaxHP', label: 'base maxHP' },
                         { name: 'flameMaxHP', label: 'flame maxHP' },
                         { name: 'starMaxHP', label: 'star maxHP' },
                     ].map(({ name, label }) => (
@@ -429,7 +427,7 @@ export default function NewGearForm({
                 {/* ----- maxMP trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'maxMP', label: 'maxMP' },
+                        { name: 'baseMaxMP', label: 'base maxMP' },
                         { name: 'flameMaxMP', label: 'flame maxMP' },
                         { name: 'starMaxMP', label: 'star maxMP' },
                     ].map(({ name, label }) => (
@@ -461,7 +459,7 @@ export default function NewGearForm({
                 {/* ----- attackPower trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'attackPower', label: 'attack Power' },
+                        { name: 'baseAttackPower', label: 'attack Power' },
                         {
                             name: 'flameAttackPower',
                             label: 'flame attack Power',
@@ -497,7 +495,7 @@ export default function NewGearForm({
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
                         {
-                            name: 'magicAttackPower',
+                            name: 'baseMagicAttackPower',
                             label: 'magic attack Power',
                         },
                         {
@@ -537,7 +535,7 @@ export default function NewGearForm({
                 {/* ----- allStat trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'allStat', label: 'all stat' },
+                        { name: 'baseAllStat', label: 'base all stat' },
                         {
                             name: 'flameAllStat',
                             label: 'flame all stat',
@@ -572,7 +570,7 @@ export default function NewGearForm({
                 {/* ----- bossDamage trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        // { name: 'bossDamage', label: 'boss Damage' },
+                        { name: 'baseBossDamage', label: 'boss Damage' },
                         {
                             name: 'flameBossDamage',
                             label: 'flame boss Damage',
@@ -607,7 +605,10 @@ export default function NewGearForm({
                 {/* ----- ignoreEnemyDefense trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        // { name: 'bossDamage', label: 'boss Damage' },
+                        {
+                            name: 'baseIgnoreEnemyDefense',
+                            label: 'base Ignore Enemy Defense',
+                        },
                         {
                             name: 'flameIgnoreEnemyDefense',
                             label: 'ignore Enemy Defense Flame',

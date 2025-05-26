@@ -29,13 +29,13 @@ export default async function Page({
                     type: true,
                     starForce: true,
                     combatPowerIncrease: true,
-                    str: true,
-                    dex: true,
-                    int: true,
-                    luk: true,
+                    totalStr: true,
+                    totalDex: true,
+                    totalInt: true,
+                    totalLuk: true,
                     flameAllStat: true,
-                    attackPower: true,
-                    magicAttackPower: true,
+                    totalAttackPower: true,
+                    totalMagicAttackPower: true,
                 },
             },
         },
@@ -73,15 +73,16 @@ export default async function Page({
                             Star Force: {gear.starForce}
                         </p>
                         <p className='text-sm text-gray-600'>
-                            Str: {gear.str ?? 0} | Dex: {gear.dex ?? 0} | Int:{' '}
-                            {gear.int ?? 0} | Luk: {gear.luk ?? 0}
+                            Str: {gear.totalStr ?? 0} | Dex:{' '}
+                            {gear.totalDex ?? 0} | Int: {gear.totalInt ?? 0} |
+                            Luk: {gear.totalLuk ?? 0}
                         </p>
                         <p className='text-sm text-gray-600'>
                             All stat: {gear.flameAllStat ?? 0}%
                         </p>
                         <p className='text-sm text-gray-600'>
-                            Attack Power: {gear.attackPower ?? 0} | Magic Attack
-                            Power: {gear.magicAttackPower ?? 0}
+                            Attack Power: {gear.totalAttackPower ?? 0} | Magic
+                            Attack Power: {gear.totalMagicAttackPower ?? 0}
                         </p>
 
                         {userId === String(characterData.user.clerkId) ? (

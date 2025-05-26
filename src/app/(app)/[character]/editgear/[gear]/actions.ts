@@ -50,63 +50,102 @@ export async function editGearItem(
             combatPowerIncrease: Number(data.combatPowerIncrease),
 
             /* ─── main stats ─────────────────────────────────── */
-            str: Number(data.str) ?? null,
+            totalStr:
+                Number(data.baseStr) +
+                Number(data.flameStr) +
+                Number(data.starStr),
+            baseStr: Number(data.baseStr) ?? 0,
             flameStr: Number(data.flameStr) ?? null,
             starStr: Number(data.starStr) ?? null,
 
-            dex: Number(data.dex) ?? null,
+            totalDex:
+                Number(data.baseDex) +
+                Number(data.flameDex) +
+                Number(data.starDex),
+            baseDex: Number(data.baseDex) ?? 0,
             flameDex: Number(data.flameDex) ?? null,
             starDex: Number(data.starDex) ?? null,
 
-            int: Number(data.int) ?? null,
+            totalInt:
+                Number(data.baseInt) +
+                Number(data.flameInt) +
+                Number(data.starInt),
+            baseInt: Number(data.baseInt) ?? 0,
             flameInt: Number(data.flameInt) ?? null,
             starInt: Number(data.starInt) ?? null,
 
-            luk: Number(data.luk) ?? null,
+            totalLuk:
+                Number(data.baseLuk) +
+                Number(data.flameLuk) +
+                Number(data.starLuk),
+            baseLuk: Number(data.baseLuk) ?? 0,
             flameLuk: Number(data.flameLuk) ?? null,
             starLuk: Number(data.starLuk) ?? null,
 
             /* ─── HP / MP ────────────────────────────────────── */
-            maxHP: Number(data.maxHP) ?? null,
+            totalMaxHP:
+                Number(data.baseMaxHP) +
+                Number(data.flameMaxHP) +
+                Number(data.starMaxHP),
+            baseMaxHP: Number(data.baseMaxHP) ?? 0,
             flameMaxHP: Number(data.flameMaxHP) ?? null,
             starMaxHP: Number(data.starMaxHP) ?? null,
 
-            maxMP: Number(data.maxMP) ?? null,
+            totalMaxMP:
+                Number(data.baseMaxMP) +
+                Number(data.flameMaxMP) +
+                Number(data.starMaxMP),
+            baseMaxMP: Number(data.baseMaxMP) ?? 0,
             flameMaxMP: Number(data.flameMaxMP) ?? null,
             starMaxMP: Number(data.starMaxMP) ?? null,
 
             /* ─── offensive / defensive ──────────────────────── */
-            attackPower: Number(data.attackPower) ?? null,
+            totalAttackPower:
+                Number(data.baseAttackPower) +
+                Number(data.flameAttackPower) +
+                Number(data.starAttackPower),
+            baseAttackPower: Number(data.baseAttackPower) ?? 0,
             flameAttackPower: Number(data.flameAttackPower) ?? null,
             starAttackPower: Number(data.starAttackPower) ?? null,
 
-            magicAttackPower: Number(data.magicAttackPower) ?? null,
+            totalMagicAttackPower:
+                Number(data.baseMagicAttackPower) +
+                Number(data.flameMagicAttackPower) +
+                Number(data.starMagicAttackPower),
+            baseMagicAttackPower: Number(data.baseMagicAttackPower) ?? 0,
             flameMagicAttackPower: Number(data.flameMagicAttackPower) ?? null,
             starMagicAttackPower: Number(data.starMagicAttackPower) ?? null,
 
-            defense: null,
+            totalDefense: null,
+            baseDefense: null,
             flameDefense: null,
             starDefense: null,
 
             /* ─── mobility ───────────────────────────────────── */
-            jump: null,
+            totalJump: null,
+            baseJump: null,
             flameJump: null,
             starJump: null,
 
-            speed: null,
+            totalSpeed: null,
+            baseSpeed: null,
             flameSpeed: null,
             starSpeed: null,
 
             /* ─── percentage-based lines (Strings in Prisma) ─── */
-            allStat: Number(data.allStat) ?? undefined,
+            totalAllStat: Number(data.flameAllStat) ?? undefined,
+            baseAllStat: 0,
             flameAllStat: Number(data.flameAllStat) ?? undefined,
-            starAllStat: Number(data.starAllStat) ?? undefined,
 
-            bossDamage: Number(data.bossDamage) ?? undefined,
+            totalBossDamage:
+                Number(data.baseBossDamage) + Number(data.flameBossDamage),
+            baseBossDamage: Number(data.baseBossDamage) ?? 0,
             flameBossDamage: Number(data.flameBossDamage) ?? undefined,
-            starBossDamage: Number(data.starBossDamage) ?? undefined,
 
-            ignoreEnemyDefense: Number(data.ignoreEnemyDefense) ?? undefined,
+            totalIgnoreEnemyDefense:
+                Number(data.baseIgnoreEnemyDefense) +
+                Number(data.flameIgnoreEnemyDefense),
+            baseIgnoreEnemyDefense: Number(data.baseIgnoreEnemyDefense) ?? 0,
             flameIgnoreEnemyDefense:
                 Number(data.flameIgnoreEnemyDefense) ?? undefined,
 

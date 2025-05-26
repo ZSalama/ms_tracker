@@ -32,63 +32,75 @@ export async function addGearItemPlus(characterName: string, url: string) {
             combatPowerIncrease: 0,
 
             /* ─── main stats ─────────────────────────────────── */
-            str: 0,
+            totalStr: 0,
+            baseStr: 0,
             flameStr: 0,
             starStr: 0,
 
-            dex: 0,
+            totalDex: 0,
+            baseDex: 0,
             flameDex: 0,
             starDex: 0,
 
-            int: 0,
+            totalInt: 0,
+            baseInt: 0,
             flameInt: 0,
             starInt: 0,
 
-            luk: 0,
+            totalLuk: 0,
+            baseLuk: 0,
             flameLuk: 0,
             starLuk: 0,
 
             /* ─── HP / MP ────────────────────────────────────── */
-            maxHP: 0,
+            totalMaxHP: 0,
+            baseMaxHP: 0,
             flameMaxHP: 0,
             starMaxHP: 0,
 
-            maxMP: 0,
+            totalMaxMP: 0,
+            baseMaxMP: 0,
             flameMaxMP: 0,
             starMaxMP: 0,
 
             /* ─── offensive / defensive ──────────────────────── */
-            attackPower: 0,
+            totalAttackPower: 0,
+            baseAttackPower: 0,
             flameAttackPower: 0,
             starAttackPower: 0,
 
-            magicAttackPower: 0,
+            totalMagicAttackPower: 0,
+            baseMagicAttackPower: 0,
             flameMagicAttackPower: 0,
             starMagicAttackPower: 0,
 
-            defense: null,
+            totalDefense: 0,
+            baseDefense: null,
             flameDefense: null,
             starDefense: null,
 
             /* ─── mobility ───────────────────────────────────── */
-            jump: null,
+            totalJump: 0,
+            baseJump: null,
             flameJump: null,
             starJump: null,
 
-            speed: null,
+            totalSpeed: 0,
+            baseSpeed: null,
             flameSpeed: null,
             starSpeed: null,
 
             /* ─── percentage-based lines (Strings in Prisma) ─── */
-            allStat: 0,
+            totalAllStat: 0,
+            baseAllStat: 0,
             flameAllStat: 0,
-            starAllStat: 0,
 
-            bossDamage: 0,
+            totalBossDamage: 0,
+            baseBossDamage: 0,
             flameBossDamage: 0,
-            starBossDamage: 0,
 
-            ignoreEnemyDefense: 0,
+            totalIgnoreEnemyDefense: 0,
+            baseIgnoreEnemyDefense: 0,
             flameIgnoreEnemyDefense: 0,
 
             /* ─── JSON block ─────────────────────────────────── */

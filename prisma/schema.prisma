@@ -68,49 +68,71 @@ model GearItem {
     updatedAt  DateTime @updatedAt
     isEquipped Boolean  @default(false)
 
-    str                   Int?
-    flameStr              Int?
-    starStr               Int?
-    dex                   Int?
-    flameDex              Int?
-    starDex               Int?
-    int                   Int?
-    flameInt              Int?
-    starInt               Int?
-    luk                   Int?
-    flameLuk              Int?
-    starLuk               Int?
-    maxHP                 Int?
-    flameMaxHP            Int?
-    starMaxHP             Int?
-    maxMP                 Int?
-    flameMaxMP            Int?
-    starMaxMP             Int?
-    attackPower           Int?
-    flameAttackPower      Int?
-    starAttackPower       Int?
-    magicAttackPower      Int?
+    totalStr Int?
+    baseStr  Int?
+    flameStr Int?
+    starStr  Int?
+
+    totalDex Int?
+    baseDex  Int?
+    flameDex Int?
+    starDex  Int?
+
+    totalInt Int?
+    baseInt  Int?
+    flameInt Int?
+    starInt  Int?
+
+    totalLuk Int?
+    baseLuk  Int?
+    flameLuk Int?
+    starLuk  Int?
+
+    totalMaxHP Int?
+    baseMaxHP  Int?
+    flameMaxHP Int?
+    starMaxHP  Int?
+
+    totalMaxMP Int?
+    baseMaxMP  Int?
+    flameMaxMP Int?
+    starMaxMP  Int?
+
+    totalAttackPower Int?
+    baseAttackPower  Int?
+    flameAttackPower Int?
+    starAttackPower  Int?
+
+    totalMagicAttackPower Int?
+    baseMagicAttackPower  Int?
     flameMagicAttackPower Int?
     starMagicAttackPower  Int?
-    defense               Int?
-    flameDefense          Int?
-    starDefense           Int?
-    jump                  Int?
-    flameJump             Int?
-    starJump              Int?
-    speed                 Int?
-    flameSpeed            Int?
-    starSpeed             Int?
 
-    allStat      Int?
+    totalDefense Int?
+    baseDefense  Int?
+    flameDefense Int?
+    starDefense  Int?
+
+    totalJump Int?
+    baseJump  Int?
+    flameJump Int?
+    starJump  Int?
+
+    totalSpeed Int?
+    baseSpeed  Int?
+    flameSpeed Int?
+    starSpeed  Int?
+
+    totalAllStat Int?
+    baseAllStat  Int?
     flameAllStat Int?
-    starAllStat  Int?
 
-    bossDamage      Int?
+    totalBossDamage Int?
+    baseBossDamage  Int?
     flameBossDamage Int?
-    starBossDamage  Int?
 
-    ignoreEnemyDefense      Int?
+    totalIgnoreEnemyDefense Int?
+    baseIgnoreEnemyDefense  Int?
     flameIgnoreEnemyDefense Int?
 
     potential Json? @default("{}")
