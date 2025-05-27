@@ -15,7 +15,7 @@ export async function createCharacter(formData: FormData) {
         return { error: parsed.error.flatten().fieldErrors }
     }
     const { userId } = await auth()
-    if (!userId) redirect('/sign-in') // not signed in ⇒ bounce
+    if (!userId) redirect('/dashboard/sign-in') // not signed in ⇒ bounce
 
     /* 2️⃣  Look up the *internal* User row tied to that Clerk user.  
          ▸ Adjust where() if you store the Clerk ID differently. */
@@ -33,6 +33,6 @@ export async function createCharacter(formData: FormData) {
     })
 
     // Refresh any page that reads the character list
-    revalidatePath('/dashboard/characters')
+    revalidatePath('/dashboard')
     return { success: true }
 }

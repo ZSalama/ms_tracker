@@ -112,7 +112,11 @@ export default function NewCharacterForm() {
                     )}
                 />
 
-                <Button type='submit' disabled={isPending} className='w-full'>
+                <Button
+                    type='submit'
+                    disabled={isPending}
+                    className='w-full cursor-pointer'
+                >
                     {isPending ? 'Saving…' : 'Add character'}
                 </Button>
             </form>

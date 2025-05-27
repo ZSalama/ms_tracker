@@ -7,6 +7,7 @@ import { ClientUploadedFileData } from 'uploadthing/types'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { addGearItemPlus } from './actions'
+import { Loader2 } from 'lucide-react'
 
 export default function Uploader({ character }: { character: string }) {
     const {
@@ -16,11 +17,25 @@ export default function Uploader({ character }: { character: string }) {
         // setGearId,
         gearUrl,
         setGearUrl,
-        uploadedBy,
+        // uploadedBy,
         setUploadedBy,
     } = useCharacterGear()
 
     const [uploadedState, setUploadedState] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const handleAnalyse = async () => {
+        setIsSubmitting(true)
+        if (gearUrl) {
+            try {
+                await addGearItemPlus(character, gearUrl)
+            } catch (error) {
+                console.error('Error adding gear item:', error)
+                alert('Failed to add gear item. Please try again.')
+            }
+        }
+    }
+
     return (
         <>
             <div className='flex flex-col items-center justify-between p-24 m-24 bg-gray-800'>
@@ -58,12 +73,17 @@ export default function Uploader({ character }: { character: string }) {
                         Upload Completed
                     </h1>
                     <Button
-                        onClick={() =>
-                            gearUrl && addGearItemPlus(character, gearUrl)
-                        }
-                        disabled={!gearUrl}
+                        onClick={handleAnalyse}
+                        disabled={!gearUrl || isSubmitting}
                     >
-                        Analyse Gear Item
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className='animate-spin' />{' '}
+                                Analysing...
+                            </>
+                        ) : (
+                            'Analyse Gear Item'
+                        )}
                     </Button>
                 </div>
             )}

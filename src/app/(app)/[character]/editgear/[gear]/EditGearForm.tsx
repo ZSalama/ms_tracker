@@ -75,30 +75,43 @@ export default function EditGearForm({
             requiredLevel: gearData.requiredLevel,
             potential: '',
             isEquipped: gearData.isEquipped,
+
+            // totalStr: gearData.totalStr ?? 0,
             baseStr: gearData.baseStr ?? 0,
             flameStr: gearData.flameStr ?? 0,
             starStr: gearData.starStr ?? 0,
+
+            // totalDex: gearData.totalDex ?? 0,
             baseDex: gearData.baseDex ?? 0,
             flameDex: gearData.flameDex ?? 0,
             starDex: gearData.starDex ?? 0,
+
+            // totalInt: gearData.totalInt ?? 0,
             baseInt: gearData.baseInt ?? 0,
             flameInt: gearData.flameInt ?? 0,
             starInt: gearData.starInt ?? 0,
+
+            // totalLuk: gearData.totalLuk ?? 0,
             baseLuk: gearData.baseLuk ?? 0,
             flameLuk: gearData.flameLuk ?? 0,
             starLuk: gearData.starLuk ?? 0,
+
+            // totalMaxHP: gearData.totalMaxHP ?? 0,
             baseMaxHP: gearData.baseMaxHP ?? 0,
             flameMaxHP: gearData.flameMaxHP ?? 0,
             starMaxHP: gearData.starMaxHP ?? 0,
             baseMaxMP: gearData.baseMaxMP ?? 0,
             flameMaxMP: gearData.flameMaxMP ?? 0,
             starMaxMP: gearData.starMaxMP ?? 0,
+
             baseAttackPower: gearData.baseAttackPower ?? 0,
             flameAttackPower: gearData.flameAttackPower ?? 0,
             starAttackPower: gearData.starAttackPower ?? 0,
+
             baseMagicAttackPower: gearData.baseMagicAttackPower ?? 0,
             flameMagicAttackPower: gearData.flameMagicAttackPower ?? 0,
             starMagicAttackPower: gearData.starMagicAttackPower ?? 0,
+
             baseAllStat: gearData.baseAllStat ?? 0,
             flameAllStat: gearData.flameAllStat ?? 0,
             baseBossDamage: gearData.baseBossDamage ?? 0,
@@ -293,7 +306,7 @@ export default function EditGearForm({
                 {/* ----- str trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'str', label: 'str' },
+                        { name: 'baseStr', label: 'base str' },
                         { name: 'flameStr', label: 'flame str' },
                         { name: 'starStr', label: 'star str' },
                     ].map(({ name, label }) => (
@@ -325,7 +338,7 @@ export default function EditGearForm({
                 {/* ----- dex trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'dex', label: 'dex' },
+                        { name: 'baseDex', label: 'base dex' },
                         { name: 'flameDex', label: 'flame dex' },
                         { name: 'starDex', label: 'star dex' },
                     ].map(({ name, label }) => (
@@ -357,7 +370,7 @@ export default function EditGearForm({
                 {/* ----- int trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'int', label: 'int' },
+                        { name: 'baseInt', label: 'base int' },
                         { name: 'flameInt', label: 'flame int' },
                         { name: 'starInt', label: 'star int' },
                     ].map(({ name, label }) => (
@@ -389,7 +402,7 @@ export default function EditGearForm({
                 {/* ----- luk trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'luk', label: 'luk' },
+                        { name: 'baseLuk', label: 'base luk' },
                         { name: 'flameLuk', label: 'flame luk' },
                         { name: 'starLuk', label: 'star luk' },
                     ].map(({ name, label }) => (
@@ -421,7 +434,7 @@ export default function EditGearForm({
                 {/* ----- maxHP trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'maxHP', label: 'maxHP' },
+                        { name: 'baseMaxHP', label: 'base maxHP' },
                         { name: 'flameMaxHP', label: 'flame maxHP' },
                         { name: 'starMaxHP', label: 'star maxHP' },
                     ].map(({ name, label }) => (
@@ -453,7 +466,7 @@ export default function EditGearForm({
                 {/* ----- maxMP trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'maxMP', label: 'maxMP' },
+                        { name: 'baseMaxMP', label: 'base maxMP' },
                         { name: 'flameMaxMP', label: 'flame maxMP' },
                         { name: 'starMaxMP', label: 'star maxMP' },
                     ].map(({ name, label }) => (
@@ -485,7 +498,7 @@ export default function EditGearForm({
                 {/* ----- attackPower trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'attackPower', label: 'attack Power' },
+                        { name: 'baseAttackPower', label: 'base attack Power' },
                         {
                             name: 'flameAttackPower',
                             label: 'flame attack Power',
@@ -521,8 +534,8 @@ export default function EditGearForm({
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
                         {
-                            name: 'magicAttackPower',
-                            label: 'magic attack Power',
+                            name: 'baseMagicAttackPower',
+                            label: 'base magic attack Power',
                         },
                         {
                             name: 'flameMagicAttackPower',
@@ -561,7 +574,7 @@ export default function EditGearForm({
                 {/* ----- allStat trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'allStat', label: 'all stat' },
+                        { name: 'baseAllStat', label: 'base all stat' },
                         {
                             name: 'flameAllStat',
                             label: 'flame all stat',
