@@ -166,14 +166,22 @@ export default function NewGearForm({
                                             {[
                                                 'Ring',
                                                 'Face Accessory',
+                                                'Eye Accessory',
+                                                'Earrings',
+                                                'Shoulder',
                                                 'Gloves',
                                                 'Weapon',
+                                                'Secondary',
                                                 'Hat',
                                                 'Cape',
                                                 'Shoes',
                                                 'Top',
                                                 'Bottom',
                                                 'Pendant',
+                                                'Mechanical Heart',
+                                                'Belt',
+                                                'Emblem',
+                                                'Pocket Item',
                                             ].map((t) => (
                                                 <SelectItem key={t} value={t}>
                                                     {t}

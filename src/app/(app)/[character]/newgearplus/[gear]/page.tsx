@@ -7,6 +7,27 @@ import Link from 'next/link'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
+const secondaryNames = [
+    'Ring',
+    'Face Accessory',
+    'Eye Accessory',
+    'Earrings',
+    'Shoulder',
+    'Gloves',
+    'Weapon',
+    'Secondary',
+    'Hat',
+    'Cape',
+    'Shoes',
+    'Top',
+    'Bottom',
+    'Pendant',
+    'Mechanical Heart',
+    'Belt',
+    'Emblem',
+    'Pocket Item',
+]
+
 export default async function page({
     params,
 }: {
@@ -97,6 +118,11 @@ export default async function page({
         analysis = completion.choices?.[0]?.message?.content ?? ''
         console.log('OpenAI analysis:', analysis)
         const analysisJson = JSON.parse(analysis)
+
+        // validate type name and set to 'Secondary' if not in the list
+        if (!secondaryNames.includes(analysisJson.type)) {
+            analysisJson.type = 'Secondary'
+        }
         // Update gearData with the analysis
         try {
             const updatedGear = await prisma.gearItem.update({

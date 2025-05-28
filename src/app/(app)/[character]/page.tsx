@@ -2,6 +2,8 @@ import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
+import { DeleteGearButton } from './components'
+import { Button } from '@/components/ui/button'
 
 // TODO: add auth guard once auth flow is set up
 export default async function Page({
@@ -86,20 +88,23 @@ export default async function Page({
                         </p>
 
                         {userId === String(characterData.user.clerkId) ? (
-                            <Link
-                                href={`/${character}/editgear/${gear.id}`}
-                                className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
-                            >
-                                Edit Gear
+                            <Link href={`/${character}/editgear/${gear.id}`}>
+                                <Button className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+                                    Edit Gear
+                                </Button>
                             </Link>
                         ) : null}
                         {userId === String(characterData.user.clerkId) ? (
-                            <Link
-                                href={`/${character}/editgear/${gear.id}`}
-                                className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
-                            >
-                                Delete Gear(WIP)
-                            </Link>
+                            // <Link
+                            //     href={`/${character}/editgear/${gear.id}`}
+                            //     className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
+                            // >
+                            //     Delete Gear(WIP)
+                            // </Link>
+                            <DeleteGearButton
+                                gearId={gear.id}
+                                characterName={character}
+                            />
                         ) : null}
                     </div>
                 ))}
