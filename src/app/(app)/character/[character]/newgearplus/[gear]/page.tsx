@@ -185,10 +185,10 @@ export default async function page({
             <p>
                 <strong>OpenAI analysis:</strong> {analysis}
             </p>
-            <Link href={`/${character}`}>
+            <Link href={`/character/${character}`}>
                 <Button className='cursor-pointer'> View Character </Button>
             </Link>
-            <Link href={`/${character}/editgear/${gearData.id}`}>
+            <Link href={`/character/${character}/editgear/${gearData.id}`}>
                 <Button className='cursor-pointer'> Edit Gear </Button>
             </Link>
         </div>

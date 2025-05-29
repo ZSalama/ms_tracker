@@ -63,55 +63,61 @@ export default async function Page({
                 {characterData.gears.map((gear) => (
                     <div
                         key={gear.id}
-                        className='rounded-xl border border-gray-200 bg-white p-6 shadow transition hover:shadow-md'
+                        className='rounded-xl border border-gray-200 bg-white p-6 shadow transition hover:shadow-md flex flex-col'
                     >
-                        <h2 className='mb-2 text-lg font-semibold'>
-                            {gear.name}
-                        </h2>
-                        <p className='text-sm text-gray-600'>
-                            Type: {gear.type}
-                        </p>
-                        <p className='text-sm text-gray-600'>
-                            Star Force: {gear.starForce}
-                        </p>
-                        <p className='text-sm text-gray-600'>
-                            Str: {gear.totalStr ?? 0} | Dex:{' '}
-                            {gear.totalDex ?? 0} | Int: {gear.totalInt ?? 0} |
-                            Luk: {gear.totalLuk ?? 0}
-                        </p>
-                        <p className='text-sm text-gray-600'>
-                            All stat: {gear.flameAllStat ?? 0}%
-                        </p>
-                        <p className='text-sm text-gray-600'>
-                            Attack Power: {gear.totalAttackPower ?? 0} | Magic
-                            Attack Power: {gear.totalMagicAttackPower ?? 0}
-                        </p>
-
-                        {userId === String(characterData.user.clerkId) ? (
-                            <Link href={`/${character}/editgear/${gear.id}`}>
-                                <Button className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
-                                    Edit Gear
-                                </Button>
-                            </Link>
-                        ) : null}
-                        {userId === String(characterData.user.clerkId) ? (
-                            // <Link
-                            //     href={`/${character}/editgear/${gear.id}`}
-                            //     className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
-                            // >
-                            //     Delete Gear(WIP)
-                            // </Link>
-                            <DeleteGearButton
-                                gearId={gear.id}
-                                characterName={character}
-                            />
-                        ) : null}
+                        <div className='flex-1'>
+                            <h2 className='mb-2 text-lg font-semibold'>
+                                {gear.name}
+                            </h2>
+                            <p className='text-sm text-gray-600'>
+                                Type: {gear.type}
+                            </p>
+                            <p className='text-sm text-gray-600'>
+                                Star Force: {gear.starForce}
+                            </p>
+                            <p className='text-sm text-gray-600'>
+                                Str: {gear.totalStr ?? 0} | Dex:{' '}
+                                {gear.totalDex ?? 0} | Int: {gear.totalInt ?? 0}{' '}
+                                | Luk: {gear.totalLuk ?? 0}
+                            </p>
+                            <p className='text-sm text-gray-600'>
+                                All stat: {gear.flameAllStat ?? 0}%
+                            </p>
+                            <p className='text-sm text-gray-600'>
+                                Attack Power: {gear.totalAttackPower ?? 0} |
+                                Magic Attack Power:{' '}
+                                {gear.totalMagicAttackPower ?? 0}
+                            </p>
+                        </div>
+                        <div>
+                            {userId === String(characterData.user.clerkId) ? (
+                                <Link
+                                    href={`/${character}/editgear/${gear.id}`}
+                                >
+                                    <Button className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+                                        Edit Gear
+                                    </Button>
+                                </Link>
+                            ) : null}
+                            {userId === String(characterData.user.clerkId) ? (
+                                // <Link
+                                //     href={`/${character}/editgear/${gear.id}`}
+                                //     className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
+                                // >
+                                //     Delete Gear(WIP)
+                                // </Link>
+                                <DeleteGearButton
+                                    gearId={gear.id}
+                                    characterName={character}
+                                />
+                            ) : null}
+                        </div>
                     </div>
                 ))}
             </div>
             {userId === String(characterData.user.clerkId) ? (
                 <Link
-                    href={`/${character}/newgearplus`}
+                    href={`/character/${character}/newgearplus`}
                     className='inline-block mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 transition'
                 >
                     + Add New Gear
@@ -156,8 +162,14 @@ function DisplayCharacterData({
                 </div>
                 <div>
                     <dt className='inline font-medium'>Combat Power:</dt>{' '}
-                    <dd className='inline'>{characterProp.combatPower}</dd>
+                    <dd className='inline'>
+                        {characterProp.combatPower.toLocaleString()}
+                    </dd>
                 </div>
+                {/* delete character */}
+                <Button className='cursor-pointer'>
+                    Delete Character(WIP)
+                </Button>
             </dl>
         </div>
     )

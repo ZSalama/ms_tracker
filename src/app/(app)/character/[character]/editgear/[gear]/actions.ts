@@ -5,7 +5,11 @@ import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
-export async function createGearItem(formData: FormData, characterId: number) {
+export async function editGearItem(
+    formData: FormData,
+    characterId: number,
+    gearId: number
+) {
     // console.log('createGearItem', formData)
     /* 1. Clerk auth --------------------------------------------------------- */
     const { userId: clerkId } = await auth()
@@ -27,7 +31,8 @@ export async function createGearItem(formData: FormData, characterId: number) {
     if (!character) redirect('/')
 
     /* 4. Persist ------------------------------------------------------------ */
-    await prisma.gearItem.create({
+    await prisma.gearItem.update({
+        where: { id: Number(gearId) },
         data: {
             /* ─── linkage & meta ─────────────────────────────── */
             // characterId: character.id,
@@ -82,7 +87,7 @@ export async function createGearItem(formData: FormData, characterId: number) {
                 Number(data.baseMaxHP) +
                 Number(data.flameMaxHP) +
                 Number(data.starMaxHP),
-            baseMaxHP: Number(data.baseMaxHP) ?? null,
+            baseMaxHP: Number(data.baseMaxHP) ?? 0,
             flameMaxHP: Number(data.flameMaxHP) ?? null,
             starMaxHP: Number(data.starMaxHP) ?? null,
 
@@ -90,7 +95,7 @@ export async function createGearItem(formData: FormData, characterId: number) {
                 Number(data.baseMaxMP) +
                 Number(data.flameMaxMP) +
                 Number(data.starMaxMP),
-            baseMaxMP: Number(data.baseMaxMP) ?? null,
+            baseMaxMP: Number(data.baseMaxMP) ?? 0,
             flameMaxMP: Number(data.flameMaxMP) ?? null,
             starMaxMP: Number(data.starMaxMP) ?? null,
 
@@ -111,29 +116,36 @@ export async function createGearItem(formData: FormData, characterId: number) {
             flameMagicAttackPower: Number(data.flameMagicAttackPower) ?? null,
             starMagicAttackPower: Number(data.starMagicAttackPower) ?? null,
 
-            /* ─── defense ───────────────────────────────────── */
+            totalDefense: null,
             baseDefense: null,
             flameDefense: null,
             starDefense: null,
 
             /* ─── mobility ───────────────────────────────────── */
+            totalJump: null,
             baseJump: null,
             flameJump: null,
             starJump: null,
 
+            totalSpeed: null,
             baseSpeed: null,
             flameSpeed: null,
             starSpeed: null,
 
             /* ─── percentage-based lines (Strings in Prisma) ─── */
-            baseAllStat: Number(data.baseAllStat) ?? undefined,
+            totalAllStat: Number(data.flameAllStat) ?? undefined,
+            baseAllStat: 0,
             flameAllStat: Number(data.flameAllStat) ?? undefined,
 
-            baseBossDamage: Number(data.baseBossDamage) ?? undefined,
+            totalBossDamage:
+                Number(data.baseBossDamage) + Number(data.flameBossDamage),
+            baseBossDamage: Number(data.baseBossDamage) ?? 0,
             flameBossDamage: Number(data.flameBossDamage) ?? undefined,
 
-            baseIgnoreEnemyDefense:
-                Number(data.baseIgnoreEnemyDefense) ?? undefined,
+            totalIgnoreEnemyDefense:
+                Number(data.baseIgnoreEnemyDefense) +
+                Number(data.flameIgnoreEnemyDefense),
+            baseIgnoreEnemyDefense: Number(data.baseIgnoreEnemyDefense) ?? 0,
             flameIgnoreEnemyDefense:
                 Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
@@ -143,6 +155,6 @@ export async function createGearItem(formData: FormData, characterId: number) {
     })
 
     /* 5. Redirect – Next will client-navigate automatically ---------------- */
-    redirect(`/${character.name}`)
+    redirect(`/character/${character.name}`)
     return { success: true }
 }

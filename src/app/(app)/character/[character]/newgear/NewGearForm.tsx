@@ -1,31 +1,10 @@
-// import { GearItem } from '@prisma/client'
-// import React from 'react'
-
-// export default function EditGearForm({
-//     character,
-//     characterId,
-//     gearId,
-//     gearData,
-// }: {
-//     character: string
-//     characterId: number
-//     gearId: number
-//     gearData: GearItem
-// }) {
-//     return (
-//         <div>
-//             {character} {characterId} {gearId} {gearData.name}
-//         </div>
-//     )
-// }
-
 'use client'
 
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { gearSchema, GearSchema } from '@/lib/validators/gear'
-import { editGearItem } from './actions'
+import { createGearItem } from './actions'
 
 import {
     Form,
@@ -45,19 +24,14 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useTransition } from 'react'
-import { GearItem } from '@prisma/client'
 import Link from 'next/link'
 
-export default function EditGearForm({
+export default function NewGearForm({
     character,
     characterId,
-    gearId,
-    gearData,
 }: {
     character: string
     characterId: number
-    gearId: number
-    gearData: GearItem
 }) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
@@ -66,58 +40,45 @@ export default function EditGearForm({
     const form = useForm<GearSchema>({
         resolver: zodResolver(gearSchema),
         defaultValues: {
-            name: gearData.name,
-            starForce: gearData.starForce,
-            type: gearData.type,
-            rarity: gearData.rarity,
-            attackPowerIncrease: gearData.attackPowerIncrease,
-            combatPowerIncrease: gearData.combatPowerIncrease,
-            requiredLevel: gearData.requiredLevel,
+            name: '',
+            starForce: 22,
+            type: 'Ring',
+            rarity: 'Common',
+            attackPowerIncrease: 0,
+            combatPowerIncrease: 0,
+            requiredLevel: 0,
             potential: '',
-            isEquipped: gearData.isEquipped,
-
-            // totalStr: gearData.totalStr ?? 0,
-            baseStr: gearData.baseStr ?? 0,
-            flameStr: gearData.flameStr ?? 0,
-            starStr: gearData.starStr ?? 0,
-
-            // totalDex: gearData.totalDex ?? 0,
-            baseDex: gearData.baseDex ?? 0,
-            flameDex: gearData.flameDex ?? 0,
-            starDex: gearData.starDex ?? 0,
-
-            // totalInt: gearData.totalInt ?? 0,
-            baseInt: gearData.baseInt ?? 0,
-            flameInt: gearData.flameInt ?? 0,
-            starInt: gearData.starInt ?? 0,
-
-            // totalLuk: gearData.totalLuk ?? 0,
-            baseLuk: gearData.baseLuk ?? 0,
-            flameLuk: gearData.flameLuk ?? 0,
-            starLuk: gearData.starLuk ?? 0,
-
-            // totalMaxHP: gearData.totalMaxHP ?? 0,
-            baseMaxHP: gearData.baseMaxHP ?? 0,
-            flameMaxHP: gearData.flameMaxHP ?? 0,
-            starMaxHP: gearData.starMaxHP ?? 0,
-            baseMaxMP: gearData.baseMaxMP ?? 0,
-            flameMaxMP: gearData.flameMaxMP ?? 0,
-            starMaxMP: gearData.starMaxMP ?? 0,
-
-            baseAttackPower: gearData.baseAttackPower ?? 0,
-            flameAttackPower: gearData.flameAttackPower ?? 0,
-            starAttackPower: gearData.starAttackPower ?? 0,
-
-            baseMagicAttackPower: gearData.baseMagicAttackPower ?? 0,
-            flameMagicAttackPower: gearData.flameMagicAttackPower ?? 0,
-            starMagicAttackPower: gearData.starMagicAttackPower ?? 0,
-
-            baseAllStat: gearData.baseAllStat ?? 0,
-            flameAllStat: gearData.flameAllStat ?? 0,
-            baseBossDamage: gearData.baseBossDamage ?? 0,
-            flameBossDamage: gearData.flameBossDamage ?? 0,
-            baseIgnoreEnemyDefense: gearData.baseIgnoreEnemyDefense ?? 0,
-            flameIgnoreEnemyDefense: gearData.flameIgnoreEnemyDefense ?? 0,
+            isEquipped: false,
+            baseStr: 0,
+            flameStr: 0,
+            starStr: 0,
+            baseDex: 0,
+            flameDex: 0,
+            starDex: 0,
+            baseInt: 0,
+            flameInt: 0,
+            starInt: 0,
+            baseLuk: 0,
+            flameLuk: 0,
+            starLuk: 0,
+            baseMaxHP: 0,
+            flameMaxHP: 0,
+            starMaxHP: 0,
+            baseMaxMP: 0,
+            flameMaxMP: 0,
+            starMaxMP: 0,
+            baseAttackPower: 0,
+            flameAttackPower: 0,
+            starAttackPower: 0,
+            baseMagicAttackPower: 0,
+            flameMagicAttackPower: 0,
+            starMagicAttackPower: 0,
+            baseAllStat: 0,
+            flameAllStat: 0,
+            baseBossDamage: 0,
+            flameBossDamage: 0,
+            baseIgnoreEnemyDefense: 0,
+            flameIgnoreEnemyDefense: 0,
         },
     })
 
@@ -126,7 +87,7 @@ export default function EditGearForm({
         startTransition(async () => {
             const fd = new FormData()
             Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
-            const result = await editGearItem(fd, characterId, gearId)
+            const result = await createGearItem(fd, characterId)
 
             if (result?.error) {
                 // Push Zod errors back into react-hook-form
@@ -152,7 +113,7 @@ export default function EditGearForm({
                 className='space-y-6 max-w-xl'
             >
                 {/* <input type='hidden' {...form.register('characterId')} /> */}
-                <Link href={`/${character}`}>
+                <Link href={`/character/${character}`}>
                     <Button className='cursor-pointer'>
                         back to characters
                     </Button>
@@ -205,14 +166,22 @@ export default function EditGearForm({
                                             {[
                                                 'Ring',
                                                 'Face Accessory',
+                                                'Eye Accessory',
+                                                'Earrings',
+                                                'Shoulder',
                                                 'Gloves',
                                                 'Weapon',
+                                                'Secondary',
                                                 'Hat',
                                                 'Cape',
                                                 'Shoes',
                                                 'Top',
                                                 'Bottom',
                                                 'Pendant',
+                                                'Mechanical Heart',
+                                                'Belt',
+                                                'Emblem',
+                                                'Pocket Item',
                                             ].map((t) => (
                                                 <SelectItem key={t} value={t}>
                                                     {t}
@@ -498,7 +467,7 @@ export default function EditGearForm({
                 {/* ----- attackPower trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        { name: 'baseAttackPower', label: 'base attack Power' },
+                        { name: 'baseAttackPower', label: 'attack Power' },
                         {
                             name: 'flameAttackPower',
                             label: 'flame attack Power',
@@ -535,7 +504,7 @@ export default function EditGearForm({
                     {[
                         {
                             name: 'baseMagicAttackPower',
-                            label: 'base magic attack Power',
+                            label: 'magic attack Power',
                         },
                         {
                             name: 'flameMagicAttackPower',
@@ -609,7 +578,7 @@ export default function EditGearForm({
                 {/* ----- bossDamage trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        // { name: 'bossDamage', label: 'boss Damage' },
+                        { name: 'baseBossDamage', label: 'boss Damage' },
                         {
                             name: 'flameBossDamage',
                             label: 'flame boss Damage',
@@ -644,7 +613,10 @@ export default function EditGearForm({
                 {/* ----- ignoreEnemyDefense trio ----- */}
                 <div className='grid gap-4 sm:grid-cols-3'>
                     {[
-                        // { name: 'bossDamage', label: 'boss Damage' },
+                        {
+                            name: 'baseIgnoreEnemyDefense',
+                            label: 'base Ignore Enemy Defense',
+                        },
                         {
                             name: 'flameIgnoreEnemyDefense',
                             label: 'ignore Enemy Defense Flame',
@@ -701,7 +673,7 @@ export default function EditGearForm({
                 ))}
 
                 <Button type='submit' disabled={isPending} className='w-full'>
-                    {isPending ? 'Saving…' : 'Update gear'}
+                    {isPending ? 'Saving…' : 'Add gear'}
                 </Button>
             </form>
         </Form>

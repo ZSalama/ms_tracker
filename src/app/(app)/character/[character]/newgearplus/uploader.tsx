@@ -31,7 +31,7 @@ export default function Uploader({ character }: { character: string }) {
                 await addGearItemPlus(character, gearUrl)
             } catch (error) {
                 console.error('Error adding gear item:', error)
-                alert('Failed to add gear item. Please try again.')
+                // alert('Failed to add gear item. Please try again.')
             }
         }
     }

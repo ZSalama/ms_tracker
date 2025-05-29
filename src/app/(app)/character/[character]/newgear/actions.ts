@@ -5,11 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
-export async function editGearItem(
-    formData: FormData,
-    characterId: number,
-    gearId: number
-) {
+export async function createGearItem(formData: FormData, characterId: number) {
     // console.log('createGearItem', formData)
     /* 1. Clerk auth --------------------------------------------------------- */
     const { userId: clerkId } = await auth()
@@ -31,8 +27,7 @@ export async function editGearItem(
     if (!character) redirect('/')
 
     /* 4. Persist ------------------------------------------------------------ */
-    await prisma.gearItem.update({
-        where: { id: Number(gearId) },
+    await prisma.gearItem.create({
         data: {
             /* ─── linkage & meta ─────────────────────────────── */
             // characterId: character.id,
@@ -87,7 +82,7 @@ export async function editGearItem(
                 Number(data.baseMaxHP) +
                 Number(data.flameMaxHP) +
                 Number(data.starMaxHP),
-            baseMaxHP: Number(data.baseMaxHP) ?? 0,
+            baseMaxHP: Number(data.baseMaxHP) ?? null,
             flameMaxHP: Number(data.flameMaxHP) ?? null,
             starMaxHP: Number(data.starMaxHP) ?? null,
 
@@ -95,7 +90,7 @@ export async function editGearItem(
                 Number(data.baseMaxMP) +
                 Number(data.flameMaxMP) +
                 Number(data.starMaxMP),
-            baseMaxMP: Number(data.baseMaxMP) ?? 0,
+            baseMaxMP: Number(data.baseMaxMP) ?? null,
             flameMaxMP: Number(data.flameMaxMP) ?? null,
             starMaxMP: Number(data.starMaxMP) ?? null,
 
@@ -116,36 +111,29 @@ export async function editGearItem(
             flameMagicAttackPower: Number(data.flameMagicAttackPower) ?? null,
             starMagicAttackPower: Number(data.starMagicAttackPower) ?? null,
 
-            totalDefense: null,
+            /* ─── defense ───────────────────────────────────── */
             baseDefense: null,
             flameDefense: null,
             starDefense: null,
 
             /* ─── mobility ───────────────────────────────────── */
-            totalJump: null,
             baseJump: null,
             flameJump: null,
             starJump: null,
 
-            totalSpeed: null,
             baseSpeed: null,
             flameSpeed: null,
             starSpeed: null,
 
             /* ─── percentage-based lines (Strings in Prisma) ─── */
-            totalAllStat: Number(data.flameAllStat) ?? undefined,
-            baseAllStat: 0,
+            baseAllStat: Number(data.baseAllStat) ?? undefined,
             flameAllStat: Number(data.flameAllStat) ?? undefined,
 
-            totalBossDamage:
-                Number(data.baseBossDamage) + Number(data.flameBossDamage),
-            baseBossDamage: Number(data.baseBossDamage) ?? 0,
+            baseBossDamage: Number(data.baseBossDamage) ?? undefined,
             flameBossDamage: Number(data.flameBossDamage) ?? undefined,
 
-            totalIgnoreEnemyDefense:
-                Number(data.baseIgnoreEnemyDefense) +
-                Number(data.flameIgnoreEnemyDefense),
-            baseIgnoreEnemyDefense: Number(data.baseIgnoreEnemyDefense) ?? 0,
+            baseIgnoreEnemyDefense:
+                Number(data.baseIgnoreEnemyDefense) ?? undefined,
             flameIgnoreEnemyDefense:
                 Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
@@ -155,6 +143,6 @@ export async function editGearItem(
     })
 
     /* 5. Redirect – Next will client-navigate automatically ---------------- */
-    redirect(`/${character.name}`)
+    redirect(`/character/${character.name}`)
     return { success: true }
 }

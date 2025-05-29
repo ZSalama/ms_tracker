@@ -51,14 +51,14 @@ export default async function DashboardPage() {
                     {characters.map((c) => (
                         <li key={c.id}>
                             <Link
-                                href={`/${c.name}`}
+                                href={`/character/${c.name}`}
                                 className='block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md'
                             >
                                 <h2 className='truncate text-lg font-semibold'>
                                     {c.name}
                                 </h2>
                                 <p className='text-sm text-gray-500'>
-                                    Lv. {c.level} &middot; {c.class}
+                                    {c.level} &middot; {c.class}
                                 </p>
 
                                 <div className='mt-3 space-y-1 text-sm text-gray-600'>

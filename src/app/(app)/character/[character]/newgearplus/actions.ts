@@ -110,7 +110,7 @@ export async function addGearItemPlus(characterName: string, url: string) {
     })
 
     /* 5. Redirect – Next will client-navigate automatically ---------------- */
-    redirect(`/${character.name}/newgearplus/${gear.id}`)
+    redirect(`/character/${character.name}/newgearplus/${gear.id}`)
 
     return { success: true, gearId: gear.id }
 }

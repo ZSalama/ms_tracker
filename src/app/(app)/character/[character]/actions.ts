@@ -31,5 +31,5 @@ export async function deleteGearAction(gearId: number, characterName: string) {
     console.log(`Gear item with ID ${gearId} deleted successfully.`)
 
     // Redirect back to character page
-    redirect(`/${characterName}`)
+    redirect(`/character/${characterName}`)
 }

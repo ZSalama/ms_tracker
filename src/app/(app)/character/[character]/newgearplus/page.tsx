@@ -11,7 +11,7 @@ export default async function page({
     const { character } = await params
     return (
         <>
-            <Link href={`/${character}/newgear`}>
+            <Link href={`/character/${character}/newgear`}>
                 <Button className='cursor-pointer'>
                     Manually add your gear
                 </Button>
