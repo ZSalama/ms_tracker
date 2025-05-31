@@ -4,7 +4,6 @@ import Image from 'next/image'
 import OpenAI from 'openai'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { revalidatePath } from 'next/cache'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
@@ -83,6 +82,10 @@ export default async function page({
                     totalDex, baseDex, flameDex, starDex, 
                     totalInt, baseInt, flameInt, starInt, 
                     totalLuk, baseLuk, flameLuk, starLuk, 
+                    totalAttackPower, baseAttackPower, flameAttackPower, StarAttackPower,
+                    totalMagicAttackPower, baseMagicAttackPower, flameMagicAttackPower, starMagicAttackPower,
+                    totalBossDamage, baseBossDamage, flameBossDamage,
+                    totalIgnoreEnemyDefense, baseIgnoreEnemyDefense, flameIgnoreEnemyDefense,
                     totalAllStat, baseAllStat, flameAllStat, // baseAllStat is always 0%, flameAllStat is the percentage inside parenthesis. remove the % sign.
                     potential   // JSON string of the item’s potential lines
 
@@ -101,6 +104,11 @@ export default async function page({
                     "totalDex": 70,  "baseDex": 30, "flameDex": 10, "starDex": 30,
                     "totalInt": 272, "baseInt": 40, "flameInt": 102, "starInt": 130,
                     "totalLuk": 50,  "baseLuk": 30, "flameLuk": 0,  "starLuk": 20,
+                    "totalAttackPower": 0, "baseAttackPower": 0, "flameAttackPower": 0, "starAttackPower": 0,
+                    "totalMagicAttackPower": 0, "baseMagicAttackPower": 0, "flameMagicAttackPower": 0, "starMagicAttackPower": 0,
+                    "totalBossDamage": 0, "baseBossDamage": 0, "flameBossDamage": 0,
+                    "totalIgnoreEnemyDefense": 0, "baseIgnoreEnemyDefense": 0, "flameIgnoreEnemyDefense": 0,
+                    "totalAllStat": 6, "baseAllStat": 0, "flameAllStat": 6,
                     "potential": "{\"line1\":\"+6% INT\",\"line2\":\"+6% INT\",\"line3\":\"+2% All Stat\"}"
                     }`,
                 },
@@ -158,6 +166,20 @@ export default async function page({
                     flameLuk: analysisJson.flameLuk ?? 0,
                     starLuk: analysisJson.starLuk ?? 0,
 
+                    totalAttackPower: analysisJson.totalAttackPower ?? 0,
+                    baseAttackPower: analysisJson.baseAttackPower ?? 0,
+                    flameAttackPower: analysisJson.flameAttackPower ?? 0,
+                    starAttackPower: analysisJson.starAttackPower ?? 0,
+
+                    totalMagicAttackPower:
+                        analysisJson.totalMagicAttackPower ?? 0,
+                    baseMagicAttackPower:
+                        analysisJson.baseMagicAttackPower ?? 0,
+                    flameMagicAttackPower:
+                        analysisJson.flameMagicAttackPower ?? 0,
+                    starMagicAttackPower:
+                        analysisJson.starMagicAttackPower ?? 0,
+
                     totalAllStat: analysisJson.totalAllStat ?? 0,
                     baseAllStat: analysisJson.baseAllStat ?? 0,
                     flameAllStat: analysisJson.flameAllStat ?? 0,
@@ -166,7 +188,7 @@ export default async function page({
                         : undefined,
                 },
             })
-            revalidatePath(`/character/${character}`)
+
             console.log('Gear data updated successfully', updatedGear)
         } catch (error) {
             console.error('Error updating gear data:', error)

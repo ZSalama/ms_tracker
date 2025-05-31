@@ -3,17 +3,23 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { GearItem } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
 
-export async function deleteGearAction(gearId: number, characterName: string) {
+export async function deleteGearAction(
+    gearId: number,
+    gearName: string,
+    characterName: string
+) {
     const { userId: clerkId } = await auth()
     if (!clerkId) throw new Error('Unauthenticated')
 
     // verify gear exists
-    const gear = await prisma.gearItem.findUnique({
+    const geardb = await prisma.gearItem.findUnique({
         where: { id: gearId },
         include: { character: { select: { userId: true } } },
     })
-    if (!gear) throw new Error('Gear not found')
+    if (!geardb) throw new Error('Gear not found')
 
     // verify character ownership
     const character = await prisma.character.findFirst({
@@ -31,6 +37,7 @@ export async function deleteGearAction(gearId: number, characterName: string) {
     console.log(`Gear item with ID ${gearId} deleted successfully.`)
 
     // Redirect back to character page
+    revalidatePath(`/character/${characterName}`)
     redirect(`/character/${characterName}`)
 }
 
@@ -53,5 +60,6 @@ export async function deleteCharacterAction(characterName: string) {
     console.log(`Character ${characterName} deleted successfully.`)
 
     // Redirect to dashboard
+    revalidatePath(`/dashboard`)
     redirect(`/dashboard`)
 }

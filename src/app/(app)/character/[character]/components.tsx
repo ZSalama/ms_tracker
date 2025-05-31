@@ -16,21 +16,54 @@ import {
 
 export function DeleteGearButton({
     gearId,
+    gearName,
     characterName,
 }: {
     gearId: number
+    gearName: string
     characterName: string
 }) {
     return (
-        <Button
-            type='submit'
-            className='mt-4 ml-4 rounded-md border border-red-600 px-3 py-1 text-sm font-medium bg-gray-200 text-red-600 hover:bg-red-50 cursor-pointer'
-            onClick={() => {
-                deleteGearAction(gearId, characterName)
-            }}
-        >
-            Delete Gear
-        </Button>
+        // <Button
+        //     type='submit'
+        //     className='mt-4 ml-4 rounded-md border border-red-600 px-3 py-1 text-sm font-medium bg-gray-200 text-red-600 hover:bg-red-50 cursor-pointer'
+        //     onClick={() => {
+        //         deleteGearAction(gearId, characterName)
+        //     }}
+        // >
+        //     Delete Gear
+        // </Button>
+        <AlertDialog>
+            <AlertDialogTrigger className='mt-4 ml-4 rounded-md border border-red-600 px-3 py-1 text-sm font-medium bg-gray-200 text-red-600 hover:bg-red-50 cursor-pointer'>
+                Delete Gear
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your {gearName} and remove the data from our
+                        servers.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel className='cursor-pointer'>
+                        Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        className='cursor-pointer'
+                        onClick={() => {
+                            console.log(`Delete gear: ${gearName}`)
+                            deleteGearAction(gearId, gearName, characterName)
+                        }}
+                    >
+                        Continue
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     )
 }
 

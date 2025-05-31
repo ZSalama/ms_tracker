@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { DeleteCharacterButton, DeleteGearButton } from './components'
 import { Button } from '@/components/ui/button'
-import { unstable_cache } from 'next/cache'
+// import { unstable_cache } from 'next/cache'
 
 // TODO: add auth guard once auth flow is set up
 export default async function Page({
@@ -15,38 +15,66 @@ export default async function Page({
     const { character } = await params
     const { userId } = await auth()
 
-    // Fetch character data from Prisma
-    const getCharacterData = unstable_cache(
-        async () =>
-            await prisma.character.findFirst({
-                where: { name: character },
+    // Fetch character data from Prisma with caching
+    // const getCharacterData = unstable_cache(
+    //     async () =>
+    //         await prisma.character.findFirst({
+    //             where: { name: character },
+    //             select: {
+    //                 id: true,
+    //                 name: true,
+    //                 level: true,
+    //                 class: true,
+    //                 combatPower: true,
+    //                 user: true,
+    //                 gears: {
+    //                     select: {
+    //                         id: true,
+    //                         name: true,
+    //                         type: true,
+    //                         starForce: true,
+    //                         combatPowerIncrease: true,
+    //                         totalStr: true,
+    //                         totalDex: true,
+    //                         totalInt: true,
+    //                         totalLuk: true,
+    //                         flameAllStat: true,
+    //                         totalAttackPower: true,
+    //                         totalMagicAttackPower: true,
+    //                     },
+    //                 },
+    //             },
+    //         })
+    // )
+    // const characterData = await getCharacterData()
+
+    const characterData = await prisma.character.findFirst({
+        where: { name: character },
+        select: {
+            id: true,
+            name: true,
+            level: true,
+            class: true,
+            combatPower: true,
+            user: true,
+            gears: {
                 select: {
                     id: true,
                     name: true,
-                    level: true,
-                    class: true,
-                    combatPower: true,
-                    user: true,
-                    gears: {
-                        select: {
-                            id: true,
-                            name: true,
-                            type: true,
-                            starForce: true,
-                            combatPowerIncrease: true,
-                            totalStr: true,
-                            totalDex: true,
-                            totalInt: true,
-                            totalLuk: true,
-                            flameAllStat: true,
-                            totalAttackPower: true,
-                            totalMagicAttackPower: true,
-                        },
-                    },
+                    type: true,
+                    starForce: true,
+                    combatPowerIncrease: true,
+                    totalStr: true,
+                    totalDex: true,
+                    totalInt: true,
+                    totalLuk: true,
+                    flameAllStat: true,
+                    totalAttackPower: true,
+                    totalMagicAttackPower: true,
                 },
-            })
-    )
-    const characterData = await getCharacterData()
+            },
+        },
+    })
 
     if (!characterData) {
         return (
@@ -107,6 +135,7 @@ export default async function Page({
                             {userId === String(characterData.user.clerkId) ? (
                                 <DeleteGearButton
                                     gearId={gear.id}
+                                    gearName={gear.name}
                                     characterName={character}
                                 />
                             ) : null}

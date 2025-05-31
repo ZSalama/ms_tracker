@@ -75,6 +75,7 @@ export default function Uploader({ character }: { character: string }) {
                     <Button
                         onClick={handleAnalyse}
                         disabled={!gearUrl || isSubmitting}
+                        className='cursor-pointer'
                     >
                         {isSubmitting ? (
                             <>
