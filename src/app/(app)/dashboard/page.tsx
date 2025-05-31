@@ -16,10 +16,10 @@ export default async function DashboardPage() {
         select: { id: true, email: true },
     })
     if (!internalUser) redirect('/') // first-time users
-    console.log('internalUser', internalUser)
+    // console.log('internalUser', internalUser)
 
     /* 3️⃣  Fetch all their characters */
-    const characters: Character[] = await prisma.character.findMany({
+    const characters = await prisma.character.findMany({
         where: { userId: internalUser.id },
         orderBy: { updatedAt: 'desc' },
     })

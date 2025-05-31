@@ -49,7 +49,7 @@ export default function NewCharacterForm() {
             } else if (result?.success) {
                 form.reset() // clear the form
                 // redirect to dasbhoard
-                router.push('/dashboard/characters')
+                router.push('/dashboard')
             }
         })
     }

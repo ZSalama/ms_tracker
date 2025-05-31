@@ -131,11 +131,7 @@ export default function EditGearForm({
                 className='space-y-6 max-w-xl'
             >
                 {/* <input type='hidden' {...form.register('characterId')} /> */}
-                <Link href={`/character/${character}`}>
-                    <Button className='cursor-pointer'>
-                        back to characters
-                    </Button>
-                </Link>
+
                 <FormField
                     control={form.control}
                     name='name'
@@ -687,7 +683,11 @@ export default function EditGearForm({
                     />
                 ))}
 
-                <Button type='submit' disabled={isPending} className='w-full'>
+                <Button
+                    type='submit'
+                    disabled={isPending}
+                    className='cursor-pointer'
+                >
                     {isPending ? 'Saving…' : 'Update gear'}
                 </Button>
             </form>

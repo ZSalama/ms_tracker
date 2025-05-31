@@ -2,6 +2,7 @@
 
 // import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { revalidatePath } from 'next/cache'
 // import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
@@ -110,6 +111,7 @@ export async function addGearItemPlus(characterName: string, url: string) {
     })
 
     /* 5. Redirect – Next will client-navigate automatically ---------------- */
+    revalidatePath(`/character/${character.name}`)
     redirect(`/character/${character.name}/newgearplus/${gear.id}`)
 
     return { success: true, gearId: gear.id }

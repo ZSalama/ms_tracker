@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export async function editGearItem(
     formData: FormData,
@@ -155,6 +156,7 @@ export async function editGearItem(
     })
 
     /* 5. Redirect – Next will client-navigate automatically ---------------- */
+    revalidatePath(`/character/${character.name}`)
     redirect(`/character/${character.name}`)
     return { success: true }
 }

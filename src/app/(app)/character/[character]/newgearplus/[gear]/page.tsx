@@ -4,6 +4,7 @@ import Image from 'next/image'
 import OpenAI from 'openai'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
@@ -165,6 +166,7 @@ export default async function page({
                         : undefined,
                 },
             })
+            revalidatePath(`/character/${character}`)
             console.log('Gear data updated successfully', updatedGear)
         } catch (error) {
             console.error('Error updating gear data:', error)

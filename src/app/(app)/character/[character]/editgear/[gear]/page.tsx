@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import EditGearForm from './EditGearForm'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default async function page({
     params,
@@ -51,7 +53,15 @@ export default async function page({
     }
 
     return (
-        <div className='flex justify-center'>
+        <div className='flex justify-center flex-col mx-auto max-w-xl'>
+            <div className='mb-4'>
+                <Link href={`/character/${character}`}>
+                    <Button className='cursor-pointer'>
+                        back to character
+                    </Button>
+                </Link>
+            </div>
+
             <EditGearForm
                 character={character}
                 characterId={characterData.id}

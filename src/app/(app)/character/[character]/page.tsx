@@ -2,8 +2,9 @@ import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
-import { DeleteGearButton } from './components'
+import { DeleteCharacterButton, DeleteGearButton } from './components'
 import { Button } from '@/components/ui/button'
+import { unstable_cache } from 'next/cache'
 
 // TODO: add auth guard once auth flow is set up
 export default async function Page({
@@ -15,33 +16,37 @@ export default async function Page({
     const { userId } = await auth()
 
     // Fetch character data from Prisma
-    const characterData = await prisma.character.findFirst({
-        where: { name: character },
-        select: {
-            id: true,
-            name: true,
-            level: true,
-            class: true,
-            combatPower: true,
-            user: true,
-            gears: {
+    const getCharacterData = unstable_cache(
+        async () =>
+            await prisma.character.findFirst({
+                where: { name: character },
                 select: {
                     id: true,
                     name: true,
-                    type: true,
-                    starForce: true,
-                    combatPowerIncrease: true,
-                    totalStr: true,
-                    totalDex: true,
-                    totalInt: true,
-                    totalLuk: true,
-                    flameAllStat: true,
-                    totalAttackPower: true,
-                    totalMagicAttackPower: true,
+                    level: true,
+                    class: true,
+                    combatPower: true,
+                    user: true,
+                    gears: {
+                        select: {
+                            id: true,
+                            name: true,
+                            type: true,
+                            starForce: true,
+                            combatPowerIncrease: true,
+                            totalStr: true,
+                            totalDex: true,
+                            totalInt: true,
+                            totalLuk: true,
+                            flameAllStat: true,
+                            totalAttackPower: true,
+                            totalMagicAttackPower: true,
+                        },
+                    },
                 },
-            },
-        },
-    })
+            })
+    )
+    const characterData = await getCharacterData()
 
     if (!characterData) {
         return (
@@ -92,7 +97,7 @@ export default async function Page({
                         <div>
                             {userId === String(characterData.user.clerkId) ? (
                                 <Link
-                                    href={`/${character}/editgear/${gear.id}`}
+                                    href={`/character/${character}/editgear/${gear.id}`}
                                 >
                                     <Button className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
                                         Edit Gear
@@ -100,12 +105,6 @@ export default async function Page({
                                 </Link>
                             ) : null}
                             {userId === String(characterData.user.clerkId) ? (
-                                // <Link
-                                //     href={`/${character}/editgear/${gear.id}`}
-                                //     className='mt-4 ml-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50'
-                                // >
-                                //     Delete Gear(WIP)
-                                // </Link>
                                 <DeleteGearButton
                                     gearId={gear.id}
                                     characterName={character}
@@ -167,9 +166,7 @@ function DisplayCharacterData({
                     </dd>
                 </div>
                 {/* delete character */}
-                <Button className='cursor-pointer'>
-                    Delete Character(WIP)
-                </Button>
+                <DeleteCharacterButton characterName={characterProp.name} />
             </dl>
         </div>
     )

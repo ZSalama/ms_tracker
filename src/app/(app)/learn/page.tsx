@@ -18,6 +18,7 @@ export default function page() {
                             Future plans
                         </h2>
                         <ol className='list-disc pl-6 mt-2'>
+                            <li>Properly implement potentials</li>
                             <li>
                                 Uploading image to automatically update
                                 character information
