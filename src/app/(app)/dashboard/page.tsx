@@ -2,7 +2,7 @@ import { auth } from '@clerk/nextjs/server' // Clerk helper (server-side)
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma' // your Prisma singleton
-import type { Character } from '@prisma/client'
+// import type { Character } from '@prisma/client'
 
 export default async function DashboardPage() {
     /* 1️⃣  Get the logged-in Clerk user */

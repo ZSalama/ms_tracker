@@ -3,7 +3,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import { GearItem } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 export async function deleteGearAction(
