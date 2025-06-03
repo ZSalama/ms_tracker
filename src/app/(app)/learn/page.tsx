@@ -24,8 +24,8 @@ export default function page() {
 							</li>
 							<li className='line-through'>Editing character information</li>
 							<li>
-								Character's gear rules and enforcement eg. can only have 4 rings
-								equipped
+								Character&apos;s gear rules and enforcement eg. can only have 4
+								rings equipped
 							</li>
 							<li>Character snapshots to review progression over time</li>
 						</ol>
