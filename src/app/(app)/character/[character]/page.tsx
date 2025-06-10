@@ -4,9 +4,7 @@ import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { DeleteCharacterButton, DeleteGearButton } from './components'
 import { Button } from '@/components/ui/button'
-// import { unstable_cache } from 'next/cache'
 
-// TODO: add auth guard once auth flow is set up
 export default async function Page({
 	params,
 }: {
@@ -14,39 +12,6 @@ export default async function Page({
 }) {
 	const { character } = await params
 	const { userId } = await auth()
-
-	// Fetch character data from Prisma with caching
-	// const getCharacterData = unstable_cache(
-	//     async () =>
-	//         await prisma.character.findFirst({
-	//             where: { name: character },
-	//             select: {
-	//                 id: true,
-	//                 name: true,
-	//                 level: true,
-	//                 class: true,
-	//                 combatPower: true,
-	//                 user: true,
-	//                 gears: {
-	//                     select: {
-	//                         id: true,
-	//                         name: true,
-	//                         type: true,
-	//                         starForce: true,
-	//                         combatPowerIncrease: true,
-	//                         totalStr: true,
-	//                         totalDex: true,
-	//                         totalInt: true,
-	//                         totalLuk: true,
-	//                         flameAllStat: true,
-	//                         totalAttackPower: true,
-	//                         totalMagicAttackPower: true,
-	//                     },
-	//                 },
-	//             },
-	//         })
-	// )
-	// const characterData = await getCharacterData()
 
 	const characterData = await prisma.character.findFirst({
 		where: { name: character },
@@ -89,7 +54,7 @@ export default async function Page({
 	return (
 		<div className='container mx-auto px-4 py-8 space-y-10'>
 			<Suspense fallback={<Loading />}>
-				<DisplayCharacterData characterProp={characterData} />
+				<DisplayCharacterData characterProp={characterData} userId={userId} />
 			</Suspense>
 
 			<div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
@@ -161,12 +126,17 @@ type CharacterInfo = {
 	level: number
 	class: string
 	combatPower: number
+	user: {
+		clerkId: string
+	}
 }
 
 function DisplayCharacterData({
 	characterProp,
+	userId,
 }: {
 	characterProp: CharacterInfo
+	userId: string | null
 }) {
 	return (
 		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow'>
@@ -186,13 +156,16 @@ function DisplayCharacterData({
 						{characterProp.combatPower.toLocaleString()}
 					</dd>
 				</div>
-				<Button className='m-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
-					<Link href={`/character/${characterProp.name}/edit-character`}>
-						Edit Character
-					</Link>
-				</Button>
-				{/* delete character */}
-				<DeleteCharacterButton characterName={characterProp.name} />
+				{userId === String(characterProp.user.clerkId) ? (
+					<>
+						<Button className='m-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+							<Link href={`/character/${characterProp.name}/edit-character`}>
+								Edit Character
+							</Link>
+						</Button>
+						<DeleteCharacterButton characterName={characterProp.name} />
+					</>
+				) : null}
 			</dl>
 		</div>
 	)

@@ -117,7 +117,7 @@ export default function EditGearForm({
             } else if (result?.success) {
                 form.reset() // clear the form
                 // redirect to dasbhoard
-                router.push('/dashboard')
+                router.push(`/dashboard/${character}`)
             }
         })
     }
