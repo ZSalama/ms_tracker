@@ -2,70 +2,30 @@ import { auth } from '@clerk/nextjs/server' // Clerk helper (server-side)
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma' // your Prisma singleton
+import {
+	dehydrate,
+	HydrationBoundary,
+	QueryClient,
+} from '@tanstack/react-query'
+import DisplayCharacterDashboard from './DisplayCharacterDashboard'
+import { getCharacters } from './actions'
+import { getQueryClient } from '@/lib/get-query-client'
 // import type { Character } from '@prisma/client'
 
 export default async function DashboardPage() {
-	/* 1️⃣  Get the logged-in Clerk user */
-	const { userId } = await auth()
-	if (!userId) redirect('/dashboard/login') // not signed in ⇒ bounce
+	/* Prefetch on the server so the first paint has data */
+	const queryClient = getQueryClient()
 
-	/* 2️⃣  Look up the *internal* User row tied to that Clerk user.  */
-	const internalUser = await prisma.user.findUnique({
-		where: { clerkId: userId }, // e.g. “clerkId” is a string column
-		select: { id: true, email: true },
-	})
-	if (!internalUser) redirect('/') // first-time users
-	// console.log('internalUser', internalUser)
-
-	/* 3️⃣  Fetch all their characters */
-	const characters = await prisma.character.findMany({
-		where: { userId: internalUser.id },
-		orderBy: { combatPower: 'desc' },
+	void queryClient.prefetchQuery({
+		queryKey: ['characters'],
+		queryFn: () => getCharacters(),
 	})
 
 	return (
-		<main className='mx-auto max-w-4xl px-6 py-12'>
-			<div className='mb-8 flex items-center justify-between'>
-				<h1 className='text-3xl font-extrabold'>
-					{internalUser.email}&apos;s Characters
-				</h1>
-
-				<Link
-					href='/dashboard/new-character'
-					className='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-700'
-				>
-					+ New Character
-				</Link>
-			</div>
-
-			{characters.length === 0 ? (
-				<p className='text-gray-500'>
-					You don’t have any characters yet. Click “New Character” to get
-					started!
-				</p>
-			) : (
-				<ul className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-					{characters.map((c) => (
-						<li key={c.id}>
-							<Link
-								href={`/character/${c.name}`}
-								className='block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md'
-							>
-								<h2 className='truncate text-lg font-semibold'>{c.name}</h2>
-								<p className='text-sm text-gray-500'>
-									{c.level} &middot; {c.class}
-								</p>
-
-								<div className='mt-3 space-y-1 text-sm text-gray-600'>
-									<p>Combat Power: {c.combatPower.toLocaleString()}</p>
-									<p>Arcane Force: {c.arcaneForce}</p>
-									<p>Sacred Power: {c.sacredPower}</p>
-								</div>
-							</Link>
-						</li>
-					))}
-				</ul>
-			)}
-		</main>
+		// Neat! Serialization is now as easy as passing props.
+		// HydrationBoundary is a Client Component, so hydration will happen there.
+		<HydrationBoundary state={dehydrate(queryClient)}>
+			<DisplayCharacterDashboard />
+		</HydrationBoundary>
 	)
 }
