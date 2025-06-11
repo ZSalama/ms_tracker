@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { GearItem } from '@prisma/client'
+import { Character, GearItem } from '@prisma/client'
 
 export async function deleteGearAction(
 	gearId: number,
@@ -65,7 +65,13 @@ export async function deleteCharacterAction(characterName: string) {
 }
 
 type GetGearsResponse = {
+	character: Character
 	gears: GearItem[]
+	internalUser: {
+		id: number
+		email: string
+		clerkId: string
+	} | null
 }
 
 export async function getGears(
@@ -79,11 +85,21 @@ export async function getGears(
 		throw new Error('Character not found')
 	}
 
+	// verify logged-in user owns the character
+	const { userId: clerkId } = await auth()
+	let internalUser = null
+	if (clerkId) {
+		internalUser = await prisma.user.findUnique({
+			where: { clerkId: clerkId },
+			select: { id: true, email: true, clerkId: true },
+		})
+	}
+
 	// get gear from character
 	const gears = await prisma.gearItem.findMany({
 		where: { characterId: character.id },
 		orderBy: { combatPowerIncrease: 'desc' },
 	})
 
-	return { gears: gears }
+	return { character: character, gears: gears, internalUser: internalUser }
 }
