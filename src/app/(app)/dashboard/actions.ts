@@ -1,7 +1,6 @@
 'use server'
-import { prisma } from '@/lib/prisma' // Import your Prisma client instance
+import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
-import { queryOptions } from '@tanstack/react-query'
 import { Character } from '@prisma/client'
 
 type GetCharactersResponse = {

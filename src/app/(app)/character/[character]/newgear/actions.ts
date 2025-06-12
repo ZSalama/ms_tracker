@@ -7,144 +7,143 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function createGearItem(formData: FormData, characterId: number) {
-    // console.log('createGearItem', formData)
-    /* 1. Clerk auth --------------------------------------------------------- */
-    const { userId: clerkId } = await auth()
-    if (!clerkId) throw new Error('Unauthenticated')
+	/* 1. Zod validation ----------------------------------------------------- */
+	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
+	if (!parsed.success) {
+		return { error: parsed.error.flatten().fieldErrors }
+	}
+	const data = parsed.data
+	/* 2. Clerk auth --------------------------------------------------------- */
+	const { userId: clerkId } = await auth()
+	if (!clerkId) throw new Error('Unauthenticated')
 
-    /* 2. Zod validation ----------------------------------------------------- */
-    const parsed = gearSchema.safeParse(Object.fromEntries(formData))
-    if (!parsed.success) {
-        return { error: parsed.error.flatten().fieldErrors }
-    }
-    const data = parsed.data
+	/* 3. Character ownership check ----------------------------------------- */
+	const character = await prisma.character.findFirst({
+		where: { id: characterId },
+		select: { id: true, name: true, userId: true },
+	})
 
-    /* 3. Character ownership check ----------------------------------------- */
-    const character = await prisma.character.findFirst({
-        where: { id: characterId },
-        select: { id: true, name: true },
-    })
-    // console.log('character', character)
-    if (!character) redirect('/')
+	const internalUser = await prisma.user.findFirst({
+		where: { clerkId: clerkId },
+		select: { id: true },
+	})
 
-    /* 4. Persist ------------------------------------------------------------ */
-    await prisma.gearItem.create({
-        data: {
-            /* ─── linkage & meta ─────────────────────────────── */
-            // characterId: character.id,
-            character: { connect: { id: character.id } },
-            name: data.name,
-            type: data.type,
-            rarity: data.rarity,
-            tradeStatus: 'untradeable',
-            starForce: Number(data.starForce),
-            requiredLevel: Number(data.requiredLevel),
-            isEquipped: Boolean(data.isEquipped),
+	if (!character) {
+		throw new Error('Character not found')
+	}
+	if (character.userId !== internalUser?.id) {
+		throw new Error('You do not own this character')
+	}
 
-            /* ─── progression bonuses ────────────────────────── */
-            attackPowerIncrease: Number(data.attackPowerIncrease),
-            combatPowerIncrease: Number(data.combatPowerIncrease),
+	/* 4. Persist ------------------------------------------------------------ */
+	await prisma.gearItem.create({
+		data: {
+			/* ─── linkage & meta ─────────────────────────────── */
+			// characterId: character.id,
+			character: { connect: { id: character.id } },
+			name: data.name,
+			type: data.type,
+			rarity: data.rarity,
+			tradeStatus: 'untradeable',
+			starForce: Number(data.starForce),
+			requiredLevel: Number(data.requiredLevel),
+			isEquipped: Boolean(data.isEquipped),
 
-            /* ─── main stats ─────────────────────────────────── */
-            totalStr:
-                Number(data.baseStr) +
-                Number(data.flameStr) +
-                Number(data.starStr),
-            baseStr: Number(data.baseStr) ?? 0,
-            flameStr: Number(data.flameStr) ?? null,
-            starStr: Number(data.starStr) ?? null,
+			/* ─── progression bonuses ────────────────────────── */
+			attackPowerIncrease: Number(data.attackPowerIncrease),
+			combatPowerIncrease: Number(data.combatPowerIncrease),
 
-            totalDex:
-                Number(data.baseDex) +
-                Number(data.flameDex) +
-                Number(data.starDex),
-            baseDex: Number(data.baseDex) ?? 0,
-            flameDex: Number(data.flameDex) ?? null,
-            starDex: Number(data.starDex) ?? null,
+			/* ─── main stats ─────────────────────────────────── */
+			totalStr:
+				Number(data.baseStr) + Number(data.flameStr) + Number(data.starStr),
+			baseStr: Number(data.baseStr) ?? 0,
+			flameStr: Number(data.flameStr) ?? null,
+			starStr: Number(data.starStr) ?? null,
 
-            totalInt:
-                Number(data.baseInt) +
-                Number(data.flameInt) +
-                Number(data.starInt),
-            baseInt: Number(data.baseInt) ?? 0,
-            flameInt: Number(data.flameInt) ?? null,
-            starInt: Number(data.starInt) ?? null,
+			totalDex:
+				Number(data.baseDex) + Number(data.flameDex) + Number(data.starDex),
+			baseDex: Number(data.baseDex) ?? 0,
+			flameDex: Number(data.flameDex) ?? null,
+			starDex: Number(data.starDex) ?? null,
 
-            totalLuk:
-                Number(data.baseLuk) +
-                Number(data.flameLuk) +
-                Number(data.starLuk),
-            baseLuk: Number(data.baseLuk) ?? 0,
-            flameLuk: Number(data.flameLuk) ?? null,
-            starLuk: Number(data.starLuk) ?? null,
+			totalInt:
+				Number(data.baseInt) + Number(data.flameInt) + Number(data.starInt),
+			baseInt: Number(data.baseInt) ?? 0,
+			flameInt: Number(data.flameInt) ?? null,
+			starInt: Number(data.starInt) ?? null,
 
-            /* ─── HP / MP ────────────────────────────────────── */
-            totalMaxHP:
-                Number(data.baseMaxHP) +
-                Number(data.flameMaxHP) +
-                Number(data.starMaxHP),
-            baseMaxHP: Number(data.baseMaxHP) ?? null,
-            flameMaxHP: Number(data.flameMaxHP) ?? null,
-            starMaxHP: Number(data.starMaxHP) ?? null,
+			totalLuk:
+				Number(data.baseLuk) + Number(data.flameLuk) + Number(data.starLuk),
+			baseLuk: Number(data.baseLuk) ?? 0,
+			flameLuk: Number(data.flameLuk) ?? null,
+			starLuk: Number(data.starLuk) ?? null,
 
-            totalMaxMP:
-                Number(data.baseMaxMP) +
-                Number(data.flameMaxMP) +
-                Number(data.starMaxMP),
-            baseMaxMP: Number(data.baseMaxMP) ?? null,
-            flameMaxMP: Number(data.flameMaxMP) ?? null,
-            starMaxMP: Number(data.starMaxMP) ?? null,
+			/* ─── HP / MP ────────────────────────────────────── */
+			totalMaxHP:
+				Number(data.baseMaxHP) +
+				Number(data.flameMaxHP) +
+				Number(data.starMaxHP),
+			baseMaxHP: Number(data.baseMaxHP) ?? null,
+			flameMaxHP: Number(data.flameMaxHP) ?? null,
+			starMaxHP: Number(data.starMaxHP) ?? null,
 
-            /* ─── offensive / defensive ──────────────────────── */
-            totalAttackPower:
-                Number(data.baseAttackPower) +
-                Number(data.flameAttackPower) +
-                Number(data.starAttackPower),
-            baseAttackPower: Number(data.baseAttackPower) ?? 0,
-            flameAttackPower: Number(data.flameAttackPower) ?? null,
-            starAttackPower: Number(data.starAttackPower) ?? null,
+			totalMaxMP:
+				Number(data.baseMaxMP) +
+				Number(data.flameMaxMP) +
+				Number(data.starMaxMP),
+			baseMaxMP: Number(data.baseMaxMP) ?? null,
+			flameMaxMP: Number(data.flameMaxMP) ?? null,
+			starMaxMP: Number(data.starMaxMP) ?? null,
 
-            totalMagicAttackPower:
-                Number(data.baseMagicAttackPower) +
-                Number(data.flameMagicAttackPower) +
-                Number(data.starMagicAttackPower),
-            baseMagicAttackPower: Number(data.baseMagicAttackPower) ?? 0,
-            flameMagicAttackPower: Number(data.flameMagicAttackPower) ?? null,
-            starMagicAttackPower: Number(data.starMagicAttackPower) ?? null,
+			/* ─── offensive / defensive ──────────────────────── */
+			totalAttackPower:
+				Number(data.baseAttackPower) +
+				Number(data.flameAttackPower) +
+				Number(data.starAttackPower),
+			baseAttackPower: Number(data.baseAttackPower) ?? 0,
+			flameAttackPower: Number(data.flameAttackPower) ?? null,
+			starAttackPower: Number(data.starAttackPower) ?? null,
 
-            /* ─── defense ───────────────────────────────────── */
-            baseDefense: null,
-            flameDefense: null,
-            starDefense: null,
+			totalMagicAttackPower:
+				Number(data.baseMagicAttackPower) +
+				Number(data.flameMagicAttackPower) +
+				Number(data.starMagicAttackPower),
+			baseMagicAttackPower: Number(data.baseMagicAttackPower) ?? 0,
+			flameMagicAttackPower: Number(data.flameMagicAttackPower) ?? null,
+			starMagicAttackPower: Number(data.starMagicAttackPower) ?? null,
 
-            /* ─── mobility ───────────────────────────────────── */
-            baseJump: null,
-            flameJump: null,
-            starJump: null,
+			/* ─── defense ───────────────────────────────────── */
+			baseDefense: null,
+			flameDefense: null,
+			starDefense: null,
 
-            baseSpeed: null,
-            flameSpeed: null,
-            starSpeed: null,
+			/* ─── mobility ───────────────────────────────────── */
+			baseJump: null,
+			flameJump: null,
+			starJump: null,
 
-            /* ─── percentage-based lines (Strings in Prisma) ─── */
-            baseAllStat: Number(data.baseAllStat) ?? undefined,
-            flameAllStat: Number(data.flameAllStat) ?? undefined,
+			baseSpeed: null,
+			flameSpeed: null,
+			starSpeed: null,
 
-            baseBossDamage: Number(data.baseBossDamage) ?? undefined,
-            flameBossDamage: Number(data.flameBossDamage) ?? undefined,
+			/* ─── percentage-based lines (Strings in Prisma) ─── */
+			baseAllStat: Number(data.baseAllStat) ?? undefined,
+			flameAllStat: Number(data.flameAllStat) ?? undefined,
 
-            baseIgnoreEnemyDefense:
-                Number(data.baseIgnoreEnemyDefense) ?? undefined,
-            flameIgnoreEnemyDefense:
-                Number(data.flameIgnoreEnemyDefense) ?? undefined,
+			baseBossDamage: Number(data.baseBossDamage) ?? undefined,
+			flameBossDamage: Number(data.flameBossDamage) ?? undefined,
 
-            /* ─── JSON block ─────────────────────────────────── */
-            potential: data.potential ? JSON.parse(data.potential) : {},
-        },
-    })
+			baseIgnoreEnemyDefense: Number(data.baseIgnoreEnemyDefense) ?? undefined,
+			flameIgnoreEnemyDefense:
+				Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
-    /* 5. Redirect – Next will client-navigate automatically ---------------- */
-    revalidatePath(`/character/${character.name}`)
-    redirect(`/character/${character.name}`)
-    return { success: true }
+			/* ─── JSON block ─────────────────────────────────── */
+			potential: data.potential ? JSON.parse(data.potential) : {},
+		},
+	})
+
+	/* 5. Redirect – Next will client-navigate automatically ---------------- */
+	revalidatePath(`/character/${character.name}`)
+	redirect(`/character/${character.name}`)
+	return { success: true }
 }

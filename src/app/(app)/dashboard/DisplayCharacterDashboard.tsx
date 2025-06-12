@@ -1,14 +1,10 @@
 'use client'
 
-import {
-	QueryClient,
-	usePrefetchQuery,
-	useQuery,
-	useSuspenseQuery,
-} from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import React from 'react'
 import { getCharacters } from './actions'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default function DisplayCharacterDashboard() {
 	const { data, isLoading, isError } = useSuspenseQuery({
@@ -28,11 +24,8 @@ export default function DisplayCharacterDashboard() {
 					{data.internalUser.email}&apos;s Characters
 				</h1>
 
-				<Link
-					href='/dashboard/new-character'
-					className='rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-700'
-				>
-					+ New Character
+				<Link href='/dashboard/new-character'>
+					<Button className='cursor-pointer'>+ New Character</Button>
 				</Link>
 			</div>
 			{data.characters.length === 0 ? (

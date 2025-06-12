@@ -2,117 +2,131 @@
 
 // import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 // import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
 export async function addGearItemPlus(characterName: string, url: string) {
-    const character = await prisma.character.findFirst({
-        where: { name: characterName },
-        select: { id: true, name: true },
-    })
-    if (!character) redirect('/')
-    /* 4. Persist ------------------------------------------------------------ */
+	/* 2. Clerk auth --------------------------------------------------------- */
+	const { userId: clerkId } = await auth()
+	if (!clerkId) throw new Error('Unauthenticated')
 
-    const gear = await prisma.gearItem.create({
-        data: {
-            /* ─── linkage & meta ─────────────────────────────── */
-            // characterId: character.id,
-            character: { connect: { id: character.id } },
-            name: '',
-            type: '',
-            rarity: '',
-            tradeStatus: 'untradeable',
-            starForce: 0,
-            requiredLevel: 0,
-            isEquipped: false,
+	const internalUser = await prisma.user.findFirst({
+		where: { clerkId: clerkId },
+		select: { id: true },
+	})
 
-            url: url,
+	const character = await prisma.character.findFirst({
+		where: { name: characterName },
+		select: { id: true, name: true, userId: true },
+	})
+	if (!character) redirect('/')
+	if (character.userId !== internalUser?.id) {
+		throw new Error('You do not own this character')
+	}
 
-            /* ─── progression bonuses ────────────────────────── */
-            attackPowerIncrease: 0,
-            combatPowerIncrease: 0,
+	/* 4. Persist ------------------------------------------------------------ */
 
-            /* ─── main stats ─────────────────────────────────── */
-            totalStr: 0,
-            baseStr: 0,
-            flameStr: 0,
-            starStr: 0,
+	const gear = await prisma.gearItem.create({
+		data: {
+			/* ─── linkage & meta ─────────────────────────────── */
+			// characterId: character.id,
+			character: { connect: { id: character.id } },
+			name: '',
+			type: '',
+			rarity: '',
+			tradeStatus: 'untradeable',
+			starForce: 0,
+			requiredLevel: 0,
+			isEquipped: false,
 
-            totalDex: 0,
-            baseDex: 0,
-            flameDex: 0,
-            starDex: 0,
+			url: url,
 
-            totalInt: 0,
-            baseInt: 0,
-            flameInt: 0,
-            starInt: 0,
+			/* ─── progression bonuses ────────────────────────── */
+			attackPowerIncrease: 0,
+			combatPowerIncrease: 0,
 
-            totalLuk: 0,
-            baseLuk: 0,
-            flameLuk: 0,
-            starLuk: 0,
+			/* ─── main stats ─────────────────────────────────── */
+			totalStr: 0,
+			baseStr: 0,
+			flameStr: 0,
+			starStr: 0,
 
-            /* ─── HP / MP ────────────────────────────────────── */
-            totalMaxHP: 0,
-            baseMaxHP: 0,
-            flameMaxHP: 0,
-            starMaxHP: 0,
+			totalDex: 0,
+			baseDex: 0,
+			flameDex: 0,
+			starDex: 0,
 
-            totalMaxMP: 0,
-            baseMaxMP: 0,
-            flameMaxMP: 0,
-            starMaxMP: 0,
+			totalInt: 0,
+			baseInt: 0,
+			flameInt: 0,
+			starInt: 0,
 
-            /* ─── offensive / defensive ──────────────────────── */
-            totalAttackPower: 0,
-            baseAttackPower: 0,
-            flameAttackPower: 0,
-            starAttackPower: 0,
+			totalLuk: 0,
+			baseLuk: 0,
+			flameLuk: 0,
+			starLuk: 0,
 
-            totalMagicAttackPower: 0,
-            baseMagicAttackPower: 0,
-            flameMagicAttackPower: 0,
-            starMagicAttackPower: 0,
+			/* ─── HP / MP ────────────────────────────────────── */
+			totalMaxHP: 0,
+			baseMaxHP: 0,
+			flameMaxHP: 0,
+			starMaxHP: 0,
 
-            totalDefense: 0,
-            baseDefense: null,
-            flameDefense: null,
-            starDefense: null,
+			totalMaxMP: 0,
+			baseMaxMP: 0,
+			flameMaxMP: 0,
+			starMaxMP: 0,
 
-            /* ─── mobility ───────────────────────────────────── */
-            totalJump: 0,
-            baseJump: null,
-            flameJump: null,
-            starJump: null,
+			/* ─── offensive / defensive ──────────────────────── */
+			totalAttackPower: 0,
+			baseAttackPower: 0,
+			flameAttackPower: 0,
+			starAttackPower: 0,
 
-            totalSpeed: 0,
-            baseSpeed: null,
-            flameSpeed: null,
-            starSpeed: null,
+			totalMagicAttackPower: 0,
+			baseMagicAttackPower: 0,
+			flameMagicAttackPower: 0,
+			starMagicAttackPower: 0,
 
-            /* ─── percentage-based lines (Strings in Prisma) ─── */
-            totalAllStat: 0,
-            baseAllStat: 0,
-            flameAllStat: 0,
+			totalDefense: 0,
+			baseDefense: null,
+			flameDefense: null,
+			starDefense: null,
 
-            totalBossDamage: 0,
-            baseBossDamage: 0,
-            flameBossDamage: 0,
+			/* ─── mobility ───────────────────────────────────── */
+			totalJump: 0,
+			baseJump: null,
+			flameJump: null,
+			starJump: null,
 
-            totalIgnoreEnemyDefense: 0,
-            baseIgnoreEnemyDefense: 0,
-            flameIgnoreEnemyDefense: 0,
+			totalSpeed: 0,
+			baseSpeed: null,
+			flameSpeed: null,
+			starSpeed: null,
 
-            /* ─── JSON block ─────────────────────────────────── */
-            potential: {},
-        },
-    })
+			/* ─── percentage-based lines (Strings in Prisma) ─── */
+			totalAllStat: 0,
+			baseAllStat: 0,
+			flameAllStat: 0,
 
-    /* 5. Redirect – Next will client-navigate automatically ---------------- */
-    revalidatePath(`/character/${character.name}`)
-    redirect(`/character/${character.name}/newgearplus/${gear.id}`)
+			totalBossDamage: 0,
+			baseBossDamage: 0,
+			flameBossDamage: 0,
 
-    return { success: true, gearId: gear.id }
+			totalIgnoreEnemyDefense: 0,
+			baseIgnoreEnemyDefense: 0,
+			flameIgnoreEnemyDefense: 0,
+
+			/* ─── JSON block ─────────────────────────────────── */
+			potential: {},
+		},
+	})
+
+	/* 5. Redirect – Next will client-navigate automatically ---------------- */
+	revalidatePath(`/character/${character.name}`)
+	redirect(`/character/${character.name}/newgearplus/${gear.id}`)
+
+	return { success: true, gearId: gear.id }
 }

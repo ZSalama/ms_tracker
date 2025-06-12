@@ -1,12 +1,4 @@
-import { auth } from '@clerk/nextjs/server' // Clerk helper (server-side)
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { prisma } from '@/lib/prisma' // your Prisma singleton
-import {
-	dehydrate,
-	HydrationBoundary,
-	QueryClient,
-} from '@tanstack/react-query'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import DisplayCharacterDashboard from './DisplayCharacterDashboard'
 import { getCharacters } from './actions'
 import { getQueryClient } from '@/lib/get-query-client'

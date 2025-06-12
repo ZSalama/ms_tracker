@@ -53,11 +53,11 @@ export default function DisplayGearData({ characterName }: Props) {
 								{gear.totalMagicAttackPower ?? 0}
 							</p>
 						</div>
-						<div>
+						<div className='flex pt-4'>
 							{data.internalUser &&
 							userId === String(data.internalUser.clerkId) ? (
 								<Link href={`/character/${characterName}/editgear/${gear.id}`}>
-									<Button className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+									<Button variant='default' className='cursor-pointer'>
 										Edit Gear
 									</Button>
 								</Link>
@@ -75,11 +75,8 @@ export default function DisplayGearData({ characterName }: Props) {
 				))}
 			</div>
 			{data.internalUser && userId === String(data.internalUser.clerkId) ? (
-				<Link
-					href={`/character/${characterName}/newgearplus`}
-					className='inline-block mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 transition'
-				>
-					+ Add New Gear
+				<Link href={`/character/${characterName}/newgearplus`}>
+					<Button className='mt-4 cursor-pointer'>+ Add New Gear </Button>
 				</Link>
 			) : null}
 		</div>
@@ -114,14 +111,15 @@ function CharacterInfo({
 					</dd>
 				</div>
 				{internalUser && userId === String(internalUser.clerkId) ? (
-					<>
-						<Button className='m-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+					<div className='mt-4'>
+						<Button>
 							<Link href={`/character/${characterProp.name}/edit-character`}>
 								Edit Character
 							</Link>
 						</Button>
+
 						<DeleteCharacterButton characterName={characterProp.name} />
-					</>
+					</div>
 				) : null}
 			</dl>
 		</div>
