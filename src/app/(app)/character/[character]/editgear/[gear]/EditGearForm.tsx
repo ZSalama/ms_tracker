@@ -25,7 +25,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useTransition } from 'react'
 import { GearItem } from '@prisma/client'
-import Link from 'next/link'
 
 export default function EditGearForm({
     character,

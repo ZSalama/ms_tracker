@@ -21,6 +21,7 @@ function makeQueryClient() {
 					// so we cannot redact them.
 					// Next.js also automatically redacts errors for us
 					// with better digests.
+					console.error('Redacting error:', error)
 					return false
 				},
 			},

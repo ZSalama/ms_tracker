@@ -53,11 +53,11 @@ export default function DisplayGearData({ characterName }: Props) {
 								{gear.totalMagicAttackPower ?? 0}
 							</p>
 						</div>
-						<div>
+						<div className='flex pt-4'>
 							{data.internalUser &&
 							userId === String(data.internalUser.clerkId) ? (
 								<Link href={`/character/${characterName}/editgear/${gear.id}`}>
-									<Button className='mt-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+									<Button variant='default' className='cursor-pointer'>
 										Edit Gear
 									</Button>
 								</Link>
@@ -75,34 +75,11 @@ export default function DisplayGearData({ characterName }: Props) {
 				))}
 			</div>
 			{data.internalUser && userId === String(data.internalUser.clerkId) ? (
-				<Link
-					href={`/character/${characterName}/newgearplus`}
-					className='inline-block mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white shadow hover:bg-indigo-700 transition'
-				>
-					+ Add New Gear
+				<Link href={`/character/${characterName}/newgearplus`}>
+					<Button className='mt-4 cursor-pointer'>+ Add New Gear </Button>
 				</Link>
 			) : null}
 		</div>
-		// <div>
-		// 	<h2 className='text-2xl font-bold mb-4'>Gear Data for {characterName}</h2>
-		// 	<ul className='space-y-4'>
-		// 		{data.gears.map((gear) => (
-		// 			<li key={gear.id} className='p-4 border rounded-lg shadow-sm'>
-		// 				<h3 className='text-xl font-semibold'>{gear.name}</h3>
-		// 				<p>Type: {gear.type}</p>
-		// 				<p>Star Force: {gear.starForce}</p>
-		// 				<p>Combat Power Increase: {gear.combatPowerIncrease}</p>
-		// 				<p>Total STR: {gear.totalStr}</p>
-		// 				<p>Total DEX: {gear.totalDex}</p>
-		// 				<p>Total INT: {gear.totalInt}</p>
-		// 				<p>Total LUK: {gear.totalLuk}</p>
-		// 				<p>Flame All Stat: {gear.flameAllStat}</p>
-		// 				<p>Total Attack Power: {gear.totalAttackPower}</p>
-		// 				<p>Total Magic Attack Power: {gear.totalMagicAttackPower}</p>
-		// 			</li>
-		// 		))}
-		// 	</ul>
-		// </div>
 	)
 }
 
@@ -134,14 +111,15 @@ function CharacterInfo({
 					</dd>
 				</div>
 				{internalUser && userId === String(internalUser.clerkId) ? (
-					<>
-						<Button className='m-4 inline-block rounded-md border border-indigo-600 px-3 py-1 text-sm font-medium text-indigo-600 hover:bg-indigo-50 cursor-pointer bg-white'>
+					<div className='mt-4'>
+						<Button>
 							<Link href={`/character/${characterProp.name}/edit-character`}>
 								Edit Character
 							</Link>
 						</Button>
+
 						<DeleteCharacterButton characterName={characterProp.name} />
-					</>
+					</div>
 				) : null}
 			</dl>
 		</div>

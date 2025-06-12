@@ -10,43 +10,37 @@ export async function editCharacterItem(
 	formData: FormData,
 	characterId: number
 ) {
-	// console.log('createGearItem', formData)
-	/* 1. Clerk auth --------------------------------------------------------- */
-	const { userId: clerkId } = await auth()
-	if (!clerkId) throw new Error('Unauthenticated')
-
-	/* 2. Zod validation ----------------------------------------------------- */
+	// console.log('createGearItem', formData)/* 2. Zod validation ----------------------------------------------------- */
 	const parsed = characterSchema.safeParse(Object.fromEntries(formData))
 	if (!parsed.success) {
 		return { error: parsed.error.flatten().fieldErrors }
 	}
 	const data = parsed.data
+	/* 2. Clerk auth --------------------------------------------------------- */
+	const { userId: clerkId } = await auth()
+	if (!clerkId) throw new Error('Unauthenticated')
 
-	// get internal user from the database
-	const internalUser = await prisma.user.findUnique({
-		where: { clerkId }, // e.g. “clerkId” is a string column
+	/* 3. Character ownership check ----------------------------------------- */
+	const character = await prisma.character.findFirst({
+		where: { id: characterId },
+		select: { id: true, name: true, userId: true },
+	})
+
+	const internalUser = await prisma.user.findFirst({
+		where: { clerkId: clerkId },
 		select: { id: true, email: true },
 	})
-	if (!internalUser) {
-		redirect('/')
+
+	if (!character) {
+		throw new Error('Character not found')
+	}
+	if (character.userId !== internalUser?.id) {
+		throw new Error('You do not own this character')
 	}
 
 	console.log(
 		`User ${internalUser.email} is editing character with ID ${characterId}`
 	)
-	/* 3. Get Character Data ----------------------------------------- */
-	const character = await prisma.character.findFirst({
-		where: { id: characterId },
-		select: { id: true, name: true, userId: true }, // need more fields?
-	})
-
-	if (!character) redirect('/')
-
-	// check to see if the character belongs to the user
-	if (character.userId !== internalUser.id) {
-		alert('You do not have permission to edit this character.')
-		redirect('/dashboard')
-	}
 
 	/* 4. Persist ------------------------------------------------------------ */
 	await prisma.character.update({
