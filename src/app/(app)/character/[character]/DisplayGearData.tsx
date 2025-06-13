@@ -33,43 +33,53 @@ export default function DisplayGearData({ characterName }: Props) {
 				{data.gears.map((gear) => (
 					<div
 						key={gear.id}
-						className='rounded-xl border border-gray-200 bg-white p-6 shadow transition hover:shadow-md flex flex-col'
+						className=' relative rounded-xl border border-gray-200 bg-white p-6 shadow transition hover:shadow-md flex flex-col'
 					>
-						<div className='flex-1'>
-							<h2 className='mb-2 text-lg font-semibold'>{gear.name}</h2>
-							<p className='text-sm text-gray-600'>Type: {gear.type}</p>
-							<p className='text-sm text-gray-600'>
-								Star Force: {gear.starForce}
-							</p>
-							<p className='text-sm text-gray-600'>
-								Str: {gear.totalStr ?? 0} | Dex: {gear.totalDex ?? 0} | Int:{' '}
-								{gear.totalInt ?? 0} | Luk: {gear.totalLuk ?? 0}
-							</p>
-							<p className='text-sm text-gray-600'>
-								All stat: {gear.flameAllStat ?? 0}%
-							</p>
-							<p className='text-sm text-gray-600'>
-								Attack Power: {gear.totalAttackPower ?? 0} | Magic Attack Power:{' '}
-								{gear.totalMagicAttackPower ?? 0}
-							</p>
-						</div>
-						<div className='flex pt-4'>
-							{data.internalUser &&
-							userId === String(data.internalUser.clerkId) ? (
-								<Link href={`/character/${characterName}/editgear/${gear.id}`}>
-									<Button variant='default' className='cursor-pointer'>
-										Edit Gear
+						<Link
+							href={`/character/${characterName}/${gear.id}`}
+							className='absolute inset-0 border-2 border-red-500 cursor-pointer'
+							aria-label={`view ${gear.name}`}
+						/>
+
+						<div>
+							<div className='flex-1'>
+								<h2 className='mb-2 text-lg font-semibold'>{gear.name}</h2>
+								<p className='text-sm text-gray-600'>Type: {gear.type}</p>
+								<p className='text-sm text-gray-600'>
+									Star Force: {gear.starForce}
+								</p>
+								<p className='text-sm text-gray-600'>
+									Str: {gear.totalStr ?? 0} | Dex: {gear.totalDex ?? 0} | Int:{' '}
+									{gear.totalInt ?? 0} | Luk: {gear.totalLuk ?? 0}
+								</p>
+								<p className='text-sm text-gray-600'>
+									All stat: {gear.flameAllStat ?? 0}%
+								</p>
+								<p className='text-sm text-gray-600'>
+									Attack Power: {gear.totalAttackPower ?? 0} | Magic Attack
+									Power: {gear.totalMagicAttackPower ?? 0}
+								</p>
+							</div>
+							<div className='flex mt-4 relative z-10 gap-4'>
+								{data.internalUser &&
+								userId === String(data.internalUser.clerkId) ? (
+									<Button variant='default' className='cursor-pointer' asChild>
+										<Link
+											href={`/character/${characterName}/editgear/${gear.id}`}
+										>
+											Edit Gear
+										</Link>
 									</Button>
-								</Link>
-							) : null}
-							{data.internalUser &&
-							userId === String(data.internalUser.clerkId) ? (
-								<DeleteGearButton
-									gearId={gear.id}
-									gearName={gear.name}
-									characterName={characterName}
-								/>
-							) : null}
+								) : null}
+								{data.internalUser &&
+								userId === String(data.internalUser.clerkId) ? (
+									<DeleteGearButton
+										gearId={gear.id}
+										gearName={gear.name}
+										characterName={characterName}
+									/>
+								) : null}
+							</div>
 						</div>
 					</div>
 				))}

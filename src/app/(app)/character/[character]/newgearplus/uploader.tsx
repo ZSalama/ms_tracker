@@ -1,6 +1,6 @@
 'use client'
 
-import { UploadButton } from '@/utils/uploadthing'
+import { UploadButton, UploadDropzone } from '@/utils/uploadthing'
 // import { redirect } from 'next/navigation'
 import { useCharacterGear } from '@/context/CharacterGearContext'
 import { ClientUploadedFileData } from 'uploadthing/types'
@@ -38,9 +38,11 @@ export default function Uploader({ character }: { character: string }) {
 
 	return (
 		<>
-			<div className='flex flex-col items-center justify-center p-12 bg-gray-800 rounded-lg shadow-md'>
+			<div className=''>
 				<UploadButton
 					endpoint='imageUploader'
+					// config={{ cn: twMerge }}
+					className='mt-4 ut-button:bg-red-500 ut-button:ut-readying:bg-red-500/50'
 					onClientUploadComplete={(
 						res: ClientUploadedFileData<{
 							uploadedBy: string
