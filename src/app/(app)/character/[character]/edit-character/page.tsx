@@ -46,7 +46,6 @@ export default async function page({
 			</div>
 
 			<EditCharacterForm
-				character={character}
 				characterId={characterData.id}
 				characterData={characterData}
 			/>

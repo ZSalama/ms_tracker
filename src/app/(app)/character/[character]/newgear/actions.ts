@@ -48,7 +48,7 @@ export async function createGearItem(formData: FormData, characterId: number) {
 			tradeStatus: 'untradeable',
 			starForce: Number(data.starForce),
 			requiredLevel: Number(data.requiredLevel),
-			isEquipped: Boolean(data.isEquipped),
+			isEquipped: data.isEquipped,
 
 			/* ─── progression bonuses ────────────────────────── */
 			attackPowerIncrease: Number(data.attackPowerIncrease),

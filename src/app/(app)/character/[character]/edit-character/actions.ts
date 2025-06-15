@@ -4,16 +4,13 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { characterSchema } from '@/lib/validators/character'
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
-import {
-	getCharacterFlameScore,
-	refreshCharacterFlameScore,
-} from '@/lib/calculateFlames'
+import { getQueryClient } from '@/lib/get-query-client'
 
 export async function editCharacterItem(
 	formData: FormData,
 	characterId: number
 ) {
+	const queryClient = getQueryClient()
 	// console.log('createGearItem', formData)/* 2. Zod validation ----------------------------------------------------- */
 	const parsed = characterSchema.safeParse(Object.fromEntries(formData))
 	if (!parsed.success) {
@@ -41,15 +38,16 @@ export async function editCharacterItem(
 		throw new Error('You do not own this character')
 	}
 
-	console.log(
-		`User ${internalUser.email} is editing character with ID ${characterId}`
-	)
+	// console.log(
+	// 	`User ${internalUser.email} is editing character with ID ${characterId}`
+	// )
 
 	// calulate and update flame score
-	const newFlameScore = await getCharacterFlameScore(characterId)
-	console.log(
-		`New flame score for character ${character.name} is ${newFlameScore}`
-	)
+	// const newFlameScore = await getCharacterFlameScore(characterId)
+
+	// console.log(
+	// 	`New flame score for character ${character.name} is ${newFlameScore}`
+	// )
 
 	/* 4. Persist ------------------------------------------------------------ */
 	await prisma.character.update({
@@ -62,16 +60,16 @@ export async function editCharacterItem(
 			combatPower: data.combatPower,
 			arcaneForce: data.arcaneForce,
 			sacredPower: data.sacredPower,
-			totalFlameScore: newFlameScore,
+			// totalFlameScore: data.totalFlameScore,
 		},
 	})
 
-	console.log(
-		`Character ${character.name} updated by user ${internalUser.email}`
-	)
+	// console.log(
+	// 	`Character ${character.name} updated by user ${internalUser.email}`
+	// )
 
 	/* 5. Redirect – Next will client-navigate automatically ---------------- */
-	revalidatePath(`/character/${character.name}`)
+	queryClient.invalidateQueries({ queryKey: ['characters'] })
 	redirect(`/character/${character.name}`)
 	return { success: true }
 }

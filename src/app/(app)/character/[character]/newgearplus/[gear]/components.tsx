@@ -2,12 +2,8 @@
 import { type Character, type GearItem } from '@prisma/client'
 import ViewGear from '@/components/ViewGear/ViewGear'
 import { Button } from '@/components/ui/button'
-import {
-	calculateFlameScore,
-	refreshCharacterFlameScore,
-} from '@/lib/calculateFlames'
-import { prisma } from '@/lib/prisma'
 import { equipGear } from '@/lib/equipGear'
+import { redirect } from 'next/navigation'
 
 type Props = { gear: GearItem }
 
@@ -28,6 +24,7 @@ export function EquipGearButton({ character, gear }: EquipGearButtonProps) {
 		<Button
 			onClick={() => {
 				equipGear({ character, gear })
+				redirect(`/character/${character.name}`) // Redirect to character page after equipping
 			}}
 			className='cursor-pointer'
 		>

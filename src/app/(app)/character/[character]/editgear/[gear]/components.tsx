@@ -1,10 +1,9 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { gearSchema, GearSchema } from '@/lib/validators/gear'
-import { createGearItem } from './actions'
+import { editGearItem } from './actions'
 
 import {
 	Form,
@@ -23,63 +22,80 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { useTransition } from 'react'
-import Link from 'next/link'
+import { startTransition, useTransition } from 'react'
+import { GearItem } from '@prisma/client'
 import { gearTypes } from '@/lib/types'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { getGears } from '../../actions'
+import { redirect } from 'next/navigation'
 
-export default function NewGearForm({
-	character,
-	characterId,
-}: {
-	character: string
-	characterId: number
-}) {
-	const router = useRouter()
+type Props = { characterName: string; gearId: string }
+
+export function EditGearFormClient({ characterName, gearId }: Props) {
 	const [isPending, startTransition] = useTransition()
-
+	const { data, isLoading, isError } = useSuspenseQuery({
+		queryKey: ['gears', characterName],
+		queryFn: () => getGears(characterName),
+	})
+	const gearData = data.gears.find(
+		(gear: GearItem) => gear.id === Number(gearId)
+	)
 	/* ---------------- RHF setup ---------------- */
 	const form = useForm<GearSchema>({
 		resolver: zodResolver(gearSchema),
 		defaultValues: {
-			name: '',
-			starForce: 22,
-			type: 'Ring',
-			rarity: 'Common',
-			attackPowerIncrease: 0,
-			combatPowerIncrease: 0,
-			requiredLevel: 0,
+			name: gearData?.name,
+			starForce: gearData?.starForce,
+			type: gearData?.type,
+			rarity: gearData?.rarity,
+			attackPowerIncrease: gearData?.attackPowerIncrease,
+			combatPowerIncrease: gearData?.combatPowerIncrease,
+			requiredLevel: gearData?.requiredLevel,
 			potential: '',
-			isEquipped: 'notEquipped',
-			baseStr: 0,
-			flameStr: 0,
-			starStr: 0,
-			baseDex: 0,
-			flameDex: 0,
-			starDex: 0,
-			baseInt: 0,
-			flameInt: 0,
-			starInt: 0,
-			baseLuk: 0,
-			flameLuk: 0,
-			starLuk: 0,
-			baseMaxHP: 0,
-			flameMaxHP: 0,
-			starMaxHP: 0,
-			baseMaxMP: 0,
-			flameMaxMP: 0,
-			starMaxMP: 0,
-			baseAttackPower: 0,
-			flameAttackPower: 0,
-			starAttackPower: 0,
-			baseMagicAttackPower: 0,
-			flameMagicAttackPower: 0,
-			starMagicAttackPower: 0,
-			baseAllStat: 0,
-			flameAllStat: 0,
-			baseBossDamage: 0,
-			flameBossDamage: 0,
-			baseIgnoreEnemyDefense: 0,
-			flameIgnoreEnemyDefense: 0,
+			isEquipped: gearData?.isEquipped,
+
+			// totalStr: gearData.totalStr ?? 0,
+			baseStr: gearData?.baseStr ?? 0,
+			flameStr: gearData?.flameStr ?? 0,
+			starStr: gearData?.starStr ?? 0,
+
+			// totalDex: gearData.totalDex ?? 0,
+			baseDex: gearData?.baseDex ?? 0,
+			flameDex: gearData?.flameDex ?? 0,
+			starDex: gearData?.starDex ?? 0,
+
+			// totalInt: gearData.totalInt ?? 0,
+			baseInt: gearData?.baseInt ?? 0,
+			flameInt: gearData?.flameInt ?? 0,
+			starInt: gearData?.starInt ?? 0,
+
+			// totalLuk: gearData.totalLuk ?? 0,
+			baseLuk: gearData?.baseLuk ?? 0,
+			flameLuk: gearData?.flameLuk ?? 0,
+			starLuk: gearData?.starLuk ?? 0,
+
+			// totalMaxHP: gearData.totalMaxHP ?? 0,
+			baseMaxHP: gearData?.baseMaxHP ?? 0,
+			flameMaxHP: gearData?.flameMaxHP ?? 0,
+			starMaxHP: gearData?.starMaxHP ?? 0,
+			baseMaxMP: gearData?.baseMaxMP ?? 0,
+			flameMaxMP: gearData?.flameMaxMP ?? 0,
+			starMaxMP: gearData?.starMaxMP ?? 0,
+
+			baseAttackPower: gearData?.baseAttackPower ?? 0,
+			flameAttackPower: gearData?.flameAttackPower ?? 0,
+			starAttackPower: gearData?.starAttackPower ?? 0,
+
+			baseMagicAttackPower: gearData?.baseMagicAttackPower ?? 0,
+			flameMagicAttackPower: gearData?.flameMagicAttackPower ?? 0,
+			starMagicAttackPower: gearData?.starMagicAttackPower ?? 0,
+
+			baseAllStat: gearData?.baseAllStat ?? 0,
+			flameAllStat: gearData?.flameAllStat ?? 0,
+			baseBossDamage: gearData?.baseBossDamage ?? 0,
+			flameBossDamage: gearData?.flameBossDamage ?? 0,
+			baseIgnoreEnemyDefense: gearData?.baseIgnoreEnemyDefense ?? 0,
+			flameIgnoreEnemyDefense: gearData?.flameIgnoreEnemyDefense ?? 0,
 		},
 	})
 
@@ -88,7 +104,14 @@ export default function NewGearForm({
 		startTransition(async () => {
 			const fd = new FormData()
 			Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
-			const result = await createGearItem(fd, characterId)
+			if (gearData?.characterId === undefined) {
+				throw new Error('Character ID is undefined')
+			}
+			const result = await editGearItem(
+				fd,
+				gearData.characterId,
+				Number(gearId)
+			)
 
 			if (result?.error) {
 				// Push Zod errors back into react-hook-form
@@ -98,9 +121,9 @@ export default function NewGearForm({
 					})
 				)
 			} else if (result?.success) {
-				form.reset() // clear the form
+				// form.reset() // clear the form
 				// redirect to dasbhoard
-				router.push('/dashboard')
+				redirect(`/character/${characterName}/dashboard`)
 			}
 		})
 	}
@@ -114,9 +137,7 @@ export default function NewGearForm({
 				className='space-y-6 max-w-xl'
 			>
 				{/* <input type='hidden' {...form.register('characterId')} /> */}
-				<Link href={`/character/${character}`}>
-					<Button className='cursor-pointer'>back to characters</Button>
-				</Link>
+
 				<FormField
 					control={form.control}
 					name='name'
@@ -193,6 +214,31 @@ export default function NewGearForm({
 													</SelectItem>
 												)
 											)}
+										</SelectContent>
+									</Select>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name='isEquipped'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Equipped</FormLabel>
+								<FormControl>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<SelectTrigger>{field.value}</SelectTrigger>
+										<SelectContent>
+											{['equipped', 'notEquipped'].map((r) => (
+												<SelectItem key={r} value={r}>
+													{r}
+												</SelectItem>
+											))}
 										</SelectContent>
 									</Select>
 								</FormControl>
@@ -437,7 +483,7 @@ export default function NewGearForm({
 				{/* ----- attackPower trio ----- */}
 				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
-						{ name: 'baseAttackPower', label: 'attack Power' },
+						{ name: 'baseAttackPower', label: 'base attack Power' },
 						{
 							name: 'flameAttackPower',
 							label: 'flame attack Power',
@@ -474,7 +520,7 @@ export default function NewGearForm({
 					{[
 						{
 							name: 'baseMagicAttackPower',
-							label: 'magic attack Power',
+							label: 'base magic attack Power',
 						},
 						{
 							name: 'flameMagicAttackPower',
@@ -548,7 +594,7 @@ export default function NewGearForm({
 				{/* ----- bossDamage trio ----- */}
 				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
-						{ name: 'baseBossDamage', label: 'boss Damage' },
+						// { name: 'bossDamage', label: 'boss Damage' },
 						{
 							name: 'flameBossDamage',
 							label: 'flame boss Damage',
@@ -583,10 +629,7 @@ export default function NewGearForm({
 				{/* ----- ignoreEnemyDefense trio ----- */}
 				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
-						{
-							name: 'baseIgnoreEnemyDefense',
-							label: 'base Ignore Enemy Defense',
-						},
+						// { name: 'bossDamage', label: 'boss Damage' },
 						{
 							name: 'flameIgnoreEnemyDefense',
 							label: 'ignore Enemy Defense Flame',
@@ -640,12 +683,8 @@ export default function NewGearForm({
 					/>
 				))}
 
-				<Button
-					type='submit'
-					disabled={isPending}
-					className='w-full cursor-pointer'
-				>
-					{isPending ? 'Saving…' : 'Add gear'}
+				<Button type='submit' disabled={isPending} className='cursor-pointer'>
+					{isPending ? 'Saving…' : 'Update gear'}
 				</Button>
 			</form>
 		</Form>

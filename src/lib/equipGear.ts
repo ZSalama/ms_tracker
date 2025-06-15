@@ -5,7 +5,7 @@ import {
 	refreshCharacterFlameScore,
 } from './calculateFlames'
 import { prisma } from './prisma'
-import { redirect } from 'next/navigation'
+// import { redirect } from 'next/navigation'
 
 type EquipGearButtonProps = {
 	character: Character
@@ -20,7 +20,7 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 	const existingEquippedGear = await prisma.gearItem.findFirst({
 		where: {
 			characterId: character.id,
-			isEquipped: true,
+			isEquipped: 'equipped',
 			type: gear.type, // Ensure we only look for the same type of gear
 		},
 	})
@@ -31,7 +31,7 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 	if (existingEquippedGear) {
 		await prisma.gearItem.update({
 			where: { id: existingEquippedGear.id },
-			data: { isEquipped: false },
+			data: { isEquipped: 'notEquipped' },
 		})
 	}
 	console.log('Unequipped existing gear:', existingEquippedGear?.isEquipped)
@@ -40,15 +40,17 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 	const updatedGear = await prisma.gearItem.update({
 		where: { id: gear.id },
 		data: {
-			isEquipped: true,
+			isEquipped: 'equipped',
 			totalFlameScore: gearItemFlameScore,
 		},
 	})
 
 	console.log('Updated gear:', updatedGear.id)
+
 	// Recalculate the character's total flame score
 	const newScore = await refreshCharacterFlameScore(character.id)
 	console.log('New flame score calculated:', newScore)
+
 	const res = await prisma.character.update({
 		where: { id: character.id },
 		data: { totalFlameScore: newScore },
@@ -61,5 +63,5 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 	} else {
 		console.error('Failed to update character flame score')
 	}
-	redirect(`/character/${character.name}`)
+	// redirect(`/character/${character.name}`)
 }

@@ -9,7 +9,6 @@ export default async function Page({
 	params: Promise<{ character: string }>
 }) {
 	const { character } = await params
-	// const { userId } = await auth()
 
 	const queryClient = getQueryClient()
 

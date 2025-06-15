@@ -1,10 +1,7 @@
 'use server'
 
-// import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
-import { revalidatePath } from 'next/cache'
-// import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
 export async function addGearItemPlus(characterName: string, url: string) {
@@ -39,7 +36,7 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			tradeStatus: 'untradeable',
 			starForce: 0,
 			requiredLevel: 0,
-			isEquipped: false,
+			isEquipped: 'unequipped',
 
 			url: url,
 

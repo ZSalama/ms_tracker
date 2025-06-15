@@ -1,38 +1,45 @@
-import { Button } from '@/components/ui/button'
-import ViewGear from '@/components/ViewGear/ViewGear'
-import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
-// import { GearItem } from '@prisma/client'
+import { getQueryClient } from '@/lib/get-query-client'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import React from 'react'
+import { getGears } from '../actions'
+import { ImageOfGear, ViewGearContainer } from './components'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
-export default async function viewgear({
-	params,
-}: {
-	params: Promise<{ gear: string }>
-}) {
+type Props = {
+	character: string
+	gear: string
+}
+
+export default async function viewgear({ params }: { params: Promise<Props> }) {
 	const props = await params
-	const gearData = await prisma.gearItem.findFirst({
-		where: { id: Number(props.gear) },
+
+	const queryClient = getQueryClient()
+
+	void queryClient.prefetchQuery({
+		queryKey: ['gears', props.character],
+		queryFn: () => getGears(props.character),
 	})
-	if (!gearData) {
-		return <div>Gear not found</div>
-	}
-	const characterId = await prisma.character.findFirst({
-		where: { id: gearData.characterId },
-		select: { name: true },
-	})
-	if (!characterId) {
-		return <div>Character not found</div>
-	}
 
 	return (
-		<div className='max-w-4xl mx-auto'>
-			{/* back to character button */}
-			<Link href={`/character/${characterId.name}`}>
-				{' '}
-				<Button className='cursor-pointer'>Back to Character</Button>
-			</Link>
-			<ViewGear {...gearData} />
+		<div className='container mx-auto px-4 py-8 space-y-10'>
+			<HydrationBoundary state={dehydrate(queryClient)}>
+				<div className='grid lg:grid-cols-2 mx-auto justify-center items-center gap-10'>
+					<div>
+						<Link href={`/character/${props.character}`}>
+							<Button className='cursor-pointer  mx-auto flex my-4'>
+								Back to Character
+							</Button>
+						</Link>
+						<ImageOfGear characterName={props.character} gearId={props.gear} />
+					</div>
+
+					<ViewGearContainer
+						characterName={props.character}
+						gearId={props.gear}
+					/>
+				</div>
+			</HydrationBoundary>
 		</div>
 	)
 }

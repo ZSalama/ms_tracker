@@ -9,12 +9,15 @@ import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
+import { getQueryClient } from '@/lib/get-query-client'
+import { equipGear } from '@/lib/equipGear'
 
 export async function editGearItem(
 	formData: FormData,
 	characterId: number,
 	gearId: number
 ) {
+	const queryClient = getQueryClient()
 	// console.log('createGearItem', formData)/* 2. Zod validation ----------------------------------------------------- */
 	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
 	if (!parsed.success) {
@@ -45,7 +48,7 @@ export async function editGearItem(
 	const gearItemFlameScore = calculateFlameScore(character, data)
 
 	/* 4. Persist ------------------------------------------------------------ */
-	await prisma.gearItem.update({
+	const gear = await prisma.gearItem.update({
 		where: { id: Number(gearId) },
 		data: {
 			/* ─── linkage & meta ─────────────────────────────── */
@@ -57,7 +60,7 @@ export async function editGearItem(
 			tradeStatus: 'untradeable',
 			starForce: Number(data.starForce),
 			requiredLevel: Number(data.requiredLevel),
-			isEquipped: Boolean(data.isEquipped),
+			isEquipped: data.isEquipped,
 
 			/* ─── progression bonuses ────────────────────────── */
 			attackPowerIncrease: Number(data.attackPowerIncrease),
@@ -162,38 +165,16 @@ export async function editGearItem(
 		},
 	})
 
-	const newScore = await refreshCharacterFlameScore(character.id)
-	console.log('New flame score calculated:', newScore)
-	await prisma.character.update({
-		where: { id: character.id },
-		data: { totalFlameScore: newScore },
-	})
-	// try {
-	// 	const characterId = await prisma.character.findFirst({
-	// 		where: { name: character },
-	// 		select: { id: true },
-	// 	})
-	// 	if (!characterId) {
-	// 		throw new Error('Character not found')
-	// 	}
-	// 	const newScore = await refreshCharacterFlameScore(characterId.id)
-	// 	console.log('New flame score calculated:', newScore)
-	// 	const res = await prisma.character.update({
-	// 		where: { id: characterId.id },
-	// 		data: { totalFlameScore: newScore },
-	// 	})
-	// 	if (res) {
-	// 		console.log(
-	// 			'Character flame score updated successfully :',
-	// 			res.totalFlameScore
-	// 		)
-	// 	}
-	// } catch (error) {
-	// 	console.log('Error finding character and assigning new flame:', error)
-	// }
+	if (data.isEquipped === 'equipped') {
+		equipGear({
+			character: character,
+			gear: gear,
+		})
+	}
 
-	/* 5. Redirect – Next will client-navigate automatically ---------------- */
-	revalidatePath(`/character/${character.name}`)
+	await refreshCharacterFlameScore(character.id)
+
+	queryClient.invalidateQueries({ queryKey: ['gears'] })
 	redirect(`/character/${character.name}`)
 	return { success: true }
 }

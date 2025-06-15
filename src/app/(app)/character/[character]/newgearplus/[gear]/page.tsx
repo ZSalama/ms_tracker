@@ -1,12 +1,10 @@
 import React from 'react'
 import { prisma } from '@/lib/prisma'
-import Image from 'next/image'
 import OpenAI from 'openai'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { gearSchema } from '@/lib/validators/gear'
 import { EquipGearButton, GearItemCard } from './components'
-import { GearItem } from '@prisma/client'
 import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
@@ -189,6 +187,8 @@ export default async function page({
 	if (!updatedGear) {
 		throw new Error('Failed to update gear with OpenAI analysis')
 	}
+	// Refresh the character's flame score
+	await refreshCharacterFlameScore(characterData.id)
 
 	return (
 		<>

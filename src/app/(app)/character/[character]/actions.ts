@@ -3,7 +3,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
 import { Character, GearItem } from '@prisma/client'
 
 export async function deleteGearAction(
@@ -37,7 +36,6 @@ export async function deleteGearAction(
 	console.log(`Gear item with ID ${gearId} deleted successfully.`)
 
 	// Redirect back to character page
-	revalidatePath(`/character/${characterName}`)
 	redirect(`/character/${characterName}`)
 }
 
@@ -60,7 +58,6 @@ export async function deleteCharacterAction(characterName: string) {
 	console.log(`Character ${characterName} deleted successfully.`)
 
 	// Redirect to dashboard
-	revalidatePath(`/dashboard`)
 	redirect(`/dashboard`)
 }
 

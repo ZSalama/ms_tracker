@@ -65,7 +65,7 @@ export async function getCharacterFlameScore(
 	characterId: number
 ): Promise<number> {
 	const { _sum } = await prisma.gearItem.aggregate({
-		where: { characterId, isEquipped: true },
+		where: { characterId, isEquipped: 'equipped' },
 		_sum: { totalFlameScore: true },
 	})
 

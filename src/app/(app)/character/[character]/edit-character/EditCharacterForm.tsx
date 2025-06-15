@@ -21,11 +21,9 @@ import { useTransition } from 'react'
 import { Character } from '@prisma/client'
 
 export default function EditCharacterForm({
-	character,
 	characterId,
 	characterData,
 }: {
-	character: string
 	characterId: number
 	characterData: Character
 }) {
