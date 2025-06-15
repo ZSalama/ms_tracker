@@ -120,6 +120,12 @@ function CharacterInfo({
 						{characterProp.combatPower.toLocaleString()}
 					</dd>
 				</div>
+				<div>
+					<dt className='inline font-medium'>Flame Score:</dt>{' '}
+					<dd className='inline'>
+						{characterProp.totalFlameScore.toLocaleString()}
+					</dd>
+				</div>
 				{internalUser && userId === String(internalUser.clerkId) ? (
 					<div className='mt-4'>
 						<Button>

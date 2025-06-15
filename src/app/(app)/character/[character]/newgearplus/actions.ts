@@ -119,6 +119,8 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			baseIgnoreEnemyDefense: 0,
 			flameIgnoreEnemyDefense: 0,
 
+			totalFlameScore: 0,
+
 			/* ─── JSON block ─────────────────────────────────── */
 			potential: {},
 		},

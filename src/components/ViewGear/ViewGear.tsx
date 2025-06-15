@@ -83,6 +83,8 @@ export default function ViewGear(data: GearItem) {
 				<div className='w-fill border-gray-600 border-2 m-4' />
 				<p className='text-green-500'>Potential</p>
 				<p> {String(data.potential)}</p>
+				<div className='w-fill border-gray-600 border-2 m-4' />
+				<p>Flame Score: {data.totalFlameScore}</p>
 			</CardContent>
 		</Card>
 	)

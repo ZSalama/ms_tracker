@@ -5,6 +5,10 @@ import { prisma } from '@/lib/prisma'
 import { characterSchema } from '@/lib/validators/character'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import {
+	getCharacterFlameScore,
+	refreshCharacterFlameScore,
+} from '@/lib/calculateFlames'
 
 export async function editCharacterItem(
 	formData: FormData,
@@ -23,7 +27,6 @@ export async function editCharacterItem(
 	/* 3. Character ownership check ----------------------------------------- */
 	const character = await prisma.character.findFirst({
 		where: { id: characterId },
-		select: { id: true, name: true, userId: true },
 	})
 
 	const internalUser = await prisma.user.findFirst({
@@ -42,6 +45,12 @@ export async function editCharacterItem(
 		`User ${internalUser.email} is editing character with ID ${characterId}`
 	)
 
+	// calulate and update flame score
+	const newFlameScore = await getCharacterFlameScore(characterId)
+	console.log(
+		`New flame score for character ${character.name} is ${newFlameScore}`
+	)
+
 	/* 4. Persist ------------------------------------------------------------ */
 	await prisma.character.update({
 		where: { id: Number(characterId) },
@@ -53,6 +62,7 @@ export async function editCharacterItem(
 			combatPower: data.combatPower,
 			arcaneForce: data.arcaneForce,
 			sacredPower: data.sacredPower,
+			totalFlameScore: newFlameScore,
 		},
 	})
 

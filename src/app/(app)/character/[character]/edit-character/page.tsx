@@ -31,18 +31,6 @@ export default async function page({
 	// this should also check if the character belongs to the user
 	const characterData = await prisma.character.findFirst({
 		where: { name: character, userId: internalUser.id },
-		select: {
-			id: true,
-			name: true,
-			level: true,
-			class: true,
-			combatPower: true,
-			arcaneForce: true,
-			sacredPower: true,
-			userId: true,
-			createdAt: true,
-			updatedAt: true,
-		},
 	})
 
 	if (!characterData) {

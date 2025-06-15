@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useTransition } from 'react'
 import Link from 'next/link'
+import { gearTypes } from '@/lib/types'
 
 export default function NewGearForm({
 	character,
@@ -159,26 +160,7 @@ export default function NewGearForm({
 									>
 										<SelectTrigger>{field.value}</SelectTrigger>
 										<SelectContent>
-											{[
-												'Ring',
-												'Face Accessory',
-												'Eye Accessory',
-												'Earrings',
-												'Shoulder',
-												'Gloves',
-												'Weapon',
-												'Secondary',
-												'Hat',
-												'Cape',
-												'Shoes',
-												'Top',
-												'Bottom',
-												'Pendant',
-												'Mechanical Heart',
-												'Belt',
-												'Emblem',
-												'Pocket Item',
-											].map((t) => (
+											{gearTypes.map((t) => (
 												<SelectItem key={t} value={t}>
 													{t}
 												</SelectItem>

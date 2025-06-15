@@ -2,9 +2,11 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import { gearSchema } from '@/lib/validators/gear'
+import { GearSchema, gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { Character, GearItem } from '@prisma/client'
+import { calculateFlameScore } from '@/lib/calculateFlames'
 
 export async function createGearItem(formData: FormData, characterId: number) {
 	/* 1. Zod validation ----------------------------------------------------- */
@@ -20,7 +22,6 @@ export async function createGearItem(formData: FormData, characterId: number) {
 	/* 3. Character ownership check ----------------------------------------- */
 	const character = await prisma.character.findFirst({
 		where: { id: characterId },
-		select: { id: true, name: true, userId: true },
 	})
 
 	const internalUser = await prisma.user.findFirst({
@@ -132,6 +133,8 @@ export async function createGearItem(formData: FormData, characterId: number) {
 
 			baseBossDamage: Number(data.baseBossDamage) ?? undefined,
 			flameBossDamage: Number(data.flameBossDamage) ?? undefined,
+
+			totalFlameScore: calculateFlameScore(character, data) ?? 0,
 
 			baseIgnoreEnemyDefense: Number(data.baseIgnoreEnemyDefense) ?? undefined,
 			flameIgnoreEnemyDefense:

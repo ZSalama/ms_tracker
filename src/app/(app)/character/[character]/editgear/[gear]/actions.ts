@@ -5,6 +5,10 @@ import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import {
+	calculateFlameScore,
+	refreshCharacterFlameScore,
+} from '@/lib/calculateFlames'
 
 export async function editGearItem(
 	formData: FormData,
@@ -24,7 +28,6 @@ export async function editGearItem(
 	/* 3. Character ownership check ----------------------------------------- */
 	const character = await prisma.character.findFirst({
 		where: { id: characterId },
-		select: { id: true, name: true, userId: true },
 	})
 
 	const internalUser = await prisma.user.findFirst({
@@ -38,6 +41,8 @@ export async function editGearItem(
 	if (character.userId !== internalUser?.id) {
 		throw new Error('You do not own this character')
 	}
+
+	const gearItemFlameScore = calculateFlameScore(character, data)
 
 	/* 4. Persist ------------------------------------------------------------ */
 	await prisma.gearItem.update({
@@ -150,10 +155,42 @@ export async function editGearItem(
 			flameIgnoreEnemyDefense:
 				Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
+			totalFlameScore: gearItemFlameScore ?? 0,
+
 			/* ─── JSON block ─────────────────────────────────── */
 			potential: data.potential ? JSON.parse(data.potential) : {},
 		},
 	})
+
+	const newScore = await refreshCharacterFlameScore(character.id)
+	console.log('New flame score calculated:', newScore)
+	await prisma.character.update({
+		where: { id: character.id },
+		data: { totalFlameScore: newScore },
+	})
+	// try {
+	// 	const characterId = await prisma.character.findFirst({
+	// 		where: { name: character },
+	// 		select: { id: true },
+	// 	})
+	// 	if (!characterId) {
+	// 		throw new Error('Character not found')
+	// 	}
+	// 	const newScore = await refreshCharacterFlameScore(characterId.id)
+	// 	console.log('New flame score calculated:', newScore)
+	// 	const res = await prisma.character.update({
+	// 		where: { id: characterId.id },
+	// 		data: { totalFlameScore: newScore },
+	// 	})
+	// 	if (res) {
+	// 		console.log(
+	// 			'Character flame score updated successfully :',
+	// 			res.totalFlameScore
+	// 		)
+	// 	}
+	// } catch (error) {
+	// 	console.log('Error finding character and assigning new flame:', error)
+	// }
 
 	/* 5. Redirect – Next will client-navigate automatically ---------------- */
 	revalidatePath(`/character/${character.name}`)

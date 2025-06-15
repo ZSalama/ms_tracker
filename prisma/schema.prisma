@@ -44,6 +44,16 @@ model Character {
 
     gears GearItem[] // One-to-many to Gear
 
+    flameWeightMainType   String @default("Str")
+    flameWeightSubType    String @default("Dex")
+    flameWeightAttackType String @default("Attack")
+    flameWeightMainStat   Int    @default(12)
+    flameWeightAttack     Int    @default(3)
+    flameWeightAllStat    Int    @default(10)
+    flameWeightDamage     Int    @default(15)
+
+    totalFlameScore Int @default(0)
+
     @@map("character")
 }
 
@@ -134,6 +144,8 @@ model GearItem {
     totalIgnoreEnemyDefense Int?
     baseIgnoreEnemyDefense  Int?
     flameIgnoreEnemyDefense Int?
+
+    totalFlameScore Int? @default(0)
 
     potential Json? @default("{}")
 }
