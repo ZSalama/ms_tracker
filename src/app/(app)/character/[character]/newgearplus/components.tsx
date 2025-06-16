@@ -24,17 +24,34 @@ export function MultiUploader({ character }: { character: string }) {
 		setGearUrl,
 		// uploadedBy,
 		setUploadedBy,
+		// fastAnalysis,
+		// setFastAnalysis,
 	} = useCharacterGear()
 
 	const [uploadedState, setUploadedState] = useState(false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [imageUpload, setImageUpload] = useState(false)
 
-	const handleAnalyse = async () => {
+	const handleAnalyseFast = async () => {
+		// setFastAnalysis(true)
+		const fastAnalysis = 'fast'
 		setIsSubmitting(true)
 		if (gearUrl) {
 			try {
-				await addGearItemPlus(character, gearUrl)
+				await addGearItemPlus(character, gearUrl, fastAnalysis)
+			} catch (error) {
+				console.error('Error adding gear item:', error)
+				// alert('Failed to add gear item. Please try again.')
+			}
+		}
+	}
+	const handleAnalyseSlow = async () => {
+		// setFastAnalysis(false)
+		const fastAnalysis = 'slow'
+		setIsSubmitting(true)
+		if (gearUrl) {
+			try {
+				await addGearItemPlus(character, gearUrl, fastAnalysis)
 			} catch (error) {
 				console.error('Error adding gear item:', error)
 				// alert('Failed to add gear item. Please try again.')
@@ -100,7 +117,20 @@ export function MultiUploader({ character }: { character: string }) {
 				<div className='flex flex-col items-center justify-center'>
 					<h1 className='text-2xl font-bold text-white'>Upload Completed</h1>
 					<Button
-						onClick={handleAnalyse}
+						onClick={handleAnalyseSlow}
+						disabled={!gearUrl || isSubmitting}
+						className='cursor-pointer mb-4'
+					>
+						{isSubmitting ? (
+							<>
+								<Loader2 className='animate-spin' /> Analysing...
+							</>
+						) : (
+							'Analyse Gear Item Slow'
+						)}
+					</Button>
+					<Button
+						onClick={handleAnalyseFast}
 						disabled={!gearUrl || isSubmitting}
 						className='cursor-pointer'
 					>
@@ -109,7 +139,7 @@ export function MultiUploader({ character }: { character: string }) {
 								<Loader2 className='animate-spin' /> Analysing...
 							</>
 						) : (
-							'Analyse Gear Item'
+							'Analyse Gear Item Fast'
 						)}
 					</Button>
 				</div>

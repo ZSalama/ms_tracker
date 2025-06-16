@@ -4,7 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 
-export async function addGearItemPlus(characterName: string, url: string) {
+export async function addGearItemPlus(
+	characterName: string,
+	url: string,
+	fastAnalysis: string
+) {
 	/* 2. Clerk auth --------------------------------------------------------- */
 	const { userId: clerkId } = await auth()
 	if (!clerkId) throw new Error('Unauthenticated')
@@ -37,6 +41,7 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			starForce: 0,
 			requiredLevel: 0,
 			isEquipped: 'notEquipped',
+			fastAnalysis: fastAnalysis,
 
 			url: url,
 

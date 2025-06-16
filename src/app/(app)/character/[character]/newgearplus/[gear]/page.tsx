@@ -47,10 +47,10 @@ type GearWithPotential = GearItem & {
 export default async function page({
 	params,
 }: {
-	params: Promise<{ character: string; gear: string }>
+	params: Promise<{ character: string; gear: string; fastAnalysis: boolean }>
 }) {
 	const queryClient = getQueryClient()
-	const { character, gear } = await params
+	const { character, gear, fastAnalysis } = await params
 	let data: any = {}
 	// get gear data from the database
 
@@ -73,14 +73,14 @@ export default async function page({
 	if (!gearData.url) {
 		return <div> there was an issue </div>
 	}
-
-	const completion = await openai.chat.completions.create({
-		model: 'gpt-4o', // change to 'gpt-4o-mini' if accuracy improves
-		response_format: { type: 'json_object' },
-		messages: [
-			{
-				role: 'system',
-				content: `You are a MapleStory gear-OCR assistant.
+	if (gearData.fastAnalysis === 'fast') {
+		var completion = await openai.chat.completions.create({
+			model: 'gpt-4o', // change to 'gpt-4o-mini' if accuracy improves
+			response_format: { type: 'json_object' },
+			messages: [
+				{
+					role: 'system',
+					content: `You are a MapleStory gear-OCR assistant.
 		            TASK
 		            Extract every visible stat from the supplied gear screenshot.
 		            Return **only** a single JSON object whose keys exactly match the list below (no extra keys, no explanatory text).
@@ -128,19 +128,89 @@ export default async function page({
 	   				"potential3": {"INT", "+6%"}
 					}
 					`,
-			},
-			{
-				role: 'user',
-				content: [
-					{
-						type: 'text',
-						text: 'Here is the gear screenshot. Follow the rules above strictly and reply with the JSON object only.',
-					},
-					{ type: 'image_url', image_url: { url: gearData.url } },
-				],
-			},
-		],
-	})
+				},
+				{
+					role: 'user',
+					content: [
+						{
+							type: 'text',
+							text: 'Here is the gear screenshot. Follow the rules above strictly and reply with the JSON object only.',
+						},
+						{ type: 'image_url', image_url: { url: gearData.url } },
+					],
+				},
+			],
+		})
+	} else {
+		var completion = await openai.chat.completions.create({
+			model: 'o3', // change to 'gpt-4o-mini' if accuracy improves
+			response_format: { type: 'json_object' },
+			messages: [
+				{
+					role: 'system',
+					content: `You are a MapleStory gear-OCR assistant.
+		            TASK
+		            Extract every visible stat from the supplied gear screenshot.
+		            Return **only** a single JSON object whose keys exactly match the list below (no extra keys, no explanatory text).
+		            Use plain integers (no thousands separators).
+		            If a field is missing in the image, set its value to null.
+		            Never guess: if you cannot read a number confidently, use null.
+		            EXPECTED KEYS
+		            name, type, rarity, tradeStatus,
+		            starForce, // starforce is the number of star icons shown at the top - e.g. "21" for 21 stars
+		            attackPowerIncrease, combatPowerIncrease, requiredLevel,
+		            // the following stats are always shown in this order: 'Stat: totalStat (baseStat + flameStat + starStat)'
+		            totalStr, baseStr, flameStr, starStr,
+		            totalDex, baseDex, flameDex, starDex,
+		            totalInt, baseInt, flameInt, starInt,
+		            totalLuk, baseLuk, flameLuk, starLuk,
+		            totalAttackPower, baseAttackPower, flameAttackPower, StarAttackPower,
+		            totalMagicAttackPower, baseMagicAttackPower, flameMagicAttackPower, starMagicAttackPower,
+		            totalBossDamage, baseBossDamage, flameBossDamage,
+		            totalIgnoreEnemyDefense, baseIgnoreEnemyDefense, flameIgnoreEnemyDefense,
+		            totalAllStat, baseAllStat, flameAllStat, // baseAllStat is always 0%, flameAllStat is the percentage inside parenthesis. remove the % sign.
+		            potential1,   // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"} If the gear has no potential, set potential1, potential2, potential3 to null. If the gear has only one potential line, set potential2 and potential3 to null. If the gear has two potential lines, set potential3 to null.
+					potential2,   // an object with 2 properties (key, value) The second potential line, eg {"All Stat": "+2%"}
+	 				potential3,    // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"}
+		            Example output (format, not values):
+		            {
+		            "name": "Silver Blossom Ring",
+		            "type": "Ring",
+		            "rarity": "Epic",
+		            "tradeStatus": "untradeable",
+		            "starForce": 12,
+		            "attackPowerIncrease": 0,
+		            "combatPowerIncrease": 4382,
+		            "requiredLevel": 100,
+		            "totalStr": 100, "baseStr": 30, "flameStr": 20, "starStr": 50,
+		            "totalDex": 70,  "baseDex": 30, "flameDex": 10, "starDex": 30,
+		            "totalInt": 272, "baseInt": 40, "flameInt": 102, "starInt": 130,
+		            "totalLuk": 50,  "baseLuk": 30, "flameLuk": 0,  "starLuk": 20,
+		            "totalAttackPower": 0, "baseAttackPower": 0, "flameAttackPower": 0, "starAttackPower": 0,
+		            "totalMagicAttackPower": 0, "baseMagicAttackPower": 0, "flameMagicAttackPower": 0, "starMagicAttackPower": 0,
+		            "totalBossDamage": 0, "baseBossDamage": 0, "flameBossDamage": 0,
+		            "totalIgnoreEnemyDefense": 0, "baseIgnoreEnemyDefense": 0, "flameIgnoreEnemyDefense": 0,
+		            "totalAllStat": 6, "baseAllStat": 0, "flameAllStat": 6,
+					"potential1": {"INT", "+6%"}, 
+	 				"potential2": {"All Stat", "+2%"},
+	   				"potential3": {"INT", "+6%"}
+					}
+					`,
+				},
+				{
+					role: 'user',
+					content: [
+						{
+							type: 'text',
+							text: 'Here is the gear screenshot. Follow the rules above strictly and reply with the JSON object only.',
+						},
+						{ type: 'image_url', image_url: { url: gearData.url } },
+					],
+				},
+			],
+		})
+	}
+
 	analysis = completion.choices?.[0]?.message?.content ?? ''
 	console.log('OpenAI analysis:', analysis)
 
@@ -270,7 +340,6 @@ export default async function page({
 					/>
 				</div>
 
-				{/* <GearItemCard gear={gearData as GearWithPotential} /> */}
 				<div>
 					<HydrationBoundary state={dehydrate(queryClient)}>
 						<ViewGearContainer
@@ -279,15 +348,8 @@ export default async function page({
 						/>
 					</HydrationBoundary>
 
-					{/* <Link href={`/character/${character}/editgear/${gearData.id}`}>
-					<Button className='cursor-pointer'> Edit Gear </Button>
-				</Link> */}
-
 					<EquipGearButton character={characterData} gear={updatedGear} />
 				</div>
-				{/* <Button className='cursor-pointer' onClick={equipGear}>
-					Equip Gear
-				</Button> */}
 			</div>
 		</>
 	)

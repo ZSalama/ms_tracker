@@ -11,6 +11,8 @@ import {
 } from '@/lib/calculateFlames'
 import { getQueryClient } from '@/lib/get-query-client'
 import { equipGear } from '@/lib/equipGear'
+import { GearItem } from '@prisma/client'
+import { GearWithPotential } from '@/lib/types'
 
 export async function editGearItem(
 	formData: FormData,
@@ -41,6 +43,7 @@ export async function editGearItem(
 		return { error: parsed.error.flatten().fieldErrors }
 	}
 	const data = parsed.data
+
 	/* 2. Clerk auth --------------------------------------------------------- */
 	const { userId: clerkId } = await auth()
 	if (!clerkId) throw new Error('Unauthenticated')
@@ -63,6 +66,16 @@ export async function editGearItem(
 	}
 
 	const gearItemFlameScore = calculateFlameScore(character, data)
+	// considered refactoring lots of code because of this next line
+	// like any function that interacts with updating gear should only require the most minimal data
+	// like id if it wants to update the gear instead of recasting an entire object that requires type imports..
+	const gearData = { id: gearId, ...parsed.data } as GearItem
+	if (data.isEquipped === 'equipped') {
+		await equipGear({
+			character: character,
+			gear: gearData, // cast to GearItem for equipGear function
+		})
+	}
 
 	/* 4. Persist ------------------------------------------------------------ */
 	const gear = await prisma.gearItem.update({
@@ -205,13 +218,6 @@ export async function editGearItem(
 				: undefined,
 		},
 	})
-
-	if (data.isEquipped === 'equipped') {
-		equipGear({
-			character: character,
-			gear: gear,
-		})
-	}
 
 	await refreshCharacterFlameScore(character.id)
 
