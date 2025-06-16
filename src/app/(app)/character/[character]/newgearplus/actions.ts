@@ -1,10 +1,7 @@
 'use server'
 
-// import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
-import { revalidatePath } from 'next/cache'
-// import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 
 export async function addGearItemPlus(characterName: string, url: string) {
@@ -39,7 +36,7 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			tradeStatus: 'untradeable',
 			starForce: 0,
 			requiredLevel: 0,
-			isEquipped: false,
+			isEquipped: 'notEquipped',
 
 			url: url,
 
@@ -119,13 +116,14 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			baseIgnoreEnemyDefense: 0,
 			flameIgnoreEnemyDefense: 0,
 
+			totalFlameScore: 0,
+
 			/* ─── JSON block ─────────────────────────────────── */
-			potential: {},
 		},
 	})
 
 	/* 5. Redirect – Next will client-navigate automatically ---------------- */
-	revalidatePath(`/character/${character.name}`)
+	// revalidatePath(`/character/${character.name}`)
 	redirect(`/character/${character.name}/newgearplus/${gear.id}`)
 
 	return { success: true, gearId: gear.id }

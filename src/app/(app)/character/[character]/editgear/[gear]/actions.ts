@@ -5,14 +5,38 @@ import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import {
+	calculateFlameScore,
+	refreshCharacterFlameScore,
+} from '@/lib/calculateFlames'
+import { getQueryClient } from '@/lib/get-query-client'
+import { equipGear } from '@/lib/equipGear'
 
 export async function editGearItem(
 	formData: FormData,
 	characterId: number,
 	gearId: number
 ) {
-	// console.log('createGearItem', formData)/* 2. Zod validation ----------------------------------------------------- */
-	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
+	const queryClient = getQueryClient()
+
+	//* 2. Zod validation ----------------------------------------------------- */
+
+	const raw = Object.fromEntries(formData) as Record<string, any>
+
+	// collect *.type / *.value pairs and build nested objects
+	;['potential1', 'potential2', 'potential3'].forEach((k) => {
+		const type = raw[`${k}.type`]
+		const value = raw[`${k}.value`]
+
+		if (type !== undefined || value !== undefined) {
+			// create the nested object Zod expects
+			raw[k] = { type, value }
+		}
+		delete raw[`${k}.type`]
+		delete raw[`${k}.value`]
+	})
+
+	const parsed = gearSchema.safeParse(raw)
 	if (!parsed.success) {
 		return { error: parsed.error.flatten().fieldErrors }
 	}
@@ -24,7 +48,6 @@ export async function editGearItem(
 	/* 3. Character ownership check ----------------------------------------- */
 	const character = await prisma.character.findFirst({
 		where: { id: characterId },
-		select: { id: true, name: true, userId: true },
 	})
 
 	const internalUser = await prisma.user.findFirst({
@@ -39,8 +62,10 @@ export async function editGearItem(
 		throw new Error('You do not own this character')
 	}
 
+	const gearItemFlameScore = calculateFlameScore(character, data)
+
 	/* 4. Persist ------------------------------------------------------------ */
-	await prisma.gearItem.update({
+	const gear = await prisma.gearItem.update({
 		where: { id: Number(gearId) },
 		data: {
 			/* ─── linkage & meta ─────────────────────────────── */
@@ -52,7 +77,7 @@ export async function editGearItem(
 			tradeStatus: 'untradeable',
 			starForce: Number(data.starForce),
 			requiredLevel: Number(data.requiredLevel),
-			isEquipped: Boolean(data.isEquipped),
+			isEquipped: data.isEquipped,
 
 			/* ─── progression bonuses ────────────────────────── */
 			attackPowerIncrease: Number(data.attackPowerIncrease),
@@ -150,13 +175,47 @@ export async function editGearItem(
 			flameIgnoreEnemyDefense:
 				Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
+			totalFlameScore: gearItemFlameScore ?? 0,
+
 			/* ─── JSON block ─────────────────────────────────── */
-			potential: data.potential ? JSON.parse(data.potential) : {},
+			// potential: data.potential ? JSON.parse(data.potential) : {},
+			potential1: data.potential1
+				? {
+						upsert: {
+							create: data.potential1,
+							update: data.potential1,
+						},
+				  }
+				: undefined,
+			potential2: data.potential2
+				? {
+						upsert: {
+							create: data.potential2,
+							update: data.potential2,
+						},
+				  }
+				: undefined,
+			potential3: data.potential3
+				? {
+						upsert: {
+							create: data.potential3,
+							update: data.potential3,
+						},
+				  }
+				: undefined,
 		},
 	})
 
-	/* 5. Redirect – Next will client-navigate automatically ---------------- */
-	revalidatePath(`/character/${character.name}`)
+	if (data.isEquipped === 'equipped') {
+		equipGear({
+			character: character,
+			gear: gear,
+		})
+	}
+
+	await refreshCharacterFlameScore(character.id)
+
+	queryClient.invalidateQueries({ queryKey: ['gears'] })
 	redirect(`/character/${character.name}`)
 	return { success: true }
 }

@@ -36,7 +36,7 @@ export function DeleteGearButton({
 		// </Button>
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button variant='destructive' className='cursor-pointer ml-4'>
+				<Button variant='destructive' className='cursor-pointer'>
 					Delete Gear
 				</Button>
 			</AlertDialogTrigger>
