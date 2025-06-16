@@ -73,8 +73,9 @@ export default async function page({
 	if (!gearData.url) {
 		return <div> there was an issue </div>
 	}
+	let completion: any = null
 	if (gearData.fastAnalysis === 'fast') {
-		var completion = await openai.chat.completions.create({
+		completion = await openai.chat.completions.create({
 			model: 'gpt-4o', // change to 'gpt-4o-mini' if accuracy improves
 			response_format: { type: 'json_object' },
 			messages: [
@@ -142,7 +143,7 @@ export default async function page({
 			],
 		})
 	} else {
-		var completion = await openai.chat.completions.create({
+		completion = await openai.chat.completions.create({
 			model: 'o3', // change to 'gpt-4o-mini' if accuracy improves
 			response_format: { type: 'json_object' },
 			messages: [
