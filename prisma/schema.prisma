@@ -75,6 +75,9 @@ model GearItem {
     tradeStatus String @default("untradeable") @map("trade_status")
     starForce   Int    @default(0) @map("star_force")
 
+    slot         String @default("1")
+    fastAnalysis String @default("slow") // how fast to analysis gear
+
     url String? // URL to the image of the gear item
 
     attackPowerIncrease Int @default(0) @map("attack_power_increase")

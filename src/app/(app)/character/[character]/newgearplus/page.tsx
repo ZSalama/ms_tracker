@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import React from 'react'
-import Uploader from './uploader'
 import { MultiUploader } from './components'
 
 export default async function page({
