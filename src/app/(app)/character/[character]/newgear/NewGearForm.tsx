@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { gearSchema, GearSchema } from '@/lib/validators/gear'
@@ -48,7 +48,6 @@ export default function NewGearForm({
 			attackPowerIncrease: 0,
 			combatPowerIncrease: 0,
 			requiredLevel: 0,
-			potential: '',
 			isEquipped: 'notEquipped',
 			baseStr: 0,
 			flameStr: 0,
@@ -80,27 +79,62 @@ export default function NewGearForm({
 			flameBossDamage: 0,
 			baseIgnoreEnemyDefense: 0,
 			flameIgnoreEnemyDefense: 0,
+			potential1: { type: '', value: '' },
+			potential2: { type: '', value: '' },
+			potential3: { type: '', value: '' },
 		},
 	})
 
+	// async function onSubmit(values: GearSchema) {
+	// 	// console.log('onSubmit', values)
+	// 	startTransition(async () => {
+	// 		const fd = new FormData()
+	// 		Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
+	// 		const result = await createGearItem(fd, characterId)
+
+	// 		if (result?.error) {
+	// 			// Push Zod errors back into react-hook-form
+	// 			Object.entries(result.error).forEach(([field, messages]) =>
+	// 				form.setError(field as keyof GearSchema, {
+	// 					message: (messages as string[])[0],
+	// 				})
+	// 			)
+	// 		} else if (result?.success) {
+	// 			form.reset() // clear the form
+	// 			// redirect to dasbhoard
+	// 			router.push('/dashboard')
+	// 		}
+	// 	})
+	// }
 	async function onSubmit(values: GearSchema) {
-		// console.log('onSubmit', values)
 		startTransition(async () => {
-			const fd = new FormData()
-			Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
-			const result = await createGearItem(fd, characterId)
+			// Convert values object to FormData
+			const formData = new FormData()
+			Object.entries(values).forEach(([key, value]) => {
+				// Handle nested objects (e.g., potential1, potential2, potential3)
+				if (
+					typeof value === 'object' &&
+					value !== null &&
+					!Array.isArray(value)
+				) {
+					Object.entries(value).forEach(([subKey, subValue]) => {
+						formData.append(`${key}.${subKey}`, subValue ?? '')
+					})
+				} else {
+					formData.append(key, (value as string) ?? '')
+				}
+			})
+
+			const result = await createGearItem(formData, characterId)
 
 			if (result?.error) {
-				// Push Zod errors back into react-hook-form
 				Object.entries(result.error).forEach(([field, messages]) =>
 					form.setError(field as keyof GearSchema, {
 						message: (messages as string[])[0],
 					})
 				)
 			} else if (result?.success) {
-				form.reset() // clear the form
-				// redirect to dasbhoard
-				router.push('/dashboard')
+				redirect(`/character/${character}/dashboard`)
 			}
 		})
 	}
@@ -200,6 +234,31 @@ export default function NewGearForm({
 							</FormItem>
 						)}
 					/>
+					<FormField
+						control={form.control}
+						name='isEquipped'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Equipped</FormLabel>
+								<FormControl>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<SelectTrigger>{field.value}</SelectTrigger>
+										<SelectContent>
+											{['equipped', 'notEquipped'].map((r) => (
+												<SelectItem key={r} value={r}>
+													{r}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 				</div>
 
 				{/* ----- numeric trio ----- */}
@@ -227,11 +286,9 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean' ||
-												typeof field.value === 'undefined' ||
-												field.value === null
-													? undefined
-													: field.value
+												typeof field.value === 'object' && field.value !== null
+													? ''
+													: field.value ?? ''
 											}
 										/>
 									</FormControl>
@@ -261,7 +318,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -293,7 +350,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -325,7 +382,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -357,7 +414,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -389,7 +446,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -421,7 +478,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -437,7 +494,7 @@ export default function NewGearForm({
 				{/* ----- attackPower trio ----- */}
 				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
-						{ name: 'baseAttackPower', label: 'attack Power' },
+						{ name: 'baseAttackPower', label: 'base attack Power' },
 						{
 							name: 'flameAttackPower',
 							label: 'flame attack Power',
@@ -456,7 +513,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -474,7 +531,7 @@ export default function NewGearForm({
 					{[
 						{
 							name: 'baseMagicAttackPower',
-							label: 'magic attack Power',
+							label: 'base magic attack Power',
 						},
 						{
 							name: 'flameMagicAttackPower',
@@ -497,7 +554,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -532,7 +589,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -548,7 +605,7 @@ export default function NewGearForm({
 				{/* ----- bossDamage trio ----- */}
 				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
-						{ name: 'baseBossDamage', label: 'boss Damage' },
+						// { name: 'bossDamage', label: 'boss Damage' },
 						{
 							name: 'flameBossDamage',
 							label: 'flame boss Damage',
@@ -567,7 +624,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -583,10 +640,7 @@ export default function NewGearForm({
 				{/* ----- ignoreEnemyDefense trio ----- */}
 				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
-						{
-							name: 'baseIgnoreEnemyDefense',
-							label: 'base Ignore Enemy Defense',
-						},
+						// { name: 'bossDamage', label: 'boss Damage' },
 						{
 							name: 'flameIgnoreEnemyDefense',
 							label: 'ignore Enemy Defense Flame',
@@ -605,7 +659,7 @@ export default function NewGearForm({
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -618,26 +672,74 @@ export default function NewGearForm({
 					))}
 				</div>
 
-				{/* ----- JSON blobs ----- */}
-				{(['potential'] as const).map((fieldName) => (
-					<FormField
-						key={fieldName}
-						control={form.control}
-						name={fieldName}
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className='capitalize'>{fieldName}</FormLabel>
-								<FormControl>
-									<Textarea
-										rows={3}
-										placeholder={'{"line1":"INT +12%"}'}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+				{([1, 2, 3] as const).map((idx) => (
+					<div
+						key={idx}
+						className='grid gap-4 sm:grid-cols-2 border-t pt-6 mt-6'
+					>
+						<h4 className='col-span-full font-semibold text-lg'>
+							Potential {idx}
+						</h4>
+
+						{/* -- type ---------------------------------------------------- */}
+						<FormField
+							control={form.control}
+							name={`potential${idx}.type`}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Type</FormLabel>
+									<FormControl>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={field.value ?? ''}
+										>
+											<SelectTrigger>
+												{field.value || 'Select type'}
+											</SelectTrigger>
+											<SelectContent>
+												{[
+													'Critical Damage',
+													'Boss Damage',
+													'Max HP',
+													'Max MP',
+													'Attack',
+													'Magic Attack',
+													'Str',
+													'Dex',
+													'Int',
+													'Luk',
+													'All Stat',
+													'Ignore Enemy Defense',
+													'Damage',
+													'Critical Rate',
+												].map((t) => (
+													<SelectItem key={t} value={t}>
+														{t}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						{/* -- value --------------------------------------------------- */}
+						<FormField
+							control={form.control}
+							name={`potential${idx}.value`}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Value</FormLabel>
+									<FormControl>
+										<Input placeholder='+8%' {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
 				))}
 
 				<Button

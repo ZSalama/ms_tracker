@@ -60,7 +60,7 @@ export default function Uploader({ character }: { character: string }) {
 						setCharacterName(character)
 						setGearUrl(fileUrl)
 						setUploadedBy(uploadedBy)
-						alert('Upload Completed')
+						// alert('Upload Completed')
 						setUploadedState(true)
 					}}
 					onUploadError={(error: Error) => {

@@ -51,7 +51,9 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 			attackPowerIncrease: gearData?.attackPowerIncrease,
 			combatPowerIncrease: gearData?.combatPowerIncrease,
 			requiredLevel: gearData?.requiredLevel,
-			potential: '',
+			potential1: gearData?.potential1 ?? { type: '', value: '' },
+			potential2: gearData?.potential2 ?? { type: '', value: '' },
+			potential3: gearData?.potential3 ?? { type: '', value: '' },
 			isEquipped: gearData?.isEquipped,
 
 			// totalStr: gearData.totalStr ?? 0,
@@ -100,29 +102,41 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 	})
 
 	async function onSubmit(values: GearSchema) {
-		// console.log('onSubmit', values)
 		startTransition(async () => {
-			const fd = new FormData()
-			Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
-			if (gearData?.characterId === undefined) {
+			if (!gearData?.characterId) {
 				throw new Error('Character ID is undefined')
 			}
+
+			// Convert values object to FormData
+			const formData = new FormData()
+			Object.entries(values).forEach(([key, value]) => {
+				// Handle nested objects (e.g., potential1, potential2, potential3)
+				if (
+					typeof value === 'object' &&
+					value !== null &&
+					!Array.isArray(value)
+				) {
+					Object.entries(value).forEach(([subKey, subValue]) => {
+						formData.append(`${key}.${subKey}`, subValue ?? '')
+					})
+				} else {
+					formData.append(key, (value as string) ?? '')
+				}
+			})
+
 			const result = await editGearItem(
-				fd,
+				formData,
 				gearData.characterId,
 				Number(gearId)
 			)
 
 			if (result?.error) {
-				// Push Zod errors back into react-hook-form
 				Object.entries(result.error).forEach(([field, messages]) =>
 					form.setError(field as keyof GearSchema, {
 						message: (messages as string[])[0],
 					})
 				)
 			} else if (result?.success) {
-				// form.reset() // clear the form
-				// redirect to dasbhoard
 				redirect(`/character/${characterName}/dashboard`)
 			}
 		})
@@ -273,11 +287,9 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean' ||
-												typeof field.value === 'undefined' ||
-												field.value === null
-													? undefined
-													: field.value
+												typeof field.value === 'object' && field.value !== null
+													? ''
+													: field.value ?? ''
 											}
 										/>
 									</FormControl>
@@ -307,7 +319,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -339,7 +351,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -371,7 +383,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -403,7 +415,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -435,7 +447,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -467,7 +479,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -502,7 +514,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -543,7 +555,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -578,7 +590,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -613,7 +625,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -648,7 +660,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											type='number'
 											{...field}
 											value={
-												typeof field.value === 'boolean'
+												typeof field.value === 'object' && field.value !== null
 													? ''
 													: field.value ?? ''
 											}
@@ -661,26 +673,79 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 					))}
 				</div>
 
-				{/* ----- JSON blobs ----- */}
-				{(['potential'] as const).map((fieldName) => (
-					<FormField
-						key={fieldName}
-						control={form.control}
-						name={fieldName}
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className='capitalize'>{fieldName}</FormLabel>
-								<FormControl>
-									<Textarea
-										rows={3}
-										placeholder={'{"line1":"INT +12%"}'}
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+				{/* ──────────────────────────────────────────────────────────────── */}
+				{/* Potentials                                                     */}
+				{/* ──────────────────────────────────────────────────────────────── */}
+
+				{/* helper so we don’t repeat the same JSX three times */}
+				{([1, 2, 3] as const).map((idx) => (
+					<div
+						key={idx}
+						className='grid gap-4 sm:grid-cols-2 border-t pt-6 mt-6'
+					>
+						<h4 className='col-span-full font-semibold text-lg'>
+							Potential {idx}
+						</h4>
+
+						{/* -- type ---------------------------------------------------- */}
+						<FormField
+							control={form.control}
+							name={`potential${idx}.type`}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Type</FormLabel>
+									<FormControl>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={field.value ?? ''}
+										>
+											<SelectTrigger>
+												{field.value || 'Select type'}
+											</SelectTrigger>
+											<SelectContent>
+												{[
+													'Critical Damage',
+													'Boss Damage',
+													'Max HP',
+													'Max MP',
+													'Attack',
+													'Magic Attack',
+													'Str',
+													'Dex',
+													'Int',
+													'Luk',
+													'All Stat',
+													'Ignore Enemy Defense',
+													'Damage',
+													'Critical Rate',
+												].map((t) => (
+													<SelectItem key={t} value={t}>
+														{t}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						{/* -- value --------------------------------------------------- */}
+						<FormField
+							control={form.control}
+							name={`potential${idx}.value`}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Value</FormLabel>
+									<FormControl>
+										<Input placeholder='+8%' {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
 				))}
 
 				<Button type='submit' disabled={isPending} className='cursor-pointer'>

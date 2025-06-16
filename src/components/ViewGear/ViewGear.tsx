@@ -6,9 +6,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from '../ui/card'
-import { GearItem } from '@prisma/client'
+import { GearWithPotential } from '@/lib/types'
 
-export default function ViewGear(data: GearItem) {
+export default function ViewGear(data: GearWithPotential) {
 	return (
 		<Card className='w-full max-w-lg space-y-4 mx-auto'>
 			{/* header ---------------------------------------------------------- */}
@@ -28,7 +28,9 @@ export default function ViewGear(data: GearItem) {
 				{data.requiredLevel > 0 && (
 					<p className='text-sm'>Req Lv {data.requiredLevel}</p>
 				)}
-				{data.isEquipped && <p className='text-green-600 text-sm'>Equipped</p>}
+				{data.isEquipped === 'equiped' && (
+					<p className='text-green-600 text-sm'>Equipped</p>
+				)}
 			</CardHeader>
 			<div className='w-fill border-gray-600 border-2 mx-6' />
 
@@ -82,7 +84,29 @@ export default function ViewGear(data: GearItem) {
 				</p>
 				<div className='w-fill border-gray-600 border-2 m-4' />
 				<p className='text-green-500'>Potential</p>
-				<p> {String(data.potential)}</p>
+				<p>
+					{data.potential1
+						? `${String(data.potential1.type)} : ${String(
+								data.potential1.value
+						  )}`
+						: 'No Potential 1'}
+				</p>
+				<p>
+					{' '}
+					{data.potential2
+						? `${String(data.potential2.type)} : ${String(
+								data.potential2.value
+						  )}`
+						: 'No Potential 2'}
+				</p>
+				<p>
+					{' '}
+					{data.potential3
+						? `${String(data.potential3.type)} : ${String(
+								data.potential3.value
+						  )}`
+						: 'No Potential 3'}
+				</p>
 				<div className='w-fill border-gray-600 border-2 m-4' />
 				<p>Flame Score: {data.totalFlameScore}</p>
 			</CardContent>

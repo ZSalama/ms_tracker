@@ -1,9 +1,10 @@
 'use client'
 import ViewGear from '@/components/ViewGear/ViewGear'
-import { GearItem } from '@prisma/client'
+import { GearItem, Potential } from '@prisma/client'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import React from 'react'
 import { getGears } from '../actions'
+import { GearWithPotential } from '@/lib/types'
 
 type Props = { characterName: string; gearId: string }
 
@@ -18,18 +19,13 @@ export function ViewGearContainer({ characterName, gearId }: Props) {
 	if (isError) {
 		return <p>Error loading characters.</p>
 	}
-
 	// find the specific gear item
-	const gearItem = data.gears.find(
-		(gear: GearItem) => gear.id === Number(gearId)
-	)
-	if (!gearItem) {
-		return <p>Gear item not found.</p>
-	}
+
+	const specificGear = data.gears.filter((gear) => String(gear.id) === gearId)
 	return (
 		<div className='max-w-4xl mx-auto'>
 			{/* back to character button */}
-			<ViewGear {...gearItem} />
+			<ViewGear {...specificGear[0]} />
 		</div>
 	)
 }
@@ -53,11 +49,15 @@ export function ImageOfGear({ characterName, gearId }: Props) {
 	if (!gearItem) {
 		return <p>Gear item not found.</p>
 	}
-	return (
+	return gearItem.url ? (
 		<img
 			src={`${gearItem.url}`}
 			alt={`Gear Image for ${characterName}`}
 			className='max-w-full h-auto rounded-lg shadow-lg mx-auto'
 		/>
+	) : (
+		<p className='max-w-full h-auto text-center'>
+			No image available for this gear.
+		</p>
 	)
 }

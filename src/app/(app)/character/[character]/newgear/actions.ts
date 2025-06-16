@@ -10,11 +10,32 @@ import { calculateFlameScore } from '@/lib/calculateFlames'
 
 export async function createGearItem(formData: FormData, characterId: number) {
 	/* 1. Zod validation ----------------------------------------------------- */
-	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
+	// const parsed = gearSchema.safeParse(Object.fromEntries(formData))
+	// if (!parsed.success) {
+	// 	return { error: parsed.error.flatten().fieldErrors }
+	// }
+	// const data = parsed.data
+	const raw = Object.fromEntries(formData) as Record<string, any>
+
+	// collect *.type / *.value pairs and build nested objects
+	;['potential1', 'potential2', 'potential3'].forEach((k) => {
+		const type = raw[`${k}.type`]
+		const value = raw[`${k}.value`]
+
+		if (type !== undefined || value !== undefined) {
+			// create the nested object Zod expects
+			raw[k] = { type, value }
+		}
+		delete raw[`${k}.type`]
+		delete raw[`${k}.value`]
+	})
+
+	const parsed = gearSchema.safeParse(raw)
 	if (!parsed.success) {
 		return { error: parsed.error.flatten().fieldErrors }
 	}
 	const data = parsed.data
+
 	/* 2. Clerk auth --------------------------------------------------------- */
 	const { userId: clerkId } = await auth()
 	if (!clerkId) throw new Error('Unauthenticated')
@@ -141,7 +162,11 @@ export async function createGearItem(formData: FormData, characterId: number) {
 				Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
 			/* ─── JSON block ─────────────────────────────────── */
-			potential: data.potential ? JSON.parse(data.potential) : {},
+			potential1: data.potential1 ? { create: data.potential1 } : undefined,
+
+			potential2: data.potential2 ? { create: data.potential2 } : undefined,
+
+			potential3: data.potential3 ? { create: data.potential3 } : undefined,
 		},
 	})
 

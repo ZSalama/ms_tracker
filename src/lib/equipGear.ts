@@ -25,7 +25,7 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 		},
 	})
 
-	console.log('Existing equipped gear:', existingEquippedGear)
+	console.log('Existing equipped gear:', existingEquippedGear?.id)
 
 	// If there is already equipped gear, unequip it
 	if (existingEquippedGear) {

@@ -33,11 +33,17 @@ export default async function viewgear({ params }: { params: Promise<Props> }) {
 						</Link>
 						<ImageOfGear characterName={props.character} gearId={props.gear} />
 					</div>
-
-					<ViewGearContainer
-						characterName={props.character}
-						gearId={props.gear}
-					/>
+					<div>
+						<Link href={`/character/${props.character}/editgear/${props.gear}`}>
+							<Button className='cursor-pointer mx-auto flex my-4 w-fit'>
+								Edit Gear
+							</Button>
+						</Link>
+						<ViewGearContainer
+							characterName={props.character}
+							gearId={props.gear}
+						/>
+					</div>
 				</div>
 			</HydrationBoundary>
 		</div>

@@ -4,11 +4,16 @@ import OpenAI from 'openai'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { gearSchema } from '@/lib/validators/gear'
-import { EquipGearButton, GearItemCard } from './components'
+import { EquipGearButton, GearItemCard, ViewGearContainer } from './components'
 import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
+import { GearItem, Potential } from '@prisma/client'
+import ViewGear from '@/components/ViewGear/ViewGear'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { getQueryClient } from '@/lib/get-query-client'
+import { getGears } from '../../actions'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
@@ -33,11 +38,18 @@ const secondaryNames = [
 	'Pocket Item',
 ]
 
+type GearWithPotential = GearItem & {
+	potential1: Potential
+	potential2: Potential
+	potential3: Potential
+}
+
 export default async function page({
 	params,
 }: {
-	params: Promise<{ character: string; gear: number }>
+	params: Promise<{ character: string; gear: string }>
 }) {
+	const queryClient = getQueryClient()
 	const { character, gear } = await params
 	let data: any = {}
 	// get gear data from the database
@@ -89,7 +101,9 @@ export default async function page({
 		            totalBossDamage, baseBossDamage, flameBossDamage,
 		            totalIgnoreEnemyDefense, baseIgnoreEnemyDefense, flameIgnoreEnemyDefense,
 		            totalAllStat, baseAllStat, flameAllStat, // baseAllStat is always 0%, flameAllStat is the percentage inside parenthesis. remove the % sign.
-		            potential   // JSON string of the item’s potential lines
+		            potential1,   // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"} If the gear has no potential, set potential1, potential2, potential3 to null. If the gear has only one potential line, set potential2 and potential3 to null. If the gear has two potential lines, set potential3 to null.
+					potential2,   // an object with 2 properties (key, value) The second potential line, eg {"All Stat": "+2%"}
+	 				potential3,    // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"}
 		            Example output (format, not values):
 		            {
 		            "name": "Silver Blossom Ring",
@@ -109,8 +123,11 @@ export default async function page({
 		            "totalBossDamage": 0, "baseBossDamage": 0, "flameBossDamage": 0,
 		            "totalIgnoreEnemyDefense": 0, "baseIgnoreEnemyDefense": 0, "flameIgnoreEnemyDefense": 0,
 		            "totalAllStat": 6, "baseAllStat": 0, "flameAllStat": 6,
-		            "potential": "{\"line1\":\"+6% INT\",\"line2\":\"+6% INT\",\"line3\":\"+2% All Stat\"}"
-		            }`,
+					"potential1": {"INT", "+6%"}, 
+	 				"potential2": {"All Stat", "+2%"},
+	   				"potential3": {"INT", "+6%"}
+					}
+					`,
 			},
 			{
 				role: 'user',
@@ -142,6 +159,38 @@ export default async function page({
 	// Update gearData with the analysis
 	const updatedFlameScore = calculateFlameScore(characterData, data)
 	data.totalFlameScore = updatedFlameScore
+
+	// create potentials
+
+	const [key1, val1] = analysisJson.potential1
+		? (Object.entries(analysisJson.potential1)[0] as [string, string])
+		: []
+	const potential1 = await prisma.potential.create({
+		data: {
+			type: key1,
+			value: typeof val1 === 'string' ? val1 : undefined,
+		},
+	})
+
+	const [key2, val2] = analysisJson.potential2
+		? (Object.entries(analysisJson.potential2)[0] as [string, string])
+		: []
+	const potential2 = await prisma.potential.create({
+		data: {
+			type: key2,
+			value: typeof val2 === 'string' ? val2 : undefined,
+		},
+	})
+
+	const [key3, val3] = analysisJson.potential3
+		? (Object.entries(analysisJson.potential3)[0] as [string, string])
+		: []
+	const potential3 = await prisma.potential.create({
+		data: {
+			type: key3,
+			value: typeof val3 === 'string' ? val3 : undefined,
+		},
+	})
 
 	const updatedGear = await prisma.gearItem.update({
 		where: { id: gearData.id },
@@ -181,7 +230,9 @@ export default async function page({
 			totalAllStat: data.baseAllStat ?? 0,
 			flameAllStat: data.flameAllStat ?? 0,
 			totalFlameScore: data.totalFlameScore,
-			potential: data.potential ? JSON.stringify(data.potential) : undefined,
+			potential1: potential1 ? { connect: { id: potential1.id } } : undefined,
+			potential2: potential2 ? { connect: { id: potential2.id } } : undefined,
+			potential3: potential3 ? { connect: { id: potential3.id } } : undefined,
 		},
 	})
 	if (!updatedGear) {
@@ -189,6 +240,11 @@ export default async function page({
 	}
 	// Refresh the character's flame score
 	await refreshCharacterFlameScore(characterData.id)
+
+	void queryClient.prefetchQuery({
+		queryKey: ['gears', character],
+		queryFn: () => getGears(character),
+	})
 
 	return (
 		<>
@@ -210,15 +266,25 @@ export default async function page({
 						alt={gearData.name}
 						width={400}
 						height={200}
+						className={'rounded-lg'}
 					/>
 				</div>
 
-				<GearItemCard gear={updatedGear ?? gearData} />
+				{/* <GearItemCard gear={gearData as GearWithPotential} /> */}
+				<div>
+					<HydrationBoundary state={dehydrate(queryClient)}>
+						<ViewGearContainer
+							characterName={character}
+							gearId={String(gear)}
+						/>
+					</HydrationBoundary>
 
-				{/* <Link href={`/character/${character}/editgear/${gearData.id}`}>
+					{/* <Link href={`/character/${character}/editgear/${gearData.id}`}>
 					<Button className='cursor-pointer'> Edit Gear </Button>
 				</Link> */}
-				<EquipGearButton character={characterData} gear={updatedGear} />
+
+					<EquipGearButton character={characterData} gear={updatedGear} />
+				</div>
 				{/* <Button className='cursor-pointer' onClick={equipGear}>
 					Equip Gear
 				</Button> */}

@@ -28,6 +28,7 @@ export function MultiUploader({ character }: { character: string }) {
 
 	const [uploadedState, setUploadedState] = useState(false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [imageUpload, setImageUpload] = useState(false)
 
 	const handleAnalyse = async () => {
 		setIsSubmitting(true)
@@ -55,7 +56,7 @@ export function MultiUploader({ character }: { character: string }) {
 			setCharacterName(character)
 			setGearUrl(fileUrl)
 			setUploadedBy(uploadedBy)
-			alert('Upload Completed')
+			// alert('Upload Completed')
 			setUploadedState(true)
 		},
 		onUploadError: () => {
@@ -63,6 +64,7 @@ export function MultiUploader({ character }: { character: string }) {
 		},
 		onUploadBegin: (fileKey: string) => {
 			console.log('upload has begun for', fileKey)
+			setImageUpload(true)
 		},
 	})
 
@@ -89,6 +91,7 @@ export function MultiUploader({ character }: { character: string }) {
 				<Button
 					onClick={() => startUpload(files)}
 					className='w-50 cursor-pointer mt-8'
+					disabled={uploadedState || isSubmitting || imageUpload}
 				>
 					Upload {files.length} files
 				</Button>

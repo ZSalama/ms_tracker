@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Character, GearItem } from '@prisma/client'
+import { GearWithPotential } from '@/lib/types'
 
 export async function deleteGearAction(
 	gearId: number,
@@ -63,7 +64,7 @@ export async function deleteCharacterAction(characterName: string) {
 
 type GetGearsResponse = {
 	character: Character
-	gears: GearItem[]
+	gears: GearWithPotential[]
 	internalUser: {
 		id: number
 		email: string
@@ -96,7 +97,28 @@ export async function getGears(
 	const gears = await prisma.gearItem.findMany({
 		where: { characterId: character.id },
 		orderBy: { combatPowerIncrease: 'desc' },
+		include: {
+			potential1: { select: { type: true, value: true } }, // "key", "val"
+			potential2: { select: { type: true, value: true } },
+			potential3: { select: { type: true, value: true } },
+		},
 	})
 
-	return { character: character, gears: gears, internalUser: internalUser }
+	const gearsWithPotentials = gears.map((gear) => ({
+		...gear,
+		potential1: gear.potential1
+			? { id: gear.potential1Id!, ...gear.potential1 }
+			: { id: 0, type: '', value: '' },
+		potential2: gear.potential2
+			? { id: gear.potential2Id!, ...gear.potential2 }
+			: { id: 0, type: '', value: '' },
+		potential3: gear.potential3
+			? { id: gear.potential3Id!, ...gear.potential3 }
+			: { id: 0, type: '', value: '' },
+	}))
+	return {
+		character: character,
+		gears: gearsWithPotentials,
+		internalUser: internalUser,
+	}
 }

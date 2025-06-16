@@ -36,7 +36,7 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			tradeStatus: 'untradeable',
 			starForce: 0,
 			requiredLevel: 0,
-			isEquipped: 'unequipped',
+			isEquipped: 'notEquipped',
 
 			url: url,
 
@@ -119,7 +119,6 @@ export async function addGearItemPlus(characterName: string, url: string) {
 			totalFlameScore: 0,
 
 			/* ─── JSON block ─────────────────────────────────── */
-			potential: {},
 		},
 	})
 

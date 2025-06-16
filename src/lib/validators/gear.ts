@@ -70,8 +70,15 @@ export const gearSchema = z.object({
 	baseIgnoreEnemyDefense: z.coerce.number().int().optional(),
 	flameIgnoreEnemyDefense: z.coerce.number().int().optional(),
 
-	/* ------------ optional JSON block ------------ */
-	potential: z.string().optional(),
+	potential1: z
+		.object({ type: z.string().optional(), value: z.string().optional() })
+		.optional(),
+	potential2: z
+		.object({ type: z.string().optional(), value: z.string().optional() })
+		.optional(),
+	potential3: z
+		.object({ type: z.string().optional(), value: z.string().optional() })
+		.optional(),
 })
 
 export type GearSchema = z.infer<typeof gearSchema>

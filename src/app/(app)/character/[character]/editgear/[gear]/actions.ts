@@ -18,8 +18,25 @@ export async function editGearItem(
 	gearId: number
 ) {
 	const queryClient = getQueryClient()
-	// console.log('createGearItem', formData)/* 2. Zod validation ----------------------------------------------------- */
-	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
+
+	//* 2. Zod validation ----------------------------------------------------- */
+
+	const raw = Object.fromEntries(formData) as Record<string, any>
+
+	// collect *.type / *.value pairs and build nested objects
+	;['potential1', 'potential2', 'potential3'].forEach((k) => {
+		const type = raw[`${k}.type`]
+		const value = raw[`${k}.value`]
+
+		if (type !== undefined || value !== undefined) {
+			// create the nested object Zod expects
+			raw[k] = { type, value }
+		}
+		delete raw[`${k}.type`]
+		delete raw[`${k}.value`]
+	})
+
+	const parsed = gearSchema.safeParse(raw)
 	if (!parsed.success) {
 		return { error: parsed.error.flatten().fieldErrors }
 	}
@@ -161,7 +178,31 @@ export async function editGearItem(
 			totalFlameScore: gearItemFlameScore ?? 0,
 
 			/* ─── JSON block ─────────────────────────────────── */
-			potential: data.potential ? JSON.parse(data.potential) : {},
+			// potential: data.potential ? JSON.parse(data.potential) : {},
+			potential1: data.potential1
+				? {
+						upsert: {
+							create: data.potential1,
+							update: data.potential1,
+						},
+				  }
+				: undefined,
+			potential2: data.potential2
+				? {
+						upsert: {
+							create: data.potential2,
+							update: data.potential2,
+						},
+				  }
+				: undefined,
+			potential3: data.potential3
+				? {
+						upsert: {
+							create: data.potential3,
+							update: data.potential3,
+						},
+				  }
+				: undefined,
 		},
 	})
 
