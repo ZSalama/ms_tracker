@@ -15,19 +15,7 @@ import { Loader2 } from 'lucide-react'
 
 export function MultiUploader({ character }: { character: string }) {
 	const [files, setFiles] = useState<File[]>([])
-	const {
-		// characterName,
-		setCharacterName,
-		// gearId,
-		// setGearId,
-		gearUrl,
-		setGearUrl,
-		// uploadedBy,
-		setUploadedBy,
-		// fastAnalysis,
-		// setFastAnalysis,
-	} = useCharacterGear()
-
+	const [gearUrl, setGearUrl] = useState<string | null>(null)
 	const [uploadedState, setUploadedState] = useState(false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [imageUpload, setImageUpload] = useState(false)
@@ -67,12 +55,7 @@ export function MultiUploader({ character }: { character: string }) {
 		onClientUploadComplete: (res) => {
 			const { uploadedBy, fileUrl } = res[0].serverData
 
-			// Example: redirect user to a success page
-			// redirect('/')
-			// const { gearId } = await addGearItemPlus(character, res[0].fileUrl)
-			setCharacterName(character)
 			setGearUrl(fileUrl)
-			setUploadedBy(uploadedBy)
 			// alert('Upload Completed')
 			setUploadedState(true)
 		},

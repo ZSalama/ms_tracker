@@ -22,7 +22,7 @@ export function ViewGearContainer({ characterName, gearId }: Props) {
 
 	const specificGear = data.gears.filter((gear) => String(gear.id) === gearId)
 	return (
-		<div className='max-w-4xl mx-auto'>
+		<div className=''>
 			{/* back to character button */}
 			<ViewGear {...specificGear[0]} />
 		</div>

@@ -26,6 +26,9 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
 import Image from 'next/image'
+import ViewGear from '@/components/ViewGear/ViewGear'
+import { Link } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function DeleteGearButton({
 	gearItem,
@@ -198,55 +201,61 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 	if (isLoading || isError) {
 		return <></>
 	}
-	// if (!gear) {
-	// 	return <></>
-	// }
+
 	const specificGear = data.gears.filter((g) => g.slot === slot)[0]
 
-	// const gearWithPotential = specificGear as GearWithPotential
 	return (
 		<div>
 			{slot !== '' ? (
-				<Tooltip>
+				<Tooltip disableHoverableContent>
 					<TooltipTrigger asChild>
-						<div
-							className='relative size-14 rounded-md border
+						{specificGear?.id !== undefined ? (
+							<a
+								className='relative size-14 rounded-md border
                      bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
-                     grid place-content-center overflow-hidden'
-						>
-							{specificGear ? (
-								<Image
-									src={'/Eqp_Fafnir_Battle_Cleaver.png'}
-									alt={gear?.name || ''}
-									fill
-									className='object-contain'
-									sizes='56px'
-								/>
-							) : (
-								<span className='text-[10px] text-gray-400 tracking-tight'>
-									{slot}
-								</span>
-							)}
-						</div>
+                     grid place-content-center overflow-hidden hover:cursor-pointer'
+								href={`/character/${characterName}/${specificGear?.id}`}
+							>
+								{specificGear ? (
+									<Image
+										src={'/Eqp_Fafnir_Battle_Cleaver.png'}
+										alt={gear?.name || ''}
+										fill
+										className='object-contain'
+										sizes='56px'
+									/>
+								) : (
+									<span className='text-[10px] text-gray-400 tracking-tight'>
+										{slot}
+									</span>
+								)}
+							</a>
+						) : (
+							<a
+								className='relative size-14 rounded-md border
+                     bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
+                     grid place-content-center overflow-hidden hover:cursor-pointer'
+								href={`/character/${characterName}/newgearplus`}
+							>
+								{specificGear ? (
+									<Image
+										src={'/Eqp_Fafnir_Battle_Cleaver.png'}
+										alt={gear?.name || ''}
+										fill
+										className='object-contain'
+										sizes='56px'
+									/>
+								) : (
+									<span className='text-[10px] text-gray-400 tracking-tight'>
+										{slot}
+									</span>
+								)}
+							</a>
+						)}
 					</TooltipTrigger>
 					{specificGear ? (
-						<TooltipContent
-							side='right'
-							className='max-w-[16rem] space-y-1 bg-slate-900 text-slate-100'
-						>
-							<>
-								<p className='font-semibold text-sm leading-tight'>
-									{specificGear.name}
-								</p>
-								<p className='text-xs text-muted-foreground'>
-									{specificGear.starForce}★ · {specificGear.rarity}
-								</p>
-								<ul className='mt-1 text-xs grid gap-[2px]'>
-									<li>INT {specificGear.totalInt}</li>
-									<li>LUK {specificGear.totalLuk}</li>
-									<li>Magic ATK {specificGear.totalMagicAttackPower}</li>
-								</ul>
-							</>
+						<TooltipContent className='' side='left'>
+							<ViewGear {...specificGear} />
 						</TooltipContent>
 					) : (
 						<></>

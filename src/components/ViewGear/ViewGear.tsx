@@ -10,10 +10,10 @@ import { GearItem } from '@prisma/client'
 
 export default function ViewGear(data: GearItem) {
 	return (
-		<Card className='w-full max-w-lg space-y-4 mx-auto'>
+		<Card className='w-full max-w-lg space-y-2 mx-auto'>
 			{/* header ---------------------------------------------------------- */}
 			<CardHeader className='text-center'>
-				<CardTitle>{data.name}</CardTitle>
+				<CardTitle className='text-2xl'>{data.name}</CardTitle>
 				<CardDescription>
 					{data.type} • {data.rarity}
 					{data.tradeStatus !== 'untradeable' && ` • ${data.tradeStatus}`}
@@ -84,21 +84,9 @@ export default function ViewGear(data: GearItem) {
 				</p>
 				<div className='w-fill border-gray-600 border-2 m-4' />
 				<p className='text-green-500'>Potential</p>
-				<p>
-					{data.potType1
-						? `${data.potType1} : ${data.potValue1}`
-						: 'No Potential 1'}
-				</p>
-				<p>
-					{data.potType2
-						? `${data.potType2} : ${data.potValue2}`
-						: 'No Potential 2'}
-				</p>
-				<p>
-					{data.potType3
-						? `${data.potType3} : ${data.potValue3}`
-						: 'No Potential 3'}
-				</p>
+				<p>{data.potType1 ? `${data.potType1} : ${data.potValue1}` : ''}</p>
+				<p>{data.potType2 ? `${data.potType2} : ${data.potValue2}` : ''}</p>
+				<p>{data.potType3 ? `${data.potType3} : ${data.potValue3}` : ''}</p>
 				<div className='w-fill border-gray-600 border-2 m-4' />
 				<p>Flame Score: {data.totalFlameScore}</p>
 			</CardContent>

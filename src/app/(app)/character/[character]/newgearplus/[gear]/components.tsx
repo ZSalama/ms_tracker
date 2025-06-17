@@ -11,9 +11,9 @@ import Link from 'next/link'
 
 type Props = { gear: GearItem }
 
-export function GearItemCard({ gear }: Props) {
-	return <ViewGear {...gear} />
-}
+// export function GearItemCard({ gear }: Props) {
+// 	return <ViewGear {...gear} />
+// }
 
 type EquipGearButtonProps = {
 	character: Character

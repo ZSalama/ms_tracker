@@ -4,13 +4,11 @@ import OpenAI from 'openai'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { gearSchema } from '@/lib/validators/gear'
-import { EquipGearButton, GearItemCard, ViewGearContainer } from './components'
+import { EquipGearButton, ViewGearContainer } from './components'
 import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
-import { GearItem } from '@prisma/client'
-import ViewGear from '@/components/ViewGear/ViewGear'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getQueryClient } from '@/lib/get-query-client'
 import { getGears } from '../../actions'

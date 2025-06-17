@@ -9,7 +9,7 @@ import {
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
 import { getQueryClient } from '@/lib/get-query-client'
-import { equipGear } from '@/lib/equipGear'
+import { equipGear, unequipGear } from '@/lib/equipGear'
 import { GearItem } from '@prisma/client'
 
 export async function editGearItem(
@@ -51,6 +51,7 @@ export async function editGearItem(
 	// like any function that interacts with updating gear should only require the most minimal data
 	// like id if it wants to update the gear instead of recasting an entire object that requires type imports..
 	const gearData = { id: gearId, ...parsed.data } as GearItem
+
 	if (data.isEquipped === 'equipped') {
 		await equipGear({
 			character: character,
@@ -58,10 +59,18 @@ export async function editGearItem(
 		})
 	}
 
+	if (data.isEquipped === 'notEquipped') {
+		//check to see if the gear is already equipped
+		await unequipGear({
+			character: character,
+			gear: gearData,
+		})
+	}
+
 	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
 
 	/* 4. Persist ------------------------------------------------------------ */
-	const gear = await prisma.gearItem.update({
+	const newGear = await prisma.gearItem.update({
 		where: { id: Number(gearId) },
 		data: {
 			/* ─── linkage & meta ─────────────────────────────── */
@@ -74,6 +83,8 @@ export async function editGearItem(
 			starForce: Number(data.starForce),
 			requiredLevel: Number(data.requiredLevel),
 			isEquipped: data.isEquipped,
+
+			// slot: gearData.slot ?? '1',
 
 			/* ─── progression bonuses ────────────────────────── */
 			attackPowerIncrease: Number(data.attackPowerIncrease),

@@ -40,11 +40,15 @@ export default function DisplayGearData({ characterName }: Props) {
 	return (
 		<>
 			<div className='mx-auto max-w-4xl px-6 py-12 space-y-4'>
-				<CharacterInfo
-					characterProp={data.character}
-					userId={userId}
-					internalUser={data.internalUser}
-				/>
+				<div className='grid md:grid-cols-2'>
+					<CharacterInfo
+						characterProp={data.character}
+						userId={userId}
+						internalUser={data.internalUser}
+					/>
+					<GearSlot characterName={characterName} />
+				</div>
+
 				<div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
 					{equipedGears.map((gear) => (
 						<div
@@ -188,7 +192,7 @@ function CharacterInfo({
 	internalUser: { id: number; email: string; clerkId: string } | null
 }) {
 	return (
-		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow'>
+		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow h-fit'>
 			<h1 className='text-3xl font-bold'>{characterProp.name}</h1>
 			<dl className='mt-4 space-y-1 text-gray-700'>
 				<div>

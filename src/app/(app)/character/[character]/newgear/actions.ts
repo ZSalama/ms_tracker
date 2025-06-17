@@ -41,7 +41,7 @@ export async function createGearItem(formData: FormData, characterId: number) {
 		throw new Error('You do not own this character')
 	}
 	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
-	console.log(`Calculated flame score for new gear item: ${gearItemFlameScore}`)
+
 	/* 4. Persist ------------------------------------------------------------ */
 	await prisma.gearItem.create({
 		data: {
