@@ -42,7 +42,7 @@ export function EquipGearButton({ character, gear }: EquipGearButtonProps) {
 				onClick={() => {
 					equipGear({ character, gear })
 					queryClient.invalidateQueries({
-						queryKey: ['characters', character.name],
+						queryKey: ['gears', character.name],
 					}) // Invalidate the character query to refresh data
 					redirect(`/character/${character.name}`) // Redirect to character page after equipping
 				}}
