@@ -1,6 +1,6 @@
 'use client'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { getGears } from './actions'
 import { Character, GearItem } from '@prisma/client'
 import { useAuth } from '@clerk/nextjs'
@@ -11,11 +11,21 @@ import { DeleteCharacterButton, DeleteGearButton, GearSlot } from './components'
 type Props = { characterName: string }
 
 export default function DisplayGearData({ characterName }: Props) {
+	const [unequipedGears, setUnequipedGears] = useState<GearItem[]>([])
+	const [equipedGears, setEquipedGears] = useState<GearItem[]>([])
 	const { userId } = useAuth()
 	const { data, isLoading, isError } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
+
+	useEffect(() => {
+		// Set unequipped gears when data is loaded
+		setEquipedGears(data.gears.filter((gear) => gear.isEquipped === 'equipped'))
+		setUnequipedGears(
+			data.gears.filter((gear) => gear.isEquipped === 'notEquipped')
+		)
+	}, [data])
 	if (isLoading) {
 		return <p>Loading...</p>
 	}
@@ -23,13 +33,6 @@ export default function DisplayGearData({ characterName }: Props) {
 		return <p>Error loading characters.</p>
 	}
 
-	// only show gear with isEquiped flagged as true
-	const equippedGears = data.gears.filter(
-		(gear) => gear.isEquipped === 'equipped'
-	)
-	const unequipedGears = data.gears.filter(
-		(gear) => gear.isEquipped === 'notEquipped'
-	)
 	const gearBySlot: Record<string, GearItem | null> = Object.fromEntries(
 		data.gears.map((g: GearItem) => [g.slot, g])
 	)
@@ -37,13 +40,17 @@ export default function DisplayGearData({ characterName }: Props) {
 	return (
 		<>
 			<div className='mx-auto max-w-4xl px-6 py-12 space-y-4'>
-				<CharacterInfo
-					characterProp={data.character}
-					userId={userId}
-					internalUser={data.internalUser}
-				/>
+				<div className='grid md:grid-cols-2'>
+					<CharacterInfo
+						characterProp={data.character}
+						userId={userId}
+						internalUser={data.internalUser}
+					/>
+					<GearSlot characterName={characterName} />
+				</div>
+
 				<div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-					{equippedGears.map((gear) => (
+					{equipedGears.map((gear) => (
 						<div
 							key={gear.id}
 							className=' relative rounded-xl border border-gray-200 bg-white p-6 shadow transition hover:shadow-md flex flex-col'
@@ -91,8 +98,7 @@ export default function DisplayGearData({ characterName }: Props) {
 									{data.internalUser &&
 									userId === String(data.internalUser.clerkId) ? (
 										<DeleteGearButton
-											gearId={gear.id}
-											gearName={gear.name}
+											gearItem={gear}
 											characterName={characterName}
 										/>
 									) : null}
@@ -157,8 +163,7 @@ export default function DisplayGearData({ characterName }: Props) {
 										{data.internalUser &&
 										userId === String(data.internalUser.clerkId) ? (
 											<DeleteGearButton
-												gearId={gear.id}
-												gearName={gear.name}
+												gearItem={gear}
 												characterName={characterName}
 											/>
 										) : null}
@@ -187,7 +192,7 @@ function CharacterInfo({
 	internalUser: { id: number; email: string; clerkId: string } | null
 }) {
 	return (
-		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow'>
+		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow h-fit'>
 			<h1 className='text-3xl font-bold'>{characterProp.name}</h1>
 			<dl className='mt-4 space-y-1 text-gray-700'>
 				<div>

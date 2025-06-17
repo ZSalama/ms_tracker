@@ -2,35 +2,19 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import { GearSchema, gearSchema } from '@/lib/validators/gear'
+import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { Character, GearItem } from '@prisma/client'
-import { calculateFlameScore } from '@/lib/calculateFlames'
+
+import {
+	calculateFlameScore,
+	refreshCharacterFlameScore,
+} from '@/lib/calculateFlames'
+import { GearItem } from '@prisma/client'
 
 export async function createGearItem(formData: FormData, characterId: number) {
 	/* 1. Zod validation ----------------------------------------------------- */
-	// const parsed = gearSchema.safeParse(Object.fromEntries(formData))
-	// if (!parsed.success) {
-	// 	return { error: parsed.error.flatten().fieldErrors }
-	// }
-	// const data = parsed.data
-	const raw = Object.fromEntries(formData) as Record<string, any>
-
-	// collect *.type / *.value pairs and build nested objects
-	;['potential1', 'potential2', 'potential3'].forEach((k) => {
-		const type = raw[`${k}.type`]
-		const value = raw[`${k}.value`]
-
-		if (type !== undefined || value !== undefined) {
-			// create the nested object Zod expects
-			raw[k] = { type, value }
-		}
-		delete raw[`${k}.type`]
-		delete raw[`${k}.value`]
-	})
-
-	const parsed = gearSchema.safeParse(raw)
+	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
 	if (!parsed.success) {
 		return { error: parsed.error.flatten().fieldErrors }
 	}
@@ -56,6 +40,7 @@ export async function createGearItem(formData: FormData, characterId: number) {
 	if (character.userId !== internalUser?.id) {
 		throw new Error('You do not own this character')
 	}
+	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
 
 	/* 4. Persist ------------------------------------------------------------ */
 	await prisma.gearItem.create({
@@ -155,22 +140,24 @@ export async function createGearItem(formData: FormData, characterId: number) {
 			baseBossDamage: Number(data.baseBossDamage) ?? undefined,
 			flameBossDamage: Number(data.flameBossDamage) ?? undefined,
 
-			totalFlameScore: calculateFlameScore(character, data) ?? 0,
+			totalFlameScore: gearItemFlameScore ?? 0,
 
 			baseIgnoreEnemyDefense: Number(data.baseIgnoreEnemyDefense) ?? undefined,
 			flameIgnoreEnemyDefense:
 				Number(data.flameIgnoreEnemyDefense) ?? undefined,
 
-			/* ─── JSON block ─────────────────────────────────── */
-			potential1: data.potential1 ? { create: data.potential1 } : undefined,
-
-			potential2: data.potential2 ? { create: data.potential2 } : undefined,
-
-			potential3: data.potential3 ? { create: data.potential3 } : undefined,
+			potType1: data.potType1 ?? undefined,
+			potType2: data.potType2 ?? undefined,
+			potType3: data.potType3 ?? undefined,
+			potValue1: data.potValue1 ?? undefined,
+			potValue2: data.potValue2 ?? undefined,
+			potValue3: data.potValue3 ?? undefined,
 		},
 	})
 
 	/* 5. Redirect – Next will client-navigate automatically ---------------- */
+	await refreshCharacterFlameScore(character.id)
+
 	revalidatePath(`/character/${character.name}`)
 	redirect(`/character/${character.name}`)
 	return { success: true }

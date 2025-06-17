@@ -4,27 +4,21 @@ import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Character, GearItem } from '@prisma/client'
-import { GearWithPotential } from '@/lib/types'
+import { getQueryClient } from '@/lib/get-query-client'
+import { refreshCharacterFlameScore } from '@/lib/calculateFlames'
 
 export async function deleteGearAction(
-	gearId: number,
-	gearName: string,
+	gearItem: GearItem,
 	characterName: string
 ) {
 	const { userId: clerkId } = await auth()
 	if (!clerkId) throw new Error('Unauthenticated')
-
-	// verify gear exists
-	const geardb = await prisma.gearItem.findUnique({
-		where: { id: gearId },
-		include: { character: { select: { userId: true } } },
-	})
-	if (!geardb) throw new Error('Gear not found')
+	const queryClient = getQueryClient()
 
 	// verify character ownership
 	const character = await prisma.character.findFirst({
 		where: { name: characterName },
-		select: { id: true, name: true, userId: true, user: true },
+		select: { id: true, name: true, userId: true, user: true, class: true },
 	})
 	if (!character) throw new Error('Character not found')
 
@@ -32,12 +26,13 @@ export async function deleteGearAction(
 	if (character.user.clerkId !== clerkId) throw new Error('Not authorized')
 
 	// Perform delete
-	await prisma.gearItem.delete({ where: { id: gearId } })
+	await prisma.gearItem.delete({ where: { id: gearItem.id } })
 
-	console.log(`Gear item with ID ${gearId} deleted successfully.`)
+	console.log(`Gear item with ID ${gearItem.id} deleted successfully.`)
 
-	// Redirect back to character page
-	redirect(`/character/${characterName}`)
+	// Refresh character's flame score
+	if (gearItem.isEquipped === 'equipped')
+		await refreshCharacterFlameScore(character.id)
 }
 
 export async function deleteCharacterAction(characterName: string) {
@@ -64,7 +59,7 @@ export async function deleteCharacterAction(characterName: string) {
 
 type GetGearsResponse = {
 	character: Character
-	gears: GearWithPotential[]
+	gears: GearItem[]
 	internalUser: {
 		id: number
 		email: string
@@ -97,28 +92,11 @@ export async function getGears(
 	const gears = await prisma.gearItem.findMany({
 		where: { characterId: character.id },
 		orderBy: { combatPowerIncrease: 'desc' },
-		include: {
-			potential1: { select: { type: true, value: true } }, // "key", "val"
-			potential2: { select: { type: true, value: true } },
-			potential3: { select: { type: true, value: true } },
-		},
 	})
 
-	const gearsWithPotentials = gears.map((gear) => ({
-		...gear,
-		potential1: gear.potential1
-			? { id: gear.potential1Id!, ...gear.potential1 }
-			: { id: 0, type: '', value: '' },
-		potential2: gear.potential2
-			? { id: gear.potential2Id!, ...gear.potential2 }
-			: { id: 0, type: '', value: '' },
-		potential3: gear.potential3
-			? { id: gear.potential3Id!, ...gear.potential3 }
-			: { id: 0, type: '', value: '' },
-	}))
 	return {
 		character: character,
-		gears: gearsWithPotentials,
+		gears: gears,
 		internalUser: internalUser,
 	}
 }

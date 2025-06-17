@@ -15,36 +15,37 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { GearItem } from '@prisma/client'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from '@tanstack/react-query'
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
 import Image from 'next/image'
-import { HoverCard, HoverCardTrigger } from '@radix-ui/react-hover-card'
-import { HoverCardContent } from '@/components/ui/hover-card'
-import { GearWithPotential } from '@/lib/types'
+import ViewGear from '@/components/ViewGear/ViewGear'
+import { Link } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function DeleteGearButton({
-	gearId,
-	gearName,
+	gearItem,
 	characterName,
 }: {
-	gearId: number
-	gearName: string
+	gearItem: GearItem
 	characterName: string
 }) {
+	const queryClient = useQueryClient()
+	const { mutate, isPending } = useMutation({
+		mutationFn: (payload: GearItem) => deleteGearAction(payload, characterName),
+		onSuccess: () => {
+			// instantly mark the query stale in the browser
+			queryClient.invalidateQueries({ queryKey: ['gears', characterName] }) // :contentReference[oaicite:1]{index=1}
+		},
+	})
 	return (
-		// <Button
-		//     type='submit'
-		//     className='mt-4 ml-4 rounded-md border border-red-600 px-3 py-1 text-sm font-medium bg-gray-200 text-red-600 hover:bg-red-50 cursor-pointer'
-		//     onClick={() => {
-		//         deleteGearAction(gearId, characterName)
-		//     }}
-		// >
-		//     Delete Gear
-		// </Button>
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
 				<Button variant='destructive' className='cursor-pointer'>
@@ -56,7 +57,7 @@ export function DeleteGearButton({
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. This will permanently delete your{' '}
-						{gearName} and remove the data from our servers.
+						{gearItem.name} and remove the data from our servers.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -66,8 +67,8 @@ export function DeleteGearButton({
 					<AlertDialogAction
 						className='cursor-pointer'
 						onClick={() => {
-							console.log(`Delete gear: ${gearName}`)
-							deleteGearAction(gearId, gearName, characterName)
+							console.log(`Delete gear: ${gearItem.name}`)
+							mutate(gearItem)
 						}}
 					>
 						Continue
@@ -83,6 +84,8 @@ export function DeleteCharacterButton({
 }: {
 	characterName: string
 }) {
+	const queryClient = useQueryClient()
+
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
@@ -198,55 +201,61 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 	if (isLoading || isError) {
 		return <></>
 	}
-	// if (!gear) {
-	// 	return <></>
-	// }
+
 	const specificGear = data.gears.filter((g) => g.slot === slot)[0]
 
-	// const gearWithPotential = specificGear as GearWithPotential
 	return (
 		<div>
 			{slot !== '' ? (
-				<Tooltip>
+				<Tooltip disableHoverableContent>
 					<TooltipTrigger asChild>
-						<div
-							className='relative size-14 rounded-md border
+						{specificGear?.id !== undefined ? (
+							<a
+								className='relative size-14 rounded-md border
                      bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
-                     grid place-content-center overflow-hidden'
-						>
-							{specificGear ? (
-								<Image
-									src={'/Eqp_Fafnir_Battle_Cleaver.png'}
-									alt={gear?.name || ''}
-									fill
-									className='object-contain'
-									sizes='56px'
-								/>
-							) : (
-								<span className='text-[10px] text-gray-400 tracking-tight'>
-									{slot}
-								</span>
-							)}
-						</div>
+                     grid place-content-center overflow-hidden hover:cursor-pointer'
+								href={`/character/${characterName}/${specificGear?.id}`}
+							>
+								{specificGear ? (
+									<Image
+										src={'/Eqp_Fafnir_Battle_Cleaver.png'}
+										alt={gear?.name || ''}
+										fill
+										className='object-contain'
+										sizes='56px'
+									/>
+								) : (
+									<span className='text-[10px] text-gray-400 tracking-tight'>
+										{slot}
+									</span>
+								)}
+							</a>
+						) : (
+							<a
+								className='relative size-14 rounded-md border
+                     bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
+                     grid place-content-center overflow-hidden hover:cursor-pointer'
+								href={`/character/${characterName}/newgearplus`}
+							>
+								{specificGear ? (
+									<Image
+										src={'/Eqp_Fafnir_Battle_Cleaver.png'}
+										alt={gear?.name || ''}
+										fill
+										className='object-contain'
+										sizes='56px'
+									/>
+								) : (
+									<span className='text-[10px] text-gray-400 tracking-tight'>
+										{slot}
+									</span>
+								)}
+							</a>
+						)}
 					</TooltipTrigger>
 					{specificGear ? (
-						<TooltipContent
-							side='right'
-							className='max-w-[16rem] space-y-1 bg-slate-900 text-slate-100'
-						>
-							<>
-								<p className='font-semibold text-sm leading-tight'>
-									{specificGear.name}
-								</p>
-								<p className='text-xs text-muted-foreground'>
-									{specificGear.starForce}★ · {specificGear.rarity}
-								</p>
-								<ul className='mt-1 text-xs grid gap-[2px]'>
-									<li>INT {specificGear.totalInt}</li>
-									<li>LUK {specificGear.totalLuk}</li>
-									<li>Magic ATK {specificGear.totalMagicAttackPower}</li>
-								</ul>
-							</>
+						<TooltipContent className='' side='left'>
+							<ViewGear {...specificGear} />
 						</TooltipContent>
 					) : (
 						<></>

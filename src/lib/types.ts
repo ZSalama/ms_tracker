@@ -1,5 +1,3 @@
-import { GearItem, Potential, Prisma } from '@prisma/client'
-
 export type Stat = 'str' | 'dex' | 'int' | 'luk' | 'hp'
 export type AttackType = 'Attack' | 'Magic'
 
@@ -150,10 +148,10 @@ export const gearTypes = [
 	'Ring',
 ]
 
-export type GearWithPotential = Prisma.GearItemGetPayload<{
-	include: {
-		potential1: true
-		potential2: true
-		potential3: true
-	}
-}>
+export const hatNames = ['Arcane Umbra Mage Hat', 'Fafnir Mage Hat']
+
+export const badgeNames = ['Genesis Badge', 'Crystal Ventus Badge']
+
+export const shoeNames = ['Arcane Umbra Mage Shoes']
+
+export const allGearNames = [...hatNames, ...badgeNames, ...shoeNames]

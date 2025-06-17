@@ -1,5 +1,5 @@
 'use client'
-import { Potential, type Character, type GearItem } from '@prisma/client'
+import { type Character, type GearItem } from '@prisma/client'
 import ViewGear from '@/components/ViewGear/ViewGear'
 import { Button } from '@/components/ui/button'
 import { equipGear } from '@/lib/equipGear'
@@ -11,15 +11,9 @@ import Link from 'next/link'
 
 type Props = { gear: GearItem }
 
-type GearWithPotential = GearItem & {
-	potential1: Potential
-	potential2: Potential
-	potential3: Potential
-}
-
-export function GearItemCard({ gear }: Props) {
-	return <ViewGear {...(gear as GearWithPotential)} />
-}
+// export function GearItemCard({ gear }: Props) {
+// 	return <ViewGear {...gear} />
+// }
 
 type EquipGearButtonProps = {
 	character: Character
@@ -48,7 +42,7 @@ export function EquipGearButton({ character, gear }: EquipGearButtonProps) {
 				onClick={() => {
 					equipGear({ character, gear })
 					queryClient.invalidateQueries({
-						queryKey: ['characters', character.name],
+						queryKey: ['gears', character.name],
 					}) // Invalidate the character query to refresh data
 					redirect(`/character/${character.name}`) // Redirect to character page after equipping
 				}}
