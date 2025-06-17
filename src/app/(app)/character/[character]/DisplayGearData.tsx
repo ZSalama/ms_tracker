@@ -18,17 +18,7 @@ export default function DisplayGearData({ characterName }: Props) {
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
-	if (isLoading) {
-		return <p>Loading...</p>
-	}
-	if (isError) {
-		return <p>Error loading characters.</p>
-	}
 
-	// only show gear with isEquiped flagged as true
-	// const equippedGears = data.gears.filter(
-	// 	(gear) => gear.isEquipped === 'equipped'
-	// )
 	useEffect(() => {
 		// Set unequipped gears when data is loaded
 		setEquipedGears(data.gears.filter((gear) => gear.isEquipped === 'equipped'))
@@ -36,6 +26,12 @@ export default function DisplayGearData({ characterName }: Props) {
 			data.gears.filter((gear) => gear.isEquipped === 'notEquipped')
 		)
 	}, [data])
+	if (isLoading) {
+		return <p>Loading...</p>
+	}
+	if (isError) {
+		return <p>Error loading characters.</p>
+	}
 
 	const gearBySlot: Record<string, GearItem | null> = Object.fromEntries(
 		data.gears.map((g: GearItem) => [g.slot, g])

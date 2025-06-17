@@ -1,6 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getGears } from '../../actions'
-import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { EditGearFormClient } from './components'
 
