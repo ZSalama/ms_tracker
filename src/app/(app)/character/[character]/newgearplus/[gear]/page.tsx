@@ -9,7 +9,7 @@ import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
-import { GearItem, Potential } from '@prisma/client'
+import { GearItem } from '@prisma/client'
 import ViewGear from '@/components/ViewGear/ViewGear'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getQueryClient } from '@/lib/get-query-client'
@@ -37,12 +37,6 @@ const secondaryNames = [
 	'Emblem',
 	'Pocket Item',
 ]
-
-type GearWithPotential = GearItem & {
-	potential1: Potential
-	potential2: Potential
-	potential3: Potential
-}
 
 export default async function page({
 	params,
@@ -102,9 +96,9 @@ export default async function page({
 		            totalBossDamage, baseBossDamage, flameBossDamage,
 		            totalIgnoreEnemyDefense, baseIgnoreEnemyDefense, flameIgnoreEnemyDefense,
 		            totalAllStat, baseAllStat, flameAllStat, // baseAllStat is always 0%, flameAllStat is the percentage inside parenthesis. remove the % sign.
-		            potential1,   // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"} If the gear has no potential, set potential1, potential2, potential3 to null. If the gear has only one potential line, set potential2 and potential3 to null. If the gear has two potential lines, set potential3 to null.
-					potential2,   // an object with 2 properties (key, value) The second potential line, eg {"All Stat": "+2%"}
-	 				potential3,    // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"}
+		            potType1, potValue1   //  potType1 is type of the first line of the potentials and the value is the 2nd part, deliminated by the colon. If the gear has no potential, set potType1, potValue1, potType2, potValue2, potType3, potValue3 to null. If the gear has only one potential line, set potType2 and potType3 to null. If the gear has two potential lines, set potType3 and potValue3 to null.
+					potType2, potValue2    // 2nd line of potentials
+	 				potType3, potValue3    // 3rd line of potentials
 		            Example output (format, not values):
 		            {
 		            "name": "Silver Blossom Ring",
@@ -124,9 +118,12 @@ export default async function page({
 		            "totalBossDamage": 0, "baseBossDamage": 0, "flameBossDamage": 0,
 		            "totalIgnoreEnemyDefense": 0, "baseIgnoreEnemyDefense": 0, "flameIgnoreEnemyDefense": 0,
 		            "totalAllStat": 6, "baseAllStat": 0, "flameAllStat": 6,
-					"potential1": {"INT", "+6%"}, 
-	 				"potential2": {"All Stat", "+2%"},
-	   				"potential3": {"INT", "+6%"}
+					"potType1": "INT",
+					"potValue1": "+6%",
+					"potType2": "All Stat",
+					"potValue2": "+2%",
+					"potType3": "INT",
+					"potValue3": "+6%",
 					}
 					`,
 				},
@@ -170,9 +167,9 @@ export default async function page({
 		            totalBossDamage, baseBossDamage, flameBossDamage,
 		            totalIgnoreEnemyDefense, baseIgnoreEnemyDefense, flameIgnoreEnemyDefense,
 		            totalAllStat, baseAllStat, flameAllStat, // baseAllStat is always 0%, flameAllStat is the percentage inside parenthesis. remove the % sign.
-		            potential1,   // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"} If the gear has no potential, set potential1, potential2, potential3 to null. If the gear has only one potential line, set potential2 and potential3 to null. If the gear has two potential lines, set potential3 to null.
-					potential2,   // an object with 2 properties (key, value) The second potential line, eg {"All Stat": "+2%"}
-	 				potential3,    // an object with 2 properties (key, value) The first potential line, eg {"INT": "+6%"}
+		            potType1, potValue1   //  potType1 is type of the first line of the potentials and the value is the 2nd part, deliminated by the colon. If the gear has no potential, set potType1, potValue1, potType2, potValue2, potType3, potValue3 to null. If the gear has only one potential line, set potType2 and potType3 to null. If the gear has two potential lines, set potType3 and potValue3 to null.
+					potType2, potValue2    // 2nd line of potentials
+	 				potType3, potValue3    // 3rd line of potentials
 		            Example output (format, not values):
 		            {
 		            "name": "Silver Blossom Ring",
@@ -192,9 +189,12 @@ export default async function page({
 		            "totalBossDamage": 0, "baseBossDamage": 0, "flameBossDamage": 0,
 		            "totalIgnoreEnemyDefense": 0, "baseIgnoreEnemyDefense": 0, "flameIgnoreEnemyDefense": 0,
 		            "totalAllStat": 6, "baseAllStat": 0, "flameAllStat": 6,
-					"potential1": {"INT", "+6%"}, 
-	 				"potential2": {"All Stat", "+2%"},
-	   				"potential3": {"INT", "+6%"}
+					"potType1": "INT",
+					"potValue1": "+6%",
+					"potType2": "All Stat",
+					"potValue2": "+2%",
+					"potType3": "INT",
+					"potValue3": "+6%",
 					}
 					`,
 				},
@@ -230,38 +230,6 @@ export default async function page({
 	// Update gearData with the analysis
 	const updatedFlameScore = calculateFlameScore(characterData, data)
 	data.totalFlameScore = updatedFlameScore
-
-	// create potentials
-
-	const [key1, val1] = analysisJson.potential1
-		? (Object.entries(analysisJson.potential1)[0] as [string, string])
-		: []
-	const potential1 = await prisma.potential.create({
-		data: {
-			type: key1,
-			value: typeof val1 === 'string' ? val1 : undefined,
-		},
-	})
-
-	const [key2, val2] = analysisJson.potential2
-		? (Object.entries(analysisJson.potential2)[0] as [string, string])
-		: []
-	const potential2 = await prisma.potential.create({
-		data: {
-			type: key2,
-			value: typeof val2 === 'string' ? val2 : undefined,
-		},
-	})
-
-	const [key3, val3] = analysisJson.potential3
-		? (Object.entries(analysisJson.potential3)[0] as [string, string])
-		: []
-	const potential3 = await prisma.potential.create({
-		data: {
-			type: key3,
-			value: typeof val3 === 'string' ? val3 : undefined,
-		},
-	})
 
 	const updatedGear = await prisma.gearItem.update({
 		where: { id: gearData.id },
@@ -301,9 +269,15 @@ export default async function page({
 			totalAllStat: data.baseAllStat ?? 0,
 			flameAllStat: data.flameAllStat ?? 0,
 			totalFlameScore: data.totalFlameScore,
-			potential1: potential1 ? { connect: { id: potential1.id } } : undefined,
-			potential2: potential2 ? { connect: { id: potential2.id } } : undefined,
-			potential3: potential3 ? { connect: { id: potential3.id } } : undefined,
+
+			potType1: data.potType1 ?? null,
+			potValue1: data.potValue1 ?? null,
+
+			potType2: data.potType2 ?? null,
+			potValue2: data.potValue2 ?? null,
+
+			potType3: data.potType3 ?? null,
+			potValue3: data.potValue3 ?? null,
 		},
 	})
 	if (!updatedGear) {

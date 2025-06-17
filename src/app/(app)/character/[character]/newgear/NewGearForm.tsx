@@ -13,6 +13,7 @@ import {
 	FormLabel,
 	FormControl,
 	FormMessage,
+	FormDescription,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,11 +22,27 @@ import {
 	SelectContent,
 	SelectItem,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
+
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+import { Check, ChevronsUpDown } from 'lucide-react'
 import { useTransition } from 'react'
+import { toast } from 'sonner'
 import Link from 'next/link'
-import { gearTypes } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { allGearNames, gearTypes } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 export default function NewGearForm({
 	character,
@@ -36,6 +53,10 @@ export default function NewGearForm({
 }) {
 	const router = useRouter()
 	const [isPending, startTransition] = useTransition()
+	const allGearNamesValLab = allGearNames.map((gearName) => [
+		gearName,
+		gearName.toLowerCase(),
+	])
 
 	/* ---------------- RHF setup ---------------- */
 	const form = useForm<GearSchema>({
@@ -79,62 +100,34 @@ export default function NewGearForm({
 			flameBossDamage: 0,
 			baseIgnoreEnemyDefense: 0,
 			flameIgnoreEnemyDefense: 0,
-			potential1: { type: '', value: '' },
-			potential2: { type: '', value: '' },
-			potential3: { type: '', value: '' },
+
+			potType1: '',
+			potType2: '',
+			potType3: '',
+
+			potValue1: '',
+			potValue2: '',
+			potValue3: '',
 		},
 	})
 
-	// async function onSubmit(values: GearSchema) {
-	// 	// console.log('onSubmit', values)
-	// 	startTransition(async () => {
-	// 		const fd = new FormData()
-	// 		Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
-	// 		const result = await createGearItem(fd, characterId)
-
-	// 		if (result?.error) {
-	// 			// Push Zod errors back into react-hook-form
-	// 			Object.entries(result.error).forEach(([field, messages]) =>
-	// 				form.setError(field as keyof GearSchema, {
-	// 					message: (messages as string[])[0],
-	// 				})
-	// 			)
-	// 		} else if (result?.success) {
-	// 			form.reset() // clear the form
-	// 			// redirect to dasbhoard
-	// 			router.push('/dashboard')
-	// 		}
-	// 	})
-	// }
 	async function onSubmit(values: GearSchema) {
 		startTransition(async () => {
-			// Convert values object to FormData
-			const formData = new FormData()
-			Object.entries(values).forEach(([key, value]) => {
-				// Handle nested objects (e.g., potential1, potential2, potential3)
-				if (
-					typeof value === 'object' &&
-					value !== null &&
-					!Array.isArray(value)
-				) {
-					Object.entries(value).forEach(([subKey, subValue]) => {
-						formData.append(`${key}.${subKey}`, subValue ?? '')
-					})
-				} else {
-					formData.append(key, (value as string) ?? '')
-				}
-			})
-
-			const result = await createGearItem(formData, characterId)
-
-			if (result?.error) {
-				Object.entries(result.error).forEach(([field, messages]) =>
-					form.setError(field as keyof GearSchema, {
-						message: (messages as string[])[0],
-					})
+			try {
+				const formData = new FormData()
+				Object.entries(values).forEach(([k, v]) =>
+					formData.append(k, String(v))
 				)
-			} else if (result?.success) {
-				redirect(`/character/${character}/dashboard`)
+				createGearItem(formData, characterId)
+				toast(
+					<pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+						<code className='text-white'>
+							{JSON.stringify(values, null, 2)}
+						</code>
+					</pre>
+				)
+			} catch (error) {
+				toast.error('Failed to submit the form. Please try again.')
 			}
 		})
 	}
@@ -155,11 +148,61 @@ export default function NewGearForm({
 					control={form.control}
 					name='name'
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Name</FormLabel>
-							<FormControl>
-								<Input placeholder='Twilight Mark' {...field} />
-							</FormControl>
+						<FormItem className='flex flex-col'>
+							<FormLabel>Gear Name</FormLabel>
+							<Popover>
+								<PopoverTrigger asChild>
+									<FormControl>
+										<Button
+											variant='outline'
+											role='combobox'
+											className={cn(
+												'justify-between',
+												!field.value && 'text-muted-foreground'
+											)}
+										>
+											{field.value
+												? allGearNamesValLab.find(
+														(language) => language[0] === field.value
+												  )?.[0]
+												: 'Select gear'}
+											<ChevronsUpDown className=' shrink-0 opacity-50' />
+										</Button>
+									</FormControl>
+								</PopoverTrigger>
+								<PopoverContent className=' p-0'>
+									<Command>
+										<CommandInput placeholder='Search gear...' />
+										<CommandList>
+											<CommandEmpty>No gear found.</CommandEmpty>
+											<CommandGroup>
+												{allGearNamesValLab.map((language) => (
+													<CommandItem
+														value={language[0]}
+														key={language[1]}
+														onSelect={() => {
+															form.setValue('name', language[0])
+														}}
+													>
+														<Check
+															className={cn(
+																'',
+																language[0] === field.value
+																	? 'opacity-100'
+																	: 'opacity-0'
+															)}
+														/>
+														{language[0]}
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+							<FormDescription>
+								This is the language that will be used in the dashboard.
+							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -684,7 +727,7 @@ export default function NewGearForm({
 						{/* -- type ---------------------------------------------------- */}
 						<FormField
 							control={form.control}
-							name={`potential${idx}.type`}
+							name={`potType${idx}`}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Type</FormLabel>
@@ -728,7 +771,7 @@ export default function NewGearForm({
 						{/* -- value --------------------------------------------------- */}
 						<FormField
 							control={form.control}
-							name={`potential${idx}.value`}
+							name={`potValue${idx}`}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Value</FormLabel>

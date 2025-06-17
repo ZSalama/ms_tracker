@@ -6,9 +6,9 @@ import {
 	CardHeader,
 	CardTitle,
 } from '../ui/card'
-import { GearWithPotential } from '@/lib/types'
+import { GearItem } from '@prisma/client'
 
-export default function ViewGear(data: GearWithPotential) {
+export default function ViewGear(data: GearItem) {
 	return (
 		<Card className='w-full max-w-lg space-y-4 mx-auto'>
 			{/* header ---------------------------------------------------------- */}
@@ -85,26 +85,18 @@ export default function ViewGear(data: GearWithPotential) {
 				<div className='w-fill border-gray-600 border-2 m-4' />
 				<p className='text-green-500'>Potential</p>
 				<p>
-					{data.potential1
-						? `${String(data.potential1.type)} : ${String(
-								data.potential1.value
-						  )}`
+					{data.potType1
+						? `${data.potType1} : ${data.potValue1}`
 						: 'No Potential 1'}
 				</p>
 				<p>
-					{' '}
-					{data.potential2
-						? `${String(data.potential2.type)} : ${String(
-								data.potential2.value
-						  )}`
+					{data.potType2
+						? `${data.potType2} : ${data.potValue2}`
 						: 'No Potential 2'}
 				</p>
 				<p>
-					{' '}
-					{data.potential3
-						? `${String(data.potential3.type)} : ${String(
-								data.potential3.value
-						  )}`
+					{data.potType3
+						? `${data.potType3} : ${data.potValue3}`
 						: 'No Potential 3'}
 				</p>
 				<div className='w-fill border-gray-600 border-2 m-4' />

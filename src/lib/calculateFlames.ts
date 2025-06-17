@@ -3,10 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { GearSchema } from './validators/gear'
 
 // calculate flame score using character's flame weights
-export const calculateFlameScore = (
-	character: Character,
-	gear: GearSchema | GearItem
-) => {
+export const calculateFlameScore = (character: Character, gear: GearItem) => {
 	let flameMainStat = 0
 	switch (character.flameWeightMainType) {
 		case 'str':

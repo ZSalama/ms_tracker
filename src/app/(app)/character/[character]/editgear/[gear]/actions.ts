@@ -4,7 +4,6 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
@@ -12,7 +11,6 @@ import {
 import { getQueryClient } from '@/lib/get-query-client'
 import { equipGear } from '@/lib/equipGear'
 import { GearItem } from '@prisma/client'
-import { GearWithPotential } from '@/lib/types'
 
 export async function editGearItem(
 	formData: FormData,
@@ -22,23 +20,7 @@ export async function editGearItem(
 	const queryClient = getQueryClient()
 
 	//* 2. Zod validation ----------------------------------------------------- */
-
-	const raw = Object.fromEntries(formData) as Record<string, any>
-
-	// collect *.type / *.value pairs and build nested objects
-	;['potential1', 'potential2', 'potential3'].forEach((k) => {
-		const type = raw[`${k}.type`]
-		const value = raw[`${k}.value`]
-
-		if (type !== undefined || value !== undefined) {
-			// create the nested object Zod expects
-			raw[k] = { type, value }
-		}
-		delete raw[`${k}.type`]
-		delete raw[`${k}.value`]
-	})
-
-	const parsed = gearSchema.safeParse(raw)
+	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
 	if (!parsed.success) {
 		return { error: parsed.error.flatten().fieldErrors }
 	}
@@ -65,7 +47,6 @@ export async function editGearItem(
 		throw new Error('You do not own this character')
 	}
 
-	const gearItemFlameScore = calculateFlameScore(character, data)
 	// considered refactoring lots of code because of this next line
 	// like any function that interacts with updating gear should only require the most minimal data
 	// like id if it wants to update the gear instead of recasting an entire object that requires type imports..
@@ -76,6 +57,8 @@ export async function editGearItem(
 			gear: gearData, // cast to GearItem for equipGear function
 		})
 	}
+
+	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
 
 	/* 4. Persist ------------------------------------------------------------ */
 	const gear = await prisma.gearItem.update({
@@ -190,32 +173,12 @@ export async function editGearItem(
 
 			totalFlameScore: gearItemFlameScore ?? 0,
 
-			/* ─── JSON block ─────────────────────────────────── */
-			// potential: data.potential ? JSON.parse(data.potential) : {},
-			potential1: data.potential1
-				? {
-						upsert: {
-							create: data.potential1,
-							update: data.potential1,
-						},
-				  }
-				: undefined,
-			potential2: data.potential2
-				? {
-						upsert: {
-							create: data.potential2,
-							update: data.potential2,
-						},
-				  }
-				: undefined,
-			potential3: data.potential3
-				? {
-						upsert: {
-							create: data.potential3,
-							update: data.potential3,
-						},
-				  }
-				: undefined,
+			potType1: data.potType1 ?? undefined,
+			potType2: data.potType2 ?? undefined,
+			potType3: data.potType3 ?? undefined,
+			potValue1: data.potValue1 ?? undefined,
+			potValue2: data.potValue2 ?? undefined,
+			potValue3: data.potValue3 ?? undefined,
 		},
 	})
 

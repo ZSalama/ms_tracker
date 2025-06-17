@@ -57,16 +57,6 @@ model Character {
     @@map("character")
 }
 
-model Potential {
-    id    Int    @id @default(autoincrement())
-    type  String @default("None")
-    value String @default("None")
-
-    gearSlot1 GearItem? @relation("Potential1")
-    gearSlot2 GearItem? @relation("Potential2")
-    gearSlot3 GearItem? @relation("Potential3")
-}
-
 model GearItem {
     id          Int    @id @default(autoincrement())
     name        String @default("Unnamed")
@@ -160,12 +150,12 @@ model GearItem {
 
     totalFlameScore Int? @default(0)
 
-    potential1Id Int?       @unique @map("potential_1_id")
-    potential1   Potential? @relation("Potential1", fields: [potential1Id], references: [id])
+    potType1  String?
+    potValue1 String?
 
-    potential2Id Int?       @unique @map("potential_2_id")
-    potential2   Potential? @relation("Potential2", fields: [potential2Id], references: [id])
+    potType2  String?
+    potValue2 String?
 
-    potential3Id Int?       @unique @map("potential_3_id")
-    potential3   Potential? @relation("Potential3", fields: [potential3Id], references: [id])
+    potType3  String?
+    potValue3 String?
 }

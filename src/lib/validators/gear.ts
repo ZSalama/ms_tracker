@@ -70,15 +70,13 @@ export const gearSchema = z.object({
 	baseIgnoreEnemyDefense: z.coerce.number().int().optional(),
 	flameIgnoreEnemyDefense: z.coerce.number().int().optional(),
 
-	potential1: z
-		.object({ type: z.string().optional(), value: z.string().optional() })
-		.optional(),
-	potential2: z
-		.object({ type: z.string().optional(), value: z.string().optional() })
-		.optional(),
-	potential3: z
-		.object({ type: z.string().optional(), value: z.string().optional() })
-		.optional(),
+	potType1: z.string().optional(),
+	potType2: z.string().optional(),
+	potType3: z.string().optional(),
+
+	potValue1: z.string().optional(),
+	potValue2: z.string().optional(),
+	potValue3: z.string().optional(),
 })
 
 export type GearSchema = z.infer<typeof gearSchema>

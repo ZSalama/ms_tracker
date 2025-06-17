@@ -15,36 +15,34 @@ import {
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { GearItem } from '@prisma/client'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from '@tanstack/react-query'
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
 import Image from 'next/image'
-import { HoverCard, HoverCardTrigger } from '@radix-ui/react-hover-card'
-import { HoverCardContent } from '@/components/ui/hover-card'
-import { GearWithPotential } from '@/lib/types'
 
 export function DeleteGearButton({
-	gearId,
-	gearName,
+	gearItem,
 	characterName,
 }: {
-	gearId: number
-	gearName: string
+	gearItem: GearItem
 	characterName: string
 }) {
+	const queryClient = useQueryClient()
+	const { mutate, isPending } = useMutation({
+		mutationFn: (payload: GearItem) => deleteGearAction(payload, characterName),
+		onSuccess: () => {
+			// instantly mark the query stale in the browser
+			queryClient.invalidateQueries({ queryKey: ['gears', characterName] }) // :contentReference[oaicite:1]{index=1}
+		},
+	})
 	return (
-		// <Button
-		//     type='submit'
-		//     className='mt-4 ml-4 rounded-md border border-red-600 px-3 py-1 text-sm font-medium bg-gray-200 text-red-600 hover:bg-red-50 cursor-pointer'
-		//     onClick={() => {
-		//         deleteGearAction(gearId, characterName)
-		//     }}
-		// >
-		//     Delete Gear
-		// </Button>
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
 				<Button variant='destructive' className='cursor-pointer'>
@@ -56,7 +54,7 @@ export function DeleteGearButton({
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. This will permanently delete your{' '}
-						{gearName} and remove the data from our servers.
+						{gearItem.name} and remove the data from our servers.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -66,8 +64,8 @@ export function DeleteGearButton({
 					<AlertDialogAction
 						className='cursor-pointer'
 						onClick={() => {
-							console.log(`Delete gear: ${gearName}`)
-							deleteGearAction(gearId, gearName, characterName)
+							console.log(`Delete gear: ${gearItem.name}`)
+							mutate(gearItem)
 						}}
 					>
 						Continue
@@ -83,6 +81,8 @@ export function DeleteCharacterButton({
 }: {
 	characterName: string
 }) {
+	const queryClient = useQueryClient()
+
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>

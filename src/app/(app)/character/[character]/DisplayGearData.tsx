@@ -1,6 +1,6 @@
 'use client'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { getGears } from './actions'
 import { Character, GearItem } from '@prisma/client'
 import { useAuth } from '@clerk/nextjs'
@@ -11,6 +11,8 @@ import { DeleteCharacterButton, DeleteGearButton, GearSlot } from './components'
 type Props = { characterName: string }
 
 export default function DisplayGearData({ characterName }: Props) {
+	const [unequipedGears, setUnequipedGears] = useState<GearItem[]>([])
+	const [equipedGears, setEquipedGears] = useState<GearItem[]>([])
 	const { userId } = useAuth()
 	const { data, isLoading, isError } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
@@ -24,12 +26,17 @@ export default function DisplayGearData({ characterName }: Props) {
 	}
 
 	// only show gear with isEquiped flagged as true
-	const equippedGears = data.gears.filter(
-		(gear) => gear.isEquipped === 'equipped'
-	)
-	const unequipedGears = data.gears.filter(
-		(gear) => gear.isEquipped === 'notEquipped'
-	)
+	// const equippedGears = data.gears.filter(
+	// 	(gear) => gear.isEquipped === 'equipped'
+	// )
+	useEffect(() => {
+		// Set unequipped gears when data is loaded
+		setEquipedGears(data.gears.filter((gear) => gear.isEquipped === 'equipped'))
+		setUnequipedGears(
+			data.gears.filter((gear) => gear.isEquipped === 'notEquipped')
+		)
+	}, [data])
+
 	const gearBySlot: Record<string, GearItem | null> = Object.fromEntries(
 		data.gears.map((g: GearItem) => [g.slot, g])
 	)
@@ -43,7 +50,7 @@ export default function DisplayGearData({ characterName }: Props) {
 					internalUser={data.internalUser}
 				/>
 				<div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-					{equippedGears.map((gear) => (
+					{equipedGears.map((gear) => (
 						<div
 							key={gear.id}
 							className=' relative rounded-xl border border-gray-200 bg-white p-6 shadow transition hover:shadow-md flex flex-col'
@@ -91,8 +98,7 @@ export default function DisplayGearData({ characterName }: Props) {
 									{data.internalUser &&
 									userId === String(data.internalUser.clerkId) ? (
 										<DeleteGearButton
-											gearId={gear.id}
-											gearName={gear.name}
+											gearItem={gear}
 											characterName={characterName}
 										/>
 									) : null}
@@ -157,8 +163,7 @@ export default function DisplayGearData({ characterName }: Props) {
 										{data.internalUser &&
 										userId === String(data.internalUser.clerkId) ? (
 											<DeleteGearButton
-												gearId={gear.id}
-												gearName={gear.name}
+												gearItem={gear}
 												characterName={characterName}
 											/>
 										) : null}

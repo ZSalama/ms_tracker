@@ -1,180 +1,221 @@
 'use client'
 
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTransition } from 'react'
+import { getGears } from '../../actions'
+import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { gearSchema, GearSchema } from '@/lib/validators/gear'
-import { editGearItem } from './actions'
-
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
 	Form,
+	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
-	FormControl,
 	FormMessage,
 } from '@/components/ui/form'
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+import { Check, ChevronsUpDown } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { GearSchema, gearSchema } from '@/lib/validators/gear'
+import { editGearItem } from './actions'
+import { allGearNames, gearTypes } from '@/lib/types'
 import {
 	Select,
-	SelectTrigger,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { startTransition, useTransition } from 'react'
-import { GearItem } from '@prisma/client'
-import { gearTypes } from '@/lib/types'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getGears } from '../../actions'
-import { redirect } from 'next/navigation'
 
 type Props = { characterName: string; gearId: string }
-
 export function EditGearFormClient({ characterName, gearId }: Props) {
 	const [isPending, startTransition] = useTransition()
 	const { data, isLoading, isError } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
-	const gearData = data.gears.find(
-		(gear: GearItem) => gear.id === Number(gearId)
-	)
-	/* ---------------- RHF setup ---------------- */
+
+	const specificGear = data.gears.filter(
+		(gear) => String(gear.id) === gearId
+	)[0]
+
+	const languages = [
+		{
+			label: 'Chinese',
+			value: 'zh',
+		},
+	] as const
+
+	const allGearNamesValLab = allGearNames.map((gearName) => [
+		gearName,
+		gearName.toLowerCase(),
+	])
+
 	const form = useForm<GearSchema>({
 		resolver: zodResolver(gearSchema),
 		defaultValues: {
-			name: gearData?.name,
-			starForce: gearData?.starForce,
-			type: gearData?.type,
-			rarity: gearData?.rarity,
-			attackPowerIncrease: gearData?.attackPowerIncrease,
-			combatPowerIncrease: gearData?.combatPowerIncrease,
-			requiredLevel: gearData?.requiredLevel,
-			potential1: gearData?.potential1 ?? { type: '', value: '' },
-			potential2: gearData?.potential2 ?? { type: '', value: '' },
-			potential3: gearData?.potential3 ?? { type: '', value: '' },
-			isEquipped: gearData?.isEquipped,
+			name: specificGear?.name,
+			starForce: specificGear?.starForce,
+			type: specificGear?.type,
+			rarity: specificGear?.rarity,
+			attackPowerIncrease: specificGear?.attackPowerIncrease,
+			combatPowerIncrease: specificGear?.combatPowerIncrease,
+			requiredLevel: specificGear?.requiredLevel,
 
-			// totalStr: gearData.totalStr ?? 0,
-			baseStr: gearData?.baseStr ?? 0,
-			flameStr: gearData?.flameStr ?? 0,
-			starStr: gearData?.starStr ?? 0,
+			potType1: specificGear?.potType1 ?? '',
+			potType2: specificGear?.potType2 ?? '',
+			potType3: specificGear?.potType3 ?? '',
 
-			// totalDex: gearData.totalDex ?? 0,
-			baseDex: gearData?.baseDex ?? 0,
-			flameDex: gearData?.flameDex ?? 0,
-			starDex: gearData?.starDex ?? 0,
+			potValue1: specificGear?.potValue1 ?? '',
+			potValue2: specificGear?.potValue2 ?? '',
+			potValue3: specificGear?.potValue3 ?? '',
 
-			// totalInt: gearData.totalInt ?? 0,
-			baseInt: gearData?.baseInt ?? 0,
-			flameInt: gearData?.flameInt ?? 0,
-			starInt: gearData?.starInt ?? 0,
+			isEquipped: specificGear?.isEquipped,
 
-			// totalLuk: gearData.totalLuk ?? 0,
-			baseLuk: gearData?.baseLuk ?? 0,
-			flameLuk: gearData?.flameLuk ?? 0,
-			starLuk: gearData?.starLuk ?? 0,
+			// totalStr: specificGear.totalStr ?? 0,
+			baseStr: specificGear?.baseStr ?? 0,
+			flameStr: specificGear?.flameStr ?? 0,
+			starStr: specificGear?.starStr ?? 0,
 
-			// totalMaxHP: gearData.totalMaxHP ?? 0,
-			baseMaxHP: gearData?.baseMaxHP ?? 0,
-			flameMaxHP: gearData?.flameMaxHP ?? 0,
-			starMaxHP: gearData?.starMaxHP ?? 0,
-			baseMaxMP: gearData?.baseMaxMP ?? 0,
-			flameMaxMP: gearData?.flameMaxMP ?? 0,
-			starMaxMP: gearData?.starMaxMP ?? 0,
+			// totalDex: specificGear.totalDex ?? 0,
+			baseDex: specificGear?.baseDex ?? 0,
+			flameDex: specificGear?.flameDex ?? 0,
+			starDex: specificGear?.starDex ?? 0,
 
-			baseAttackPower: gearData?.baseAttackPower ?? 0,
-			flameAttackPower: gearData?.flameAttackPower ?? 0,
-			starAttackPower: gearData?.starAttackPower ?? 0,
+			// totalInt: specificGear.totalInt ?? 0,
+			baseInt: specificGear?.baseInt ?? 0,
+			flameInt: specificGear?.flameInt ?? 0,
+			starInt: specificGear?.starInt ?? 0,
 
-			baseMagicAttackPower: gearData?.baseMagicAttackPower ?? 0,
-			flameMagicAttackPower: gearData?.flameMagicAttackPower ?? 0,
-			starMagicAttackPower: gearData?.starMagicAttackPower ?? 0,
+			// totalLuk: specificGear.totalLuk ?? 0,
+			baseLuk: specificGear?.baseLuk ?? 0,
+			flameLuk: specificGear?.flameLuk ?? 0,
+			starLuk: specificGear?.starLuk ?? 0,
 
-			baseAllStat: gearData?.baseAllStat ?? 0,
-			flameAllStat: gearData?.flameAllStat ?? 0,
-			baseBossDamage: gearData?.baseBossDamage ?? 0,
-			flameBossDamage: gearData?.flameBossDamage ?? 0,
-			baseIgnoreEnemyDefense: gearData?.baseIgnoreEnemyDefense ?? 0,
-			flameIgnoreEnemyDefense: gearData?.flameIgnoreEnemyDefense ?? 0,
+			// totalMaxHP: specificGear.totalMaxHP ?? 0,
+			baseMaxHP: specificGear?.baseMaxHP ?? 0,
+			flameMaxHP: specificGear?.flameMaxHP ?? 0,
+			starMaxHP: specificGear?.starMaxHP ?? 0,
+			baseMaxMP: specificGear?.baseMaxMP ?? 0,
+			flameMaxMP: specificGear?.flameMaxMP ?? 0,
+			starMaxMP: specificGear?.starMaxMP ?? 0,
+
+			baseAttackPower: specificGear?.baseAttackPower ?? 0,
+			flameAttackPower: specificGear?.flameAttackPower ?? 0,
+			starAttackPower: specificGear?.starAttackPower ?? 0,
+
+			baseMagicAttackPower: specificGear?.baseMagicAttackPower ?? 0,
+			flameMagicAttackPower: specificGear?.flameMagicAttackPower ?? 0,
+			starMagicAttackPower: specificGear?.starMagicAttackPower ?? 0,
+
+			baseAllStat: specificGear?.baseAllStat ?? 0,
+			flameAllStat: specificGear?.flameAllStat ?? 0,
+			baseBossDamage: specificGear?.baseBossDamage ?? 0,
+			flameBossDamage: specificGear?.flameBossDamage ?? 0,
+			baseIgnoreEnemyDefense: specificGear?.baseIgnoreEnemyDefense ?? 0,
+			flameIgnoreEnemyDefense: specificGear?.flameIgnoreEnemyDefense ?? 0,
 		},
 	})
 
 	async function onSubmit(values: GearSchema) {
 		startTransition(async () => {
-			if (!gearData?.characterId) {
-				throw new Error('Character ID is undefined')
-			}
-
-			// Convert values object to FormData
-			const formData = new FormData()
-			Object.entries(values).forEach(([key, value]) => {
-				// Handle nested objects (e.g., potential1, potential2, potential3)
-				if (
-					typeof value === 'object' &&
-					value !== null &&
-					!Array.isArray(value)
-				) {
-					Object.entries(value).forEach(([subKey, subValue]) => {
-						formData.append(`${key}.${subKey}`, subValue ?? '')
-					})
-				} else {
-					formData.append(key, (value as string) ?? '')
-				}
-			})
-
-			const result = await editGearItem(
-				formData,
-				gearData.characterId,
-				Number(gearId)
-			)
-
-			if (result?.error) {
-				Object.entries(result.error).forEach(([field, messages]) =>
-					form.setError(field as keyof GearSchema, {
-						message: (messages as string[])[0],
-					})
+			try {
+				const formData = new FormData()
+				Object.entries(values).forEach(([k, v]) =>
+					formData.append(k, String(v))
 				)
-			} else if (result?.success) {
-				redirect(`/character/${characterName}/dashboard`)
+				editGearItem(formData, data.character.id, Number(gearId))
+				toast(
+					<pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+						<code className='text-white'>
+							{JSON.stringify(values, null, 2)}
+						</code>
+					</pre>
+				)
+			} catch (error) {
+				console.error('Form submission error', error)
+				toast.error('Failed to submit the form. Please try again.')
 			}
 		})
 	}
 
 	return (
 		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit, (errors) =>
-					console.log('validation errors', errors)
-				)}
-				className='space-y-6 max-w-xl'
-			>
-				{/* <input type='hidden' {...form.register('characterId')} /> */}
-
+			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 py-10'>
 				<FormField
 					control={form.control}
 					name='name'
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Name</FormLabel>
-							<FormControl>
-								<Input placeholder='Twilight Mark' {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name='starForce'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>starForce</FormLabel>
-							<FormControl>
-								<Input placeholder='22' {...field} />
-							</FormControl>
+						<FormItem className='flex flex-col'>
+							<FormLabel>Gear Name</FormLabel>
+							<Popover>
+								<PopoverTrigger asChild>
+									<FormControl>
+										<Button
+											variant='outline'
+											role='combobox'
+											className={cn(
+												'justify-between',
+												!field.value && 'text-muted-foreground'
+											)}
+										>
+											{field.value
+												? allGearNamesValLab.find(
+														(language) => language[0] === field.value
+												  )?.[0]
+												: 'Select gear'}
+											<ChevronsUpDown className=' shrink-0 opacity-50' />
+										</Button>
+									</FormControl>
+								</PopoverTrigger>
+								<PopoverContent className=' p-0'>
+									<Command>
+										<CommandInput placeholder='Search gear...' />
+										<CommandList>
+											<CommandEmpty>No gear found.</CommandEmpty>
+											<CommandGroup>
+												{allGearNamesValLab.map((language) => (
+													<CommandItem
+														value={language[0]}
+														key={language[1]}
+														onSelect={() => {
+															form.setValue('name', language[0])
+														}}
+													>
+														<Check
+															className={cn(
+																'',
+																language[0] === field.value
+																	? 'opacity-100'
+																	: 'opacity-0'
+															)}
+														/>
+														{language[0]}
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+							<FormDescription>
+								This is the language that will be used in the dashboard.
+							</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -260,44 +301,6 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 							</FormItem>
 						)}
 					/>
-				</div>
-
-				{/* ----- numeric trio ----- */}
-				<div className='grid gap-4 sm:grid-cols-3'>
-					{[
-						{
-							name: 'attackPowerIncrease',
-							label: 'attack Power Increase',
-						},
-						{
-							name: 'combatPowerIncrease',
-							label: 'combat Power Increase',
-						},
-						{ name: 'requiredLevel', label: 'Required Lvl' },
-					].map(({ name, label }) => (
-						<FormField
-							key={name}
-							control={form.control}
-							name={name as keyof GearSchema}
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>{label}</FormLabel>
-									<FormControl>
-										<Input
-											type='number'
-											{...field}
-											value={
-												typeof field.value === 'object' && field.value !== null
-													? ''
-													: field.value ?? ''
-											}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					))}
 				</div>
 
 				{/* ----- str trio ----- */}
@@ -636,10 +639,6 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 							)}
 						/>
 					))}
-				</div>
-
-				{/* ----- ignoreEnemyDefense trio ----- */}
-				<div className='grid gap-4 sm:grid-cols-3'>
 					{[
 						// { name: 'bossDamage', label: 'boss Damage' },
 						{
@@ -672,12 +671,6 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 						/>
 					))}
 				</div>
-
-				{/* ──────────────────────────────────────────────────────────────── */}
-				{/* Potentials                                                     */}
-				{/* ──────────────────────────────────────────────────────────────── */}
-
-				{/* helper so we don’t repeat the same JSX three times */}
 				{([1, 2, 3] as const).map((idx) => (
 					<div
 						key={idx}
@@ -690,7 +683,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 						{/* -- type ---------------------------------------------------- */}
 						<FormField
 							control={form.control}
-							name={`potential${idx}.type`}
+							name={`potType${idx}`}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Type</FormLabel>
@@ -734,7 +727,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 						{/* -- value --------------------------------------------------- */}
 						<FormField
 							control={form.control}
-							name={`potential${idx}.value`}
+							name={`potValue${idx}`}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Value</FormLabel>
@@ -747,7 +740,6 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 						/>
 					</div>
 				))}
-
 				<Button type='submit' disabled={isPending} className='cursor-pointer'>
 					{isPending ? 'Saving…' : 'Update gear'}
 				</Button>
