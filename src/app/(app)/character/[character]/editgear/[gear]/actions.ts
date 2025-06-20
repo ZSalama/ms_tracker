@@ -9,7 +9,7 @@ import {
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
 import { getQueryClient } from '@/lib/get-query-client'
-import { equipGear, unequipGear } from '@/lib/equipGear'
+import { calculateSlotAndEquip, equipGear, unequipGear } from '@/lib/equipGear'
 import { GearItem } from '@prisma/client'
 
 export async function editGearItem(
@@ -53,9 +53,9 @@ export async function editGearItem(
 	const gearData = { id: gearId, ...parsed.data } as GearItem
 
 	if (data.isEquipped === 'equipped') {
-		await equipGear({
+		await calculateSlotAndEquip({
 			character: character,
-			gear: gearData, // cast to GearItem for equipGear function
+			gear: gearData,
 		})
 	}
 
@@ -83,8 +83,6 @@ export async function editGearItem(
 			starForce: Number(data.starForce),
 			requiredLevel: Number(data.requiredLevel),
 			isEquipped: data.isEquipped,
-
-			// slot: gearData.slot ?? '1',
 
 			/* ─── progression bonuses ────────────────────────── */
 			attackPowerIncrease: Number(data.attackPowerIncrease),

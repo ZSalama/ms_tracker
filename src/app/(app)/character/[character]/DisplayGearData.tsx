@@ -6,7 +6,8 @@ import { Character, GearItem } from '@prisma/client'
 import { useAuth } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { DeleteCharacterButton, DeleteGearButton, GearSlot } from './components'
+import { DeleteGearButton, GearSlot } from './components'
+import { DeleteCharacterButton } from '@/components/character/DeleteCharacterButton/DeleteCharacterButton'
 
 type Props = { characterName: string }
 
@@ -41,14 +42,18 @@ export default function DisplayGearData({ characterName }: Props) {
 		<>
 			<div className='mx-auto max-w-4xl px-6 py-12 space-y-4'>
 				<div className='grid md:grid-cols-2'>
-					<CharacterInfo
-						characterProp={data.character}
-						userId={userId}
-						internalUser={data.internalUser}
-					/>
+					<div>
+						<CharacterInfo
+							characterProp={data.character}
+							userId={userId}
+							internalUser={data.internalUser}
+						/>{' '}
+					</div>
+
 					<GearSlot characterName={characterName} />
 				</div>
 
+				<h2 className='text-xl font-semibold mt-8'>Equipped Gear</h2>
 				<div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
 					{equipedGears.map((gear) => (
 						<div
@@ -172,11 +177,6 @@ export default function DisplayGearData({ characterName }: Props) {
 							</div>
 						))}
 				</div>
-				{data.internalUser && userId === String(data.internalUser.clerkId) ? (
-					<Link href={`/character/${characterName}/newgearplus`}>
-						<Button className='mt-4 cursor-pointer'>+ Add New Gear </Button>
-					</Link>
-				) : null}
 			</div>
 		</>
 	)
@@ -192,7 +192,7 @@ function CharacterInfo({
 	internalUser: { id: number; email: string; clerkId: string } | null
 }) {
 	return (
-		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow h-fit'>
+		<div className='rounded-xl border border-gray-200 bg-white p-8 shadow h-fit mr-8'>
 			<h1 className='text-3xl font-bold'>{characterProp.name}</h1>
 			<dl className='mt-4 space-y-1 text-gray-700'>
 				<div>
@@ -216,7 +216,10 @@ function CharacterInfo({
 					</dd>
 				</div>
 				{internalUser && userId === String(internalUser.clerkId) ? (
-					<div className='mt-4'>
+					<div className='mt-4 flex gap-4 flex-wrap'>
+						<Link href={`/character/${characterProp.name}/newgearplus`}>
+							<Button className='mt-4 cursor-pointer'>+ Add New Gear </Button>
+						</Link>
 						<Button>
 							<Link href={`/character/${characterProp.name}/edit-character`}>
 								Edit Character

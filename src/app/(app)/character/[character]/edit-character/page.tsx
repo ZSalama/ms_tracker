@@ -5,50 +5,47 @@ import { redirect } from 'next/navigation'
 import EditCharacterForm from './EditCharacterForm'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import CharacterForm from '@/components/forms/character/character'
+import { Edit } from 'lucide-react'
+import EditCharacterForm2 from './EditCharacterForm2'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { getQueryClient } from '@/lib/get-query-client'
+import { getCharacters } from '@/app/(app)/dashboard/actions'
 
 export default async function page({
 	params,
 }: {
 	params: Promise<{ character: string }>
 }) {
+	// const queryClient = getQueryClient
 	const { character } = await params
 
+	const queryClient = getQueryClient()
+
+	void queryClient.prefetchQuery({
+		queryKey: ['characters'],
+		queryFn: getCharacters,
+	})
 	//check to see if the user loged in
 	const { userId } = await auth()
 	if (!userId) {
 		return <div>Not logged in</div>
 	}
 
-	//get the userId from the auth
-	const internalUser = await prisma.user.findUnique({
-		where: { clerkId: userId }, // e.g. “clerkId” is a string column
-		select: { id: true, email: true },
-	})
-	if (!internalUser) redirect('/') // first-time users
-	// console.log('internalUser', internalUser)
-
-	// check to see if the character exists
-	// this should also check if the character belongs to the user
-	const characterData = await prisma.character.findFirst({
-		where: { name: character, userId: internalUser.id },
-	})
-
-	if (!characterData) {
-		return <div>Character not found</div>
-	}
-
 	return (
 		<div className='flex justify-center flex-col mx-auto max-w-xl'>
 			<div className='mb-4'>
-				<Link href={`/character/${characterData.name}`}>
+				<Link href={`/character/${character}`}>
 					<Button className='cursor-pointer'>back to character</Button>
 				</Link>
 			</div>
 
-			<EditCharacterForm
-				characterId={characterData.id}
-				characterData={characterData}
-			/>
+			<HydrationBoundary state={dehydrate(queryClient)}>
+				{/* <DisplayCharacterDashboard /> */}
+				<EditCharacterForm2 character={character} />
+			</HydrationBoundary>
+
+			{/* <CharacterForm submissionType={'edit'} characterName={character} /> */}
 		</div>
 	)
 }

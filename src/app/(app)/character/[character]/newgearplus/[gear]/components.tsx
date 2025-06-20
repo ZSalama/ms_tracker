@@ -2,7 +2,7 @@
 import { type Character, type GearItem } from '@prisma/client'
 import ViewGear from '@/components/ViewGear/ViewGear'
 import { Button } from '@/components/ui/button'
-import { equipGear } from '@/lib/equipGear'
+import { calculateSlotAndEquip, equipGear } from '@/lib/equipGear'
 import { redirect } from 'next/navigation'
 import { getQueryClient } from '@/lib/get-query-client'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -20,7 +20,7 @@ type EquipGearButtonProps = {
 	gear: GearItem
 }
 export function EquipGearButton({ character, gear }: EquipGearButtonProps) {
-	const queryClient = getQueryClient()
+	// const queryClient = getQueryClient()
 	if (!character || !gear) {
 		return <div>Character or gear not found</div>
 	}
@@ -40,10 +40,10 @@ export function EquipGearButton({ character, gear }: EquipGearButtonProps) {
 
 			<Button
 				onClick={() => {
-					equipGear({ character, gear })
-					queryClient.invalidateQueries({
-						queryKey: ['gears', character.name],
-					}) // Invalidate the character query to refresh data
+					calculateSlotAndEquip({ character, gear })
+					// queryClient.invalidateQueries({
+					// 	queryKey: ['gears', character.name],
+					// }) // Invalidate the character query to refresh data
 					redirect(`/character/${character.name}`) // Redirect to character page after equipping
 				}}
 				className='cursor-pointer w-full my-3'

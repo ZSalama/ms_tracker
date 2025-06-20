@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 // import { Button } from '@/components/ui/button'
-import { deleteGearAction, deleteCharacterAction, getGears } from './actions'
+import { deleteGearAction, getGears } from './actions'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -27,8 +27,7 @@ import {
 } from '@/components/ui/tooltip'
 import Image from 'next/image'
 import ViewGear from '@/components/ViewGear/ViewGear'
-import { Link } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { slotNames } from '@/lib/types'
 
 export function DeleteGearButton({
 	gearItem,
@@ -79,47 +78,6 @@ export function DeleteGearButton({
 	)
 }
 
-export function DeleteCharacterButton({
-	characterName,
-}: {
-	characterName: string
-}) {
-	const queryClient = useQueryClient()
-
-	return (
-		<AlertDialog>
-			<AlertDialogTrigger asChild>
-				<Button className='cursor-pointer ml-5' variant='destructive'>
-					Delete Character
-				</Button>
-			</AlertDialogTrigger>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-					<AlertDialogDescription>
-						This action cannot be undone. This will permanently delete your
-						character and remove your data from our servers.
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel className='cursor-pointer'>
-						Cancel
-					</AlertDialogCancel>
-					<AlertDialogAction
-						className='cursor-pointer'
-						onClick={() => {
-							console.log(`Delete character: ${characterName}`)
-							deleteCharacterAction(characterName)
-						}}
-					>
-						Continue
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-	)
-}
-
 type GearSlotProps = {
 	characterName: string
 }
@@ -135,47 +93,16 @@ export function GearSlot({ characterName }: GearSlotProps) {
 	)
 
 	return (
-		<div className='w-[400px] h-[700px] relative mx-auto'>
+		<div className='w-[325px] h-[500px] relative mx-auto'>
 			<Image
 				src='/blank_ui.PNG'
-				height={400}
-				width={400}
+				height={300}
+				width={300}
 				alt='background'
 				className=' object-contain opacity-90 pointer-events-none select-none rounded-lg'
 			/>
-			<div className='absolute inset-0 z-10 grid grid-cols-5 gap-1 bg-gray-200/30 pt-22 px-7 pr-5 h-[507px]'>
-				{[
-					'ring1',
-					'',
-					'hat',
-					'',
-					'emblem',
-					'ring1',
-					'pendant1',
-					'faceAccessory',
-					'',
-					'badge',
-					'ring1',
-					'pendant2',
-					'eyeAccessory',
-					'Earring',
-					'medal',
-					'ring1',
-					'weapon',
-					'top',
-					'bottom',
-					'shoulder',
-					'subweapon',
-					'pocket',
-					'belt',
-					'gloves',
-					'cape',
-					'',
-					'',
-					'Shoes',
-					'android',
-					'heart',
-				].map((slot, index) => (
+			<div className='absolute inset-0 z-10 grid grid-cols-5  pt-15 pl-5 pr-11 h-[383px]'>
+				{slotNames.map((slot, index) => (
 					<GearSlotCard
 						key={index}
 						slot={slot}
@@ -211,10 +138,16 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 					<TooltipTrigger asChild>
 						{specificGear?.id !== undefined ? (
 							<a
-								className='relative size-14 rounded-md border
-                     bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
-                     grid place-content-center overflow-hidden hover:cursor-pointer'
 								href={`/character/${characterName}/${specificGear?.id}`}
+								/* base (mobile) = disabled ; ≥ md = active               */
+								className={`
+									relative size-12 rounded-md border bg-[rgba(255,255,255,0.05)]
+									grid place-content-center overflow-hidden
+									pointer-events-none          md:pointer-events-auto
+									cursor-default               md:hover:cursor-pointer
+									md:hover:ring-2 md:hover:ring-sky-400
+								`}
+								aria-disabled='true' /* helps screen readers on mobile */
 							>
 								{specificGear ? (
 									<Image
@@ -232,10 +165,16 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 							</a>
 						) : (
 							<a
-								className='relative size-14 rounded-md border
-                     bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
-                     grid place-content-center overflow-hidden hover:cursor-pointer'
 								href={`/character/${characterName}/newgearplus`}
+								/* base (mobile) = disabled ; ≥ md = active               */
+								className={`
+									relative size-12 rounded-md border bg-[rgba(255,255,255,0.05)]
+									grid place-content-center overflow-hidden
+									pointer-events-none          md:pointer-events-auto
+									cursor-default               md:hover:cursor-pointer
+									md:hover:ring-2 md:hover:ring-sky-400
+								`}
+								aria-disabled='true' /* helps screen readers on mobile */
 							>
 								{specificGear ? (
 									<Image
@@ -265,7 +204,7 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<div
-							className='relative size-14 rounded-md border
+							className='relative size-12 rounded-md border
                      bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
                      grid place-content-center overflow-hidden'
 						>
@@ -288,7 +227,7 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 					{specificGear ? (
 						<TooltipContent
 							side='right'
-							className='max-w-[16rem] space-y-1 bg-slate-900 text-slate-100'
+							className='max-w-[16rem] space-y-1  bg-slate-900 text-slate-100'
 						>
 							<>
 								<p className='font-semibold text-sm leading-tight'>

@@ -16,6 +16,7 @@ export default async function page({ params }: { params: Promise<props> }) {
 		queryKey: ['gears', props.character],
 		queryFn: () => getGears(props.character),
 	})
+
 	return (
 		<div className='container mx-auto px-4 py-8 space-y-10'>
 			<HydrationBoundary state={dehydrate(queryClient)}>

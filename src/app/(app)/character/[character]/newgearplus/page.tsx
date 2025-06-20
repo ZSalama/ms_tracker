@@ -10,8 +10,9 @@ export default async function page({
 }) {
 	const { character } = await params
 	return (
-		<div className='max-w-4xl mx-auto px-4 py-8 space-y-10 grid grid-cols-2'>
+		<div className='max-w-4xl mx-auto px-4 py-8 space-y-10 grid md:grid-cols-2'>
 			<div className='text-center'>
+				<h1 className='text-4xl  mb-4 text-center'> Add gear</h1>
 				<h2 className='text-2xl font-bold mb-4'>AI Gear Recognition</h2>
 				<p className='mb-4'>
 					This will allow you to upload an image of your gear, which will be
@@ -19,7 +20,6 @@ export default async function page({
 					the MapleStory settings, and take a screenshot of your gear window.
 				</p>
 				<MultiUploader character={character} />
-				{/* <Uploader character={character} /> */}
 			</div>
 			<div className='flex flex-col items-center px-12 '>
 				<h2 className='text-2xl font-bold mb-4'>Manually Add Gear</h2>

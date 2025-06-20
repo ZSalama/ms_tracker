@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { characterSchema, CharacterSchema } from '@/lib/validators/character'
 import { createCharacter } from './actions'
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import {
 	Form,
 	FormField,
@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
 import { Select } from '@radix-ui/react-select'
 import {
 	SelectContent,
@@ -24,20 +23,24 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { classNames } from '@/lib/types'
+// import { useRouter } from 'next/navigation'
+import { Character } from '@prisma/client'
 
-export default function NewCharacterForm() {
-	const router = useRouter()
+type Props = {
+	submissionType: 'create' | 'edit'
+	character: Character
+}
+
+export default function CharacterForm({ props }: { props: Props }) {
+	// const router = useRouter()
 	const [isPending, startTransition] = useTransition()
+
+	//find specific character from data with that matches charactername
 
 	const form = useForm<CharacterSchema>({
 		resolver: zodResolver(characterSchema),
 		defaultValues: {
-			name: '',
-			level: 1,
-			class: 'Hero',
-			combatPower: 0,
-			arcaneForce: 0,
-			sacredPower: 0,
+			...props.character,
 		},
 	})
 
@@ -45,7 +48,7 @@ export default function NewCharacterForm() {
 		startTransition(async () => {
 			const fd = new FormData()
 			Object.entries(values).forEach(([k, v]) => fd.append(k, String(v)))
-			const result = await createCharacter(fd)
+			const result = await createCharacter(fd, props.submissionType)
 
 			if (result?.error) {
 				// Push Zod errors back into react-hook-form
@@ -55,9 +58,7 @@ export default function NewCharacterForm() {
 					})
 				)
 			} else if (result?.success) {
-				form.reset() // clear the form
-				// redirect to dasbhoard
-				router.push('/dashboard')
+				// router.push('/dashboard')
 			}
 		})
 	}
@@ -65,19 +66,35 @@ export default function NewCharacterForm() {
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-				<FormField
-					control={form.control}
-					name='name'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Name</FormLabel>
-							<FormControl>
-								<Input placeholder='Mercedes' {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+				{props.submissionType === 'create' ? (
+					<FormField
+						control={form.control}
+						name='name'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Name</FormLabel>
+								<FormControl>
+									<Input placeholder='Mercedes' {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				) : (
+					<FormField
+						control={form.control}
+						name='name'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Name</FormLabel>
+								<FormControl>
+									<Input disabled placeholder={`${field.value}`} {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)}
 
 				{/** repeat the same pattern for the numeric fields **/}
 				{(['level', 'combatPower', 'arcaneForce', 'sacredPower'] as const).map(

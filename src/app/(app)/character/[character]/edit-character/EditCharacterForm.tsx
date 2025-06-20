@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { characterSchema, CharacterSchema } from '@/lib/validators/character'
@@ -19,6 +19,15 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useTransition } from 'react'
 import { Character } from '@prisma/client'
+import { useQueryClient } from '@tanstack/react-query'
+import { classStats, classNames } from '@/lib/types'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 
 export default function EditCharacterForm({
 	characterId,
@@ -27,10 +36,12 @@ export default function EditCharacterForm({
 	characterId: number
 	characterData: Character
 }) {
-	const router = useRouter()
 	const [isPending, startTransition] = useTransition()
+	const queryClient = useQueryClient()
+	const sortedClassNames = classNames.sort()
 
-	/* ---------------- RHF setup ---------------- */
+	console.log(classStats)
+
 	const form = useForm<CharacterSchema>({
 		resolver: zodResolver(characterSchema),
 		defaultValues: {
@@ -58,9 +69,10 @@ export default function EditCharacterForm({
 					})
 				)
 			} else if (result?.success) {
-				form.reset() // clear the form
-				// redirect to dasbhoard
-				router.push('/dashboard')
+				queryClient.invalidateQueries({
+					queryKey: ['characters'],
+				})
+				// redirect('/dashboard')
 			}
 		})
 	}
@@ -73,8 +85,6 @@ export default function EditCharacterForm({
 				)}
 				className='space-y-6 max-w-xl'
 			>
-				{/* <input type='hidden' {...form.register('characterId')} /> */}
-
 				<FormField
 					control={form.control}
 					name='name'
@@ -95,94 +105,68 @@ export default function EditCharacterForm({
 
 				<FormField
 					control={form.control}
-					name='level'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>level</FormLabel>
-							<FormControl>
-								<Input
-									type='number'
-									placeholder={`${characterData.level}`}
-									{...field}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
 					name='class'
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>class</FormLabel>
-							<FormControl>
-								<Input
-									type='text'
-									disabled
-									placeholder={`${characterData.class}`}
-									{...field}
-								/>
-							</FormControl>
+						<FormItem className='w-full'>
+							<FormLabel>Class</FormLabel>
+							<Select
+								value={field.value}
+								onValueChange={field.onChange}
+								disabled={isPending}
+							>
+								<FormControl>
+									<SelectTrigger className='w-full'>
+										<SelectValue placeholder='Choose a class' />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent className='w-full'>
+									{sortedClassNames.map((cls) => (
+										<SelectItem key={cls} value={cls}>
+											{cls}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
 
-				<FormField
-					control={form.control}
-					name='combatPower'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>combat power</FormLabel>
-							<FormControl>
-								<Input
-									type='number'
-									placeholder={`${characterData.combatPower}`}
-									{...field}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name='arcaneForce'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>arcane force</FormLabel>
-							<FormControl>
-								<Input
-									type='number'
-									placeholder={`${characterData.arcaneForce}`}
-									{...field}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name='sacredPower'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>sacred power</FormLabel>
-							<FormControl>
-								<Input
-									type='number'
-									placeholder={`${characterData.sacredPower}`}
-									{...field}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+				{(
+					[
+						{ name: 'combatPower', label: 'combat power', type: 'number' },
+						{ name: 'level', label: 'level', type: 'number' },
+						{ name: 'arcaneForce', label: 'arcane force', type: 'number' },
+						{ name: 'sacredPower', label: 'sacred power', type: 'number' },
+					] as {
+						name: 'combatPower' | 'class' | 'level'
+						label: string
+						type: string
+					}[]
+				).map(({ name, label, type }) => (
+					<FormField
+						key={name}
+						control={form.control}
+						name={name}
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>{label}</FormLabel>
+								<FormControl>
+									<Input
+										type={type}
+										{...field}
+										value={
+											typeof field.value === 'object' && field.value !== null
+												? ''
+												: field.value ?? ''
+										}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				))}
 
 				<Button type='submit' disabled={isPending} className='cursor-pointer'>
 					{isPending ? 'Saving…' : 'Update character'}

@@ -42,7 +42,9 @@ model Character {
     userId Int
     user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    gears GearItem[] // One-to-many to Gear
+    // gears GearItem[] @relation("CharacterGears") // One-to-many to Gear
+
+    // equippedGears GearItem[] @relation("EquippedGears")
 
     flameWeightMainType   String @default("Str")
     flameWeightSubType    String @default("Dex")
@@ -52,7 +54,8 @@ model Character {
     flameWeightAllStat    Int    @default(10)
     flameWeightDamage     Int    @default(15)
 
-    totalFlameScore Int @default(0)
+    totalFlameScore Int        @default(0)
+    GearItem        GearItem[]
 
     @@map("character")
 }
@@ -75,7 +78,9 @@ model GearItem {
     requiredLevel       Int @default(0) @map("required_level")
 
     characterId Int
+    // character   Character @relation("CharacterGears", fields: [characterId], references: [id], onDelete: Cascade)
     character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+    // equippedBy Character[] @relation("EquippedGears")
 
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
