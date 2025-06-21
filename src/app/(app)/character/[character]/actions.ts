@@ -23,13 +23,19 @@ export async function deleteGearAction(
 	if (character.user.clerkId !== clerkId) throw new Error('Not authorized')
 
 	// Perform delete
-	await prisma.gearItem.delete({ where: { id: gearItem.id } })
+	try {
+		await prisma.gearItem.delete({ where: { id: gearItem.id } })
 
-	console.log(`Gear item with ID ${gearItem.id} deleted successfully.`)
+		console.log(`Gear item with ID ${gearItem.id} deleted successfully.`)
 
-	// Refresh character's flame score
-	if (gearItem.isEquipped === 'equipped')
-		await refreshCharacterFlameScore(character.id)
+		// Refresh character's flame score
+		if (gearItem.isEquipped === 'equipped')
+			await refreshCharacterFlameScore(character.id)
+	} catch (error) {
+		console.error(`Failed to delete gear item with ID ${gearItem.id}.`, error)
+		return { ok: false, error: 'Failed to delete gear item' }
+	}
+	return { ok: true }
 }
 
 type GetGearsResponse = {

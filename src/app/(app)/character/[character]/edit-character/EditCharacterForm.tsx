@@ -10,7 +10,7 @@ export default function EditCharacterForm({
 }: {
 	character: string
 }) {
-	const { data, isLoading, isError } = useSuspenseQuery({
+	const { data } = useSuspenseQuery({
 		queryKey: ['characters'],
 		queryFn: getCharacters,
 	})

@@ -3,13 +3,11 @@
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { gearSchema } from '@/lib/validators/gear'
-import { redirect } from 'next/navigation'
 import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
-import { getQueryClient } from '@/lib/get-query-client'
-import { calculateSlotAndEquip, equipGear, unequipGear } from '@/lib/equipGear'
+import { calculateSlotAndEquip, unequipGear } from '@/lib/equipGear'
 import { GearItem } from '@prisma/client'
 
 export async function editGearItem(
@@ -17,8 +15,6 @@ export async function editGearItem(
 	characterId: number,
 	gearId: number
 ) {
-	const queryClient = getQueryClient()
-
 	//* 2. Zod validation ----------------------------------------------------- */
 	const parsed = gearSchema.safeParse(Object.fromEntries(formData))
 	if (!parsed.success) {
@@ -71,7 +67,7 @@ export async function editGearItem(
 
 	/* 4. Persist ------------------------------------------------------------ */
 	try {
-		const newGear = await prisma.gearItem.update({
+		await prisma.gearItem.update({
 			where: { id: Number(gearId) },
 			data: {
 				/* ─── linkage & meta ─────────────────────────────── */

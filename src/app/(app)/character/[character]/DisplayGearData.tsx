@@ -34,10 +34,6 @@ export default function DisplayGearData({ characterName }: Props) {
 		return <p>Error loading characters.</p>
 	}
 
-	const gearBySlot: Record<string, GearItem | null> = Object.fromEntries(
-		data.gears.map((g: GearItem) => [g.slot, g])
-	)
-
 	return (
 		<>
 			<div className='mx-auto max-w-4xl px-6 py-12 space-y-4'>

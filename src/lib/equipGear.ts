@@ -5,7 +5,7 @@ import {
 	refreshCharacterFlameScore,
 } from './calculateFlames'
 import { prisma } from './prisma'
-import { gearTypes, secondaryNames, slotNames, weaponNames } from './types'
+import { gearTypes, secondaryNames, weaponNames } from './types'
 
 type EquipGearButtonProps = {
 	character: Character
@@ -19,21 +19,25 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 
 	const calculatedType = await calculateType(gear.type)
 
-	const equipGear = await prisma.gearItem.update({
-		where: { id: gear.id },
-		data: {
-			isEquipped: 'equipped',
-			totalFlameScore: gearItemFlameScore,
-			type: calculatedType, // Ensure the type is set correctly
-			slot: gear.slot || '1',
-		},
-	})
+	try {
+		prisma.gearItem.update({
+			where: { id: gear.id },
+			data: {
+				isEquipped: 'equipped',
+				totalFlameScore: gearItemFlameScore,
+				type: calculatedType, // Ensure the type is set correctly
+				slot: gear.slot || '1',
+			},
+		})
 
-	// Recalculate the character's total flame score
-	const newScore = await refreshCharacterFlameScore(character.id)
-	console.log('New flame score calculated:', newScore)
+		await refreshCharacterFlameScore(character.id)
+		return { ok: true, message: 'Gear item updated successfully' }
+	} catch (error) {
+		console.error('Error updating gear item:', error)
+		return { ok: false, message: 'Failed to update gear item' }
+		// Recalculate the character's total flame score
+	}
 }
-
 // when trying to unequip gear, we need to ensure that the gear being unequipped is the one currently equipped for that type
 // and that it is not already unequipped
 export const unequipGear = async ({

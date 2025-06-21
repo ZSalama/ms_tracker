@@ -82,7 +82,7 @@ type GearSlotProps = {
 	characterName: string
 }
 export function GearSlot({ characterName }: GearSlotProps) {
-	const { data, isLoading, isError } = useSuspenseQuery({
+	const { data } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})

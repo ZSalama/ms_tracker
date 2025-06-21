@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { characterSchema, CharacterSchema } from '@/lib/validators/character'
 import { createCharacter } from './actions'
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import {
 	Form,
 	FormField,

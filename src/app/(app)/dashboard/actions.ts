@@ -1,7 +1,7 @@
 'use server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
-import { Character, GearItem } from '@prisma/client'
+import { Character } from '@prisma/client'
 
 type GetCharactersResponse = {
 	internalUser: {

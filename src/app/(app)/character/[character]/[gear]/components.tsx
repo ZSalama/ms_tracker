@@ -8,7 +8,7 @@ import { getGears } from '../actions'
 type Props = { characterName: string; gearId: string }
 
 export function ViewGearContainer({ characterName, gearId }: Props) {
-	const { data, isLoading, isError } = useSuspenseQuery({
+	const { data } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
