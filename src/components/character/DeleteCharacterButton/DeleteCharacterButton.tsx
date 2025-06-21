@@ -14,12 +14,14 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { useRouter } from 'next/navigation'
 
 export function DeleteCharacterButton({
 	characterName,
 }: {
 	characterName: string
 }) {
+	const router = useRouter()
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
@@ -41,9 +43,15 @@ export function DeleteCharacterButton({
 					</AlertDialogCancel>
 					<AlertDialogAction
 						className='cursor-pointer'
-						onClick={() => {
+						onClick={async () => {
 							console.log(`Delete character: ${characterName}`)
-							deleteCharacterAction(characterName)
+							const res = await deleteCharacterAction(characterName)
+							if (res.ok) {
+								console.log(`Character ${characterName} deleted successfully.`)
+								router.push('/dashboard')
+							} else {
+								console.error(`Failed to delete character ${characterName}.`)
+							}
 						}}
 					>
 						Continue

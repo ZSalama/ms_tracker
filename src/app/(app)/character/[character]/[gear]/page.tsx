@@ -1,11 +1,4 @@
-import { getQueryClient } from '@/lib/get-query-client'
-import {
-	dehydrate,
-	HydrationBoundary,
-	useSuspenseQuery,
-} from '@tanstack/react-query'
 import React from 'react'
-import { getGears } from '../actions'
 import { ImageOfGear, ViewGearContainer } from './components'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'

@@ -1,13 +1,8 @@
 import React from 'react'
-import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
 import EditCharacterForm from './EditCharacterForm'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import CharacterForm from '@/components/forms/character/character'
-import { Edit } from 'lucide-react'
-import EditCharacterForm2 from './EditCharacterForm2'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getQueryClient } from '@/lib/get-query-client'
 import { getCharacters } from '@/app/(app)/dashboard/actions'
@@ -17,7 +12,6 @@ export default async function page({
 }: {
 	params: Promise<{ character: string }>
 }) {
-	// const queryClient = getQueryClient
 	const { character } = await params
 
 	const queryClient = getQueryClient()
@@ -41,11 +35,8 @@ export default async function page({
 			</div>
 
 			<HydrationBoundary state={dehydrate(queryClient)}>
-				{/* <DisplayCharacterDashboard /> */}
-				<EditCharacterForm2 character={character} />
+				<EditCharacterForm character={character} />
 			</HydrationBoundary>
-
-			{/* <CharacterForm submissionType={'edit'} characterName={character} /> */}
 		</div>
 	)
 }

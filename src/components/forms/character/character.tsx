@@ -25,6 +25,8 @@ import {
 import { classNames } from '@/lib/types'
 // import { useRouter } from 'next/navigation'
 import { Character } from '@prisma/client'
+import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 
 type Props = {
 	submissionType: 'create' | 'edit'
@@ -32,8 +34,10 @@ type Props = {
 }
 
 export default function CharacterForm({ props }: { props: Props }) {
-	// const router = useRouter()
+	const router = useRouter()
 	const [isPending, startTransition] = useTransition()
+
+	const queryClient = useQueryClient()
 
 	//find specific character from data with that matches charactername
 
@@ -57,8 +61,11 @@ export default function CharacterForm({ props }: { props: Props }) {
 						message: (messages as string[])[0],
 					})
 				)
-			} else if (result?.success) {
-				// router.push('/dashboard')
+			} else if (result?.ok) {
+				queryClient.invalidateQueries({
+					queryKey: ['gears', props.character.name],
+				})
+				router.push(`/character/${props.character.name}`)
 			}
 		})
 	}

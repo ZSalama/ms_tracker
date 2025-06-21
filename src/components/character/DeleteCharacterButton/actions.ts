@@ -18,9 +18,12 @@ export async function deleteCharacterAction(characterName: string) {
 	if (character.user.clerkId !== clerkId) throw new Error('Not authorized')
 
 	// Perform delete
-	await prisma.character.delete({ where: { id: character.id } })
-	console.log(`Character ${characterName} deleted successfully.`)
-
-	// Redirect to dashboard
-	redirect(`/dashboard`)
+	try {
+		await prisma.character.delete({ where: { id: character.id } })
+		console.log(`Character ${characterName} deleted successfully.`)
+		return { ok: true }
+	} catch {
+		console.error(`Failed to delete character ${characterName}.`)
+		return { ok: false }
+	}
 }

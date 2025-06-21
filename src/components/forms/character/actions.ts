@@ -1,6 +1,5 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
 import { characterSchema } from '@/lib/validators/character'
@@ -55,7 +54,7 @@ export async function createCharacter(
 				// flameWeightAllStat: parsed.data.flameWeightAllStat || 1,
 			},
 		})
-		redirect('/dashboard')
+		return { ok: true }
 	} else if (submissionType === 'edit') {
 		await prisma.character.update({
 			where: { id: specificCharacter.characters[0].id }, // Update the first character
@@ -70,9 +69,9 @@ export async function createCharacter(
 				// totalFlameScore: data.totalFlameScore,
 			},
 		})
-		redirect(`/character/${parsed.data.name}`)
+		return { ok: true }
 	}
 
 	// Refresh any page that reads the character list
-	return { success: true }
+	return { ok: false, error: 'Invalid submission type.' }
 }
