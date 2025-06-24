@@ -7,11 +7,11 @@ import {
 } from 'uploadthing/client'
 
 import { useUploadThing } from '@/utils/useUploadThing'
-import { useCharacterGear } from '@/context/CharacterGearContext'
 import { addGearItemPlus } from './actions'
 import { Button } from '@/components/ui/button'
 import { FaArrowCircleDown } from 'react-icons/fa'
 import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export function MultiUploader({ character }: { character: string }) {
 	const [files, setFiles] = useState<File[]>([])
@@ -20,29 +20,18 @@ export function MultiUploader({ character }: { character: string }) {
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [imageUpload, setImageUpload] = useState(false)
 
-	const handleAnalyseFast = async () => {
-		// setFastAnalysis(true)
-		const fastAnalysis = 'fast'
-		setIsSubmitting(true)
-		if (gearUrl) {
-			try {
-				await addGearItemPlus(character, gearUrl, fastAnalysis)
-			} catch (error) {
-				console.error('Error adding gear item:', error)
-				// alert('Failed to add gear item. Please try again.')
-			}
-		}
-	}
-	const handleAnalyseSlow = async () => {
+	const router = useRouter()
+
+	const handleAnalyse = async (fastAnalysis: string) => {
 		// setFastAnalysis(false)
-		const fastAnalysis = 'slow'
 		setIsSubmitting(true)
 		if (gearUrl) {
-			try {
-				await addGearItemPlus(character, gearUrl, fastAnalysis)
-			} catch (error) {
-				console.error('Error adding gear item:', error)
-				// alert('Failed to add gear item. Please try again.')
+			const res = await addGearItemPlus(character, gearUrl, fastAnalysis)
+			if (res.ok) {
+				router.push(`/character/${character}/newgearplus/${res.gearId}`)
+			} else {
+				console.error('Error adding gear item:')
+				alert('Failed to add gear item. Please try again.')
 			}
 		}
 	}
@@ -100,7 +89,7 @@ export function MultiUploader({ character }: { character: string }) {
 				<div className='flex flex-col items-center justify-center'>
 					<h1 className='text-2xl font-bold text-white'>Upload Completed</h1>
 					<Button
-						onClick={handleAnalyseSlow}
+						onClick={() => handleAnalyse('slow')}
 						disabled={!gearUrl || isSubmitting}
 						className='cursor-pointer mb-4'
 					>
@@ -113,7 +102,7 @@ export function MultiUploader({ character }: { character: string }) {
 						)}
 					</Button>
 					<Button
-						onClick={handleAnalyseFast}
+						onClick={() => handleAnalyse('fast')}
 						disabled={!gearUrl || isSubmitting}
 						className='cursor-pointer'
 					>

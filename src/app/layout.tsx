@@ -4,7 +4,6 @@ import './globals.css'
 import { Providers } from './providers'
 import { ClerkProvider } from '@clerk/nextjs'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-// import { ThemeProvider } from 'next-themes'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -27,7 +26,7 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<html lang='en'>
+		<html lang='en' className='dark'>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>

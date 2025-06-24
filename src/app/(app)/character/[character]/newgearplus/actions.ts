@@ -129,7 +129,7 @@ export async function addGearItemPlus(
 
 	/* 5. Redirect – Next will client-navigate automatically ---------------- */
 	// revalidatePath(`/character/${character.name}`)
-	redirect(`/character/${character.name}/newgearplus/${gear.id}`)
+	// redirect(`/character/${character.name}/newgearplus/${gear.id}`)
 
-	return { success: true, gearId: gear.id }
+	return { ok: true, gearId: gear.id }
 }

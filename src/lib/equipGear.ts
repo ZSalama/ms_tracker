@@ -1,11 +1,9 @@
 'use server'
 import { Character, GearItem } from '@prisma/client'
-import {
-	calculateFlameScore,
-	refreshCharacterFlameScore,
-} from './calculateFlames'
 import { prisma } from './prisma'
-// import { redirect } from 'next/navigation'
+import { gearTypes } from '@/types/gearTypes'
+import { secondaryNames, weaponNames } from '@/types/gearNames'
+import { ok } from 'assert'
 
 type EquipGearButtonProps = {
 	character: Character
@@ -13,111 +11,121 @@ type EquipGearButtonProps = {
 }
 
 export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
-	const gearItemFlameScore = calculateFlameScore(character, gear)
-	// Check if the gear is already equipped
-	console.log('equipGear calculated flame score:', gearItemFlameScore)
-
-	const existingEquippedGear = await prisma.gearItem.findFirst({
+	const existingGear = await prisma.gearItem.findFirst({
 		where: {
 			characterId: character.id,
+			type: gear.type,
 			isEquipped: 'equipped',
-			type: gear.type, // Ensure we only look for the same type of gear
 		},
 	})
 
-	console.log('Existing equipped gear:', existingEquippedGear?.id)
-
-	// If there is already equipped gear, unequip it
-	if (existingEquippedGear) {
-		await prisma.gearItem.update({
-			where: { id: existingEquippedGear.id },
-			data: { isEquipped: 'notEquipped', slot: '1' },
-		})
-	}
-	console.log('Unequipped existing gear:', existingEquippedGear?.isEquipped)
-	const slot = gear.type.toLocaleLowerCase()
-
-	// Update the current gear to be equipped
-	const updatedGear = await prisma.gearItem.update({
-		where: { id: gear.id },
-		data: {
-			isEquipped: 'equipped',
-			totalFlameScore: gearItemFlameScore,
-			slot: slot,
-		},
-	})
-
-	console.log('Updated gear:', updatedGear.id)
-
-	// Recalculate the character's total flame score
-	const newScore = await refreshCharacterFlameScore(character.id)
-	console.log('New flame score calculated:', newScore)
-
-	const res = await prisma.character.update({
-		where: { id: character.id },
-		data: { totalFlameScore: newScore },
-	})
-	if (res) {
-		console.log(
-			'Character flame score updated successfully :',
-			res.totalFlameScore
-		)
+	if (existingGear) {
+		console.log('Existing gear found:', existingGear.id)
+		if (existingGear.type !== 'ring' && existingGear.type !== 'pendant') {
+			await prisma.gearItem.update({
+				where: { id: existingGear.id },
+				data: { isEquipped: 'notEquipped', slot: '1' },
+			})
+			console.log('Unequipped existing gear:', existingGear.id)
+			await prisma.gearItem.update({
+				where: { id: gear.id },
+				data: {
+					isEquipped: 'equipped',
+					slot: await calculateSlot(gear.type), // Ensure slot is set
+				},
+			})
+			return { ok: true, message: 'Gear item equipped successfully' }
+		}
+		if (existingGear.type === 'ring') {
+			console.log('Existing ring found:', existingGear.id)
+			console.log('character ring list', character.equippedRingsIds)
+		}
 	} else {
-		console.error('Failed to update character flame score')
+		console.log('No existing gear found, equipping new gear:', gear.id)
+		await prisma.gearItem.update({
+			where: { id: gear.id },
+			data: {
+				isEquipped: 'equipped',
+				slot: await calculateSlot(gear.type), // Ensure slot is set
+			},
+		})
+		return { ok: true, message: 'Gear item equipped successfully' }
 	}
-	// redirect(`/character/${character.name}`)
+	return { ok: true }
 }
 
-// when trying to unequip gear, we need to ensure that the gear being unequipped is the one currently equipped for that type
-// and that it is not already unequipped
 export const unequipGear = async ({
 	character,
 	gear,
 }: EquipGearButtonProps) => {
-	console.log('Unequipping gear:', gear.id)
-	// Check if the gear is currently equipped
-	const currentEquippedGear = await prisma.gearItem.findFirst({
-		where: {
-			characterId: character.id,
-			isEquipped: 'equipped',
-			type: gear.type, // Ensure we only look for the same type of gear
-		},
-	})
-	if (!currentEquippedGear) {
-		console.log('No currently equipped gear found for this type:', gear.type)
-		return
+	if (gear.isEquipped !== 'equipped') {
+		return { ok: false, message: 'Gear item is not equipped' }
 	}
-	console.log('Current equipped gear:', currentEquippedGear.id)
-	// If the gear is equipped, unequip it
+
 	await prisma.gearItem.update({
-		where: { id: currentEquippedGear.id },
+		where: { id: gear.id },
 		data: { isEquipped: 'notEquipped', slot: '1' },
 	})
-	console.log('Unequipped gear:', currentEquippedGear.id)
-	// Recalculate the character's total flame score
-	const newScore = await refreshCharacterFlameScore(character.id)
-	console.log('New flame score calculated:', newScore)
 
-	// const currentEquippedGear = await prisma.gearItem.findFirst({
-	// 	where: {
-	// 		characterId: character.id,
-	// 		isEquipped: 'equipped',
-	// 		type: gear.type, // Ensure we only look for the same type of gear
-	// 	},
-	// })
-
-	// if (currentEquippedGear) {
-	// 	const updatedGear = await prisma.gearItem.update({
-	// 		where: { id: gear.id },
-	// 		data: { isEquipped: 'notEquipped', slot: '1' },
-	// 	})
-
-	// 	console.log('Unequipped gear:', updatedGear.id)
-
-	// 	// Recalculate the character's total flame score
-	// 	const newScore = await refreshCharacterFlameScore(character.id)
-	// 	console.log('New flame score calculated:', newScore)
-	// }
-
-	// redirect(`/character/${character.name}`)
+	return { ok: true, message: 'Gear item unequipped successfully' }
 }
+
+export async function calculateType(gearType: string) {
+	if (gearTypes.includes(gearType)) {
+		return gearType
+	}
+
+	if (secondaryNames.includes(gearType)) {
+		return 'Secondary'
+	}
+
+	if (weaponNames.includes(gearType)) {
+		return 'Weapon'
+	}
+	return ''
+}
+
+export async function calculateSlot(gearType: string) {
+	// This function can be used to determine the slot based on gear type
+	// For now, it returns a default value, but you can expand it as needed
+	return gearType.toLocaleLowerCase().replace(' ', '')
+}
+
+// equipping gear
+
+// 	if there is a gear item already equipped and the new gear item not a ring or pendant
+// 		set old gear to notEquipped
+// 		equip new gear
+// 		return
+// --
+// 	if ring
+// 		if there are 4 rings already in the equippedgear list
+// 			popped = list.pop
+// 			unequip(popped)
+// 			list.push(new ring)
+// 			set new ring to equiped
+// 			return
+
+// 		if there are less than 4 rings in the equippedgear list
+// 			list.push(new ring)
+// 			return
+
+// 	if pendant
+// 		if there are 2 pendants already equipped in the gear list
+// 			popped = list.pop
+// 			unequip(popped)
+// 			list.push(new pendant)
+// 			set new pendant to equiped
+// 			return
+// --
+// 	else
+// 		set gear to equipped
+
+// unequipping gear
+
+// 	if ring
+// 		remove from equiped list
+// 		set gear to notEquiped
+
+// 	if equipped
+// 		set gear to notEquiped

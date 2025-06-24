@@ -1,6 +1,6 @@
 'use client'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useTransition } from 'react'
 import { getGears } from '../../actions'
 import { toast } from 'sonner'
@@ -34,32 +34,31 @@ import { Check, ChevronsUpDown } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { GearSchema, gearSchema } from '@/lib/validators/gear'
 import { editGearItem } from './actions'
-import { allGearNames, gearTypes } from '@/lib/types'
+import { allGearNames } from '@/types/gearNames'
+import { gearTypes } from '@/types/gearTypes'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 } from '@/components/ui/select'
+import { useRouter } from 'next/navigation'
 
 type Props = { characterName: string; gearId: string }
+
 export function EditGearFormClient({ characterName, gearId }: Props) {
 	const [isPending, startTransition] = useTransition()
 	const { data, isLoading, isError } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
+	const queryClient = useQueryClient()
 
 	const specificGear = data.gears.filter(
 		(gear) => String(gear.id) === gearId
 	)[0]
 
-	const languages = [
-		{
-			label: 'Chinese',
-			value: 'zh',
-		},
-	] as const
+	const router = useRouter()
 
 	const allGearNamesValLab = allGearNames.map((gearName) => [
 		gearName,
@@ -139,7 +138,18 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 				Object.entries(values).forEach(([k, v]) =>
 					formData.append(k, String(v))
 				)
-				editGearItem(formData, data.character.id, Number(gearId))
+				const res = await editGearItem(
+					formData,
+					data.character.id,
+					Number(gearId)
+				)
+				if (!res.ok) {
+					throw new Error('Failed to update gear')
+				}
+				queryClient.invalidateQueries({
+					queryKey: ['gears', characterName],
+				})
+				router.push(`/character/${characterName}`)
 				toast(
 					<pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
 						<code className='text-white'>

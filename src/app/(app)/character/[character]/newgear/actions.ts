@@ -11,6 +11,7 @@ import {
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
 import { GearItem } from '@prisma/client'
+import { equipGear } from '@/lib/equipGear'
 
 export async function createGearItem(formData: FormData, characterId: number) {
 	/* 1. Zod validation ----------------------------------------------------- */
@@ -43,7 +44,7 @@ export async function createGearItem(formData: FormData, characterId: number) {
 	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
 
 	/* 4. Persist ------------------------------------------------------------ */
-	await prisma.gearItem.create({
+	const newItem = await prisma.gearItem.create({
 		data: {
 			/* ─── linkage & meta ─────────────────────────────── */
 			// characterId: character.id,
@@ -54,8 +55,8 @@ export async function createGearItem(formData: FormData, characterId: number) {
 			tradeStatus: 'untradeable',
 			starForce: Number(data.starForce),
 			requiredLevel: Number(data.requiredLevel),
-			isEquipped: data.isEquipped,
-
+			isEquipped: 'notEquipped',
+			slot: '1',
 			/* ─── progression bonuses ────────────────────────── */
 			attackPowerIncrease: Number(data.attackPowerIncrease),
 			combatPowerIncrease: Number(data.combatPowerIncrease),

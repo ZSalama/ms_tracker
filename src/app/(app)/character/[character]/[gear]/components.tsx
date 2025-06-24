@@ -8,16 +8,11 @@ import { getGears } from '../actions'
 type Props = { characterName: string; gearId: string }
 
 export function ViewGearContainer({ characterName, gearId }: Props) {
-	const { data, isLoading, isError } = useSuspenseQuery({
+	const { data } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
-	if (isLoading) {
-		return <p>Loading...</p>
-	}
-	if (isError) {
-		return <p>Error loading characters.</p>
-	}
+
 	// find the specific gear item
 
 	const specificGear = data.gears.filter((gear) => String(gear.id) === gearId)
@@ -34,12 +29,6 @@ export function ImageOfGear({ characterName, gearId }: Props) {
 		queryKey: ['gears', characterName],
 		queryFn: () => getGears(characterName),
 	})
-	if (isLoading) {
-		return <p>Loading...</p>
-	}
-	if (isError) {
-		return <p>Error loading characters.</p>
-	}
 
 	// find the specific gear item
 	const gearItem = data.gears.find(
@@ -55,8 +44,6 @@ export function ImageOfGear({ characterName, gearId }: Props) {
 			className='max-w-full h-auto rounded-lg shadow-lg mx-auto'
 		/>
 	) : (
-		<p className='max-w-full h-auto text-center'>
-			No image available for this gear.
-		</p>
+		<p className='max-w-full  text-center'>No image available for this gear.</p>
 	)
 }

@@ -1,13 +1,14 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@clerk/nextjs/server'
 import { characterSchema } from '@/lib/validators/character'
 import { redirect } from 'next/navigation'
 import { classStats } from '@/lib/types'
+import { getQueryClient } from '@/lib/get-query-client'
 
 export async function createCharacter(formData: FormData) {
+	const queryClient = getQueryClient()
 	const parsed = characterSchema.safeParse(
 		Object.fromEntries(formData.entries())
 	)
@@ -42,6 +43,6 @@ export async function createCharacter(formData: FormData) {
 	})
 
 	// Refresh any page that reads the character list
-	revalidatePath('/dashboard')
+	queryClient.invalidateQueries({ queryKey: ['characters'] })
 	return { success: true }
 }

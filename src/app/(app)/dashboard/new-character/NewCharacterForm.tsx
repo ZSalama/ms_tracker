@@ -98,20 +98,7 @@ export default function NewCharacterForm() {
 						/>
 					)
 				)}
-				{/* 
-                <FormField
-                    control={form.control}
-                    name='class'
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Class</FormLabel>
-                            <FormControl>
-                                <Input placeholder='Beginner' {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                /> */}
+
 				<FormField
 					control={form.control}
 					name='class'
