@@ -2,46 +2,52 @@ import { WebhookEvent } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { Webhook } from 'svix'
 import { prisma } from '@/lib/prisma'
+import Stripe from 'stripe'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: Request) {
-    const payload = await req.text()
-    console.log(payload)
+	const payload = await req.text()
 
-    const svix = new Webhook(process.env.CLERK_WEBHOOK_SECRET!)
-    let evt: WebhookEvent
+	const svix = new Webhook(process.env.CLERK_WEBHOOK_SECRET!)
+	let evt: WebhookEvent
 
-    try {
-        evt = svix.verify(
-            payload,
-            Object.fromEntries(req.headers) // Svix wants a plain object
-        ) as WebhookEvent
-    } catch {
-        return NextResponse.json(
-            { error: 'Invalid signature' },
-            { status: 400 }
-        )
-    }
+	try {
+		evt = svix.verify(
+			payload,
+			Object.fromEntries(req.headers) // Svix wants a plain object
+		) as WebhookEvent
+	} catch {
+		return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+	}
 
-    if (evt.type === 'user.created') {
-        const u = evt.data
+	NextResponse.json({ received: true }, { status: 200 }) // Early response to avoid timeout
 
-        // Clerk always gives at least one verified email
-        const primaryEmail = u.email_addresses?.[0]?.email_address ?? ''
+	if (evt.type === 'user.created') {
+		const u = evt.data
+		const primaryEmail = u.email_addresses?.[0]?.email_address ?? ''
 
-        try {
-            await prisma.user.create({
-                data: {
-                    clerkId: u.id,
-                    email: primaryEmail,
-                    name: u.first_name,
-                },
-            })
-        } catch (e) {
-            console.error('Prisma create failed:', e)
-            return NextResponse.json({ error: 'DB error' }, { status: 500 })
-        }
-    }
+		try {
+			const stripeCustomer = await stripe.customers.create({
+				email: primaryEmail,
+				name: [u.first_name, u.last_name].filter(Boolean).join(' '),
+				metadata: {
+					clerkId: u.id,
+				},
+			})
+			await prisma.user.create({
+				data: {
+					clerkId: u.id,
+					email: primaryEmail,
+					name: u.first_name,
+					stripeId: stripeCustomer.id,
+				},
+			})
+		} catch (e) {
+			console.error('Prisma create failed:', e)
+			return NextResponse.json({ error: 'Provisioning Error' }, { status: 500 })
+		}
+	}
 
-    // 4️⃣ Ack promptly – Clerk retries on non-2xx
-    return NextResponse.json({ received: true }, { status: 200 })
+	return NextResponse.json({ received: true }, { status: 200 })
 }
