@@ -43,7 +43,7 @@ export default function page() {
 						</ol>
 
 						<p className='mt-4'>
-							This project is open source and available on <br />
+							This project is open source at <br />
 							<a
 								href='https://github.com/ZSalama/ms_tracker'
 								target='_blank'

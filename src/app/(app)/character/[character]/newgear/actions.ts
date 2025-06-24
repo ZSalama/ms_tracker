@@ -11,7 +11,7 @@ import {
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
 import { GearItem } from '@prisma/client'
-import { calculateSlotAndEquip } from '@/lib/equipGear'
+import { equipGear } from '@/lib/equipGear'
 
 export async function createGearItem(formData: FormData, characterId: number) {
 	/* 1. Zod validation ----------------------------------------------------- */
@@ -155,12 +155,6 @@ export async function createGearItem(formData: FormData, characterId: number) {
 			potValue3: data.potValue3 ?? undefined,
 		},
 	})
-	if (data.isEquipped === 'equipped') {
-		await calculateSlotAndEquip({
-			character: character,
-			gear: newItem,
-		})
-	}
 
 	/* 5. Redirect – Next will client-navigate automatically ---------------- */
 	await refreshCharacterFlameScore(character.id)

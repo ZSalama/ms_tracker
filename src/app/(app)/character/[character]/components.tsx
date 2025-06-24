@@ -1,25 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-// import { Button } from '@/components/ui/button'
-import { deleteGearAction, getGears } from './actions'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+import { getGears } from './actions'
+
 import { GearItem } from '@prisma/client'
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import {
 	Tooltip,
 	TooltipContent,
@@ -27,56 +11,7 @@ import {
 } from '@/components/ui/tooltip'
 import Image from 'next/image'
 import ViewGear from '@/components/ViewGear/ViewGear'
-import { slotNames } from '@/lib/types'
-
-export function DeleteGearButton({
-	gearItem,
-	characterName,
-}: {
-	gearItem: GearItem
-	characterName: string
-}) {
-	const queryClient = useQueryClient()
-	const { mutate, isPending } = useMutation({
-		mutationFn: (payload: GearItem) => deleteGearAction(payload, characterName),
-		onSuccess: () => {
-			// instantly mark the query stale in the browser
-			queryClient.invalidateQueries({ queryKey: ['gears', characterName] }) // :contentReference[oaicite:1]{index=1}
-		},
-	})
-	return (
-		<AlertDialog>
-			<AlertDialogTrigger asChild>
-				<Button variant='destructive' className='cursor-pointer'>
-					Delete Gear
-				</Button>
-			</AlertDialogTrigger>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-					<AlertDialogDescription>
-						This action cannot be undone. This will permanently delete your{' '}
-						{gearItem.name} and remove the data from our servers.
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel className='cursor-pointer'>
-						Cancel
-					</AlertDialogCancel>
-					<AlertDialogAction
-						className='cursor-pointer'
-						onClick={() => {
-							console.log(`Delete gear: ${gearItem.name}`)
-							mutate(gearItem)
-						}}
-					>
-						Continue
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-	)
-}
+import { slotNames } from '@/types/slotNames'
 
 type GearSlotProps = {
 	characterName: string
@@ -141,11 +76,11 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 								href={`/character/${characterName}/${specificGear?.id}`}
 								/* base (mobile) = disabled ; ≥ md = active               */
 								className={`
-									relative size-12 rounded-md border bg-[rgba(255,255,255,0.05)]
+									relative size-12 rounded-md border bg-background/30
 									grid place-content-center overflow-hidden
 									pointer-events-none          md:pointer-events-auto
 									cursor-default               md:hover:cursor-pointer
-									md:hover:ring-2 md:hover:ring-sky-400
+									md:hover:ring-2 md:hover:accent
 								`}
 								aria-disabled='true' /* helps screen readers on mobile */
 							>
@@ -210,7 +145,7 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 						>
 							{specificGear ? (
 								<Image
-									src={'/gloves.png'}
+									src={'/gloves.PNG'}
 									alt={gear?.name || ''}
 									fill
 									className='object-contain'

@@ -32,12 +32,16 @@ model Character {
     id          Int      @id @default(autoincrement())
     name        String   @unique
     level       Int      @default(1)
-    class       String   @default("beginner")
+    class       String   @default("Hero")
+    job         String   @default("Warrior")
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
     combatPower Int      @default(0)
     arcaneForce Int      @default(0)
     sacredPower Int      @default(0)
+
+    equippedRingsIds    String @default("[]") // JSON array of equipped ring IDs
+    equippedPendantsIds String @default("[]") // JSON array of equipped earring
 
     userId Int
     user   User @relation(fields: [userId], references: [id], onDelete: Cascade)

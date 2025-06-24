@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 // import { Button } from '@/components/ui/button'
-import { deleteCharacterAction } from './actions'
+import { deleteGearAction } from './actions'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,27 +14,37 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { useRouter } from 'next/navigation'
+import { GearItem } from '@prisma/client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-export function DeleteCharacterButton({
+export function DeleteGearButton({
+	gearItem,
 	characterName,
 }: {
+	gearItem: GearItem
 	characterName: string
 }) {
-	const router = useRouter()
+	const queryClient = useQueryClient()
+	const { mutate, isPending } = useMutation({
+		mutationFn: (payload: GearItem) => deleteGearAction(payload, characterName),
+		onSuccess: () => {
+			// instantly mark the query stale in the browser
+			queryClient.invalidateQueries({ queryKey: ['gears', characterName] }) // :contentReference[oaicite:1]{index=1}
+		},
+	})
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>
-				<Button className='cursor-pointer w-full' variant='destructive'>
-					Delete Character
+				<Button variant='destructive' className='cursor-pointer w-full'>
+					Delete Gear
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
-						This action cannot be undone. This will permanently delete your
-						character and remove your data from our servers.
+						This action cannot be undone. This will permanently delete your{' '}
+						{gearItem.name} and remove the data from our servers.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -43,15 +53,9 @@ export function DeleteCharacterButton({
 					</AlertDialogCancel>
 					<AlertDialogAction
 						className='cursor-pointer'
-						onClick={async () => {
-							console.log(`Delete character: ${characterName}`)
-							const res = await deleteCharacterAction(characterName)
-							if (res.ok) {
-								console.log(`Character ${characterName} deleted successfully.`)
-								router.push('/dashboard')
-							} else {
-								console.error(`Failed to delete character ${characterName}.`)
-							}
+						onClick={() => {
+							console.log(`Delete gear: ${gearItem.name}`)
+							mutate(gearItem)
 						}}
 					>
 						Continue

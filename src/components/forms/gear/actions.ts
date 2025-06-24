@@ -7,7 +7,7 @@ import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
-import { equipGear, unequipGear } from '@/lib/equipGear'
+import { equipGear } from '@/lib/equipGear'
 import { GearItem } from '@prisma/client'
 
 export async function editGearItem(
@@ -46,22 +46,6 @@ export async function editGearItem(
 	// considered refactoring lots of code because of this next line
 	// like any function that interacts with updating gear should only require the most minimal data
 	// like id if it wants to update the gear instead of recasting an entire object that requires type imports..
-	const gearData = { id: gearId, ...parsed.data } as GearItem
-
-	if (data.isEquipped === 'equipped') {
-		await equipGear({
-			character: character,
-			gear: gearData,
-		})
-	}
-
-	if (data.isEquipped === 'notEquipped') {
-		//check to see if the gear is already equipped
-		await unequipGear({
-			character: character,
-			gear: gearData,
-		})
-	}
 
 	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
 
@@ -73,17 +57,17 @@ export async function editGearItem(
 				/* ─── linkage & meta ─────────────────────────────── */
 				// characterId: character.id,
 				character: { connect: { id: character.id } },
-				name: data.name,
-				type: data.type,
-				rarity: data.rarity,
+				name: data.name ?? 'Fafnir Mage Hat',
+				type: data.type ?? 'Hat',
+				rarity: data.rarity ?? 'common',
 				tradeStatus: 'untradeable',
-				starForce: Number(data.starForce),
-				requiredLevel: Number(data.requiredLevel),
-				isEquipped: data.isEquipped,
+				starForce: Number(data.starForce) ?? 0,
+				requiredLevel: Number(data.requiredLevel) ?? 0,
+				isEquipped: data.isEquipped ?? 'notEquipped',
 
 				/* ─── progression bonuses ────────────────────────── */
-				attackPowerIncrease: Number(data.attackPowerIncrease),
-				combatPowerIncrease: Number(data.combatPowerIncrease),
+				attackPowerIncrease: Number(data.attackPowerIncrease) ?? 0,
+				combatPowerIncrease: Number(data.combatPowerIncrease) ?? 0,
 
 				/* ─── main stats ─────────────────────────────────── */
 				totalStr:

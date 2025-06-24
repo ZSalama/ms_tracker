@@ -1,7 +1,6 @@
 'use client'
 import { type Character, type GearItem } from '@prisma/client'
 import { Button } from '@/components/ui/button'
-import { calculateSlotAndEquip } from '@/lib/equipGear'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getQueryClient } from '@/lib/get-query-client'
@@ -30,7 +29,7 @@ export function EquipGearButton({ character, gear }: EquipGearButtonProps) {
 
 			<Button
 				onClick={async () => {
-					await calculateSlotAndEquip({ character, gear })
+					// await calculateSlotAndEquip({ character, gear })
 					queryClient.invalidateQueries({
 						queryKey: ['gears', character.name],
 					}) // Invalidate the character query to refresh data

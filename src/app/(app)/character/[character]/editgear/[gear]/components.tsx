@@ -34,7 +34,8 @@ import { Check, ChevronsUpDown } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { GearSchema, gearSchema } from '@/lib/validators/gear'
 import { editGearItem } from './actions'
-import { allGearNames, gearTypes } from '@/lib/types'
+import { allGearNames } from '@/types/gearNames'
+import { gearTypes } from '@/types/gearTypes'
 import {
 	Select,
 	SelectContent,

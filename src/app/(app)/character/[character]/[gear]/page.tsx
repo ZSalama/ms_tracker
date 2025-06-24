@@ -13,7 +13,6 @@ export default async function viewgear({ params }: { params: Promise<Props> }) {
 
 	return (
 		<div className='container mx-auto px-4 py-8 space-y-10'>
-			{/* <HydrationBoundary state={dehydrate(queryClient)}> */}
 			<div className='grid lg:grid-cols-2 mx-auto justify-center gap-10'>
 				<div>
 					<Link href={`/character/${props.character}`}>
@@ -35,7 +34,6 @@ export default async function viewgear({ params }: { params: Promise<Props> }) {
 					/>
 				</div>
 			</div>
-			{/* </HydrationBoundary> */}
 		</div>
 	)
 }

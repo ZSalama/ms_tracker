@@ -6,7 +6,6 @@ import {
 	QueryClient,
 	QueryClientProvider,
 } from '@tanstack/react-query'
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
 function makeQueryClient() {
 	return new QueryClient({
@@ -45,18 +44,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 	return (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-	)
-}
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-	return (
-		<NextThemesProvider
-			attribute='class' // puts "light" or "dark" on <html class="dark">
-			defaultTheme='system' // respect OS first, then user choice
-			enableSystem // honour prefers-color-scheme
-			disableTransitionOnChange
-		>
-			{children}
-		</NextThemesProvider>
 	)
 }

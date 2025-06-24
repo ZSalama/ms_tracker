@@ -23,7 +23,6 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { classNames } from '@/lib/types'
-// import { useRouter } from 'next/navigation'
 import { Character } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
@@ -38,8 +37,6 @@ export default function CharacterForm({ props }: { props: Props }) {
 	const [isPending, startTransition] = useTransition()
 
 	const queryClient = useQueryClient()
-
-	//find specific character from data with that matches charactername
 
 	const form = useForm<CharacterSchema>({
 		resolver: zodResolver(characterSchema),
@@ -62,7 +59,7 @@ export default function CharacterForm({ props }: { props: Props }) {
 					})
 				)
 			} else if (result?.ok) {
-				queryClient.invalidateQueries({
+				queryClient.refetchQueries({
 					queryKey: ['gears', props.character.name],
 				})
 				router.push(`/character/${props.character.name}`)
@@ -151,13 +148,17 @@ export default function CharacterForm({ props }: { props: Props }) {
 						</FormItem>
 					)}
 				/>
-
+				{}
 				<Button
 					type='submit'
 					disabled={isPending}
 					className='w-full cursor-pointer'
 				>
-					{isPending ? 'Saving…' : 'Add character'}
+					{isPending
+						? 'Saving…'
+						: props.submissionType === 'create'
+						? 'Add character'
+						: 'Update character'}
 				</Button>
 			</form>
 		</Form>
