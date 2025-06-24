@@ -16,6 +16,7 @@ import { slotNames } from '@/types/slotNames'
 type GearSlotProps = {
 	characterName: string
 }
+
 export function GearSlot({ characterName }: GearSlotProps) {
 	const { data } = useSuspenseQuery({
 		queryKey: ['gears', characterName],
@@ -103,11 +104,7 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 								href={`/character/${characterName}/newgearplus`}
 								/* base (mobile) = disabled ; ≥ md = active               */
 								className={`
-									relative size-12 rounded-md border bg-[rgba(255,255,255,0.05)]
-									grid place-content-center overflow-hidden
-									pointer-events-none          md:pointer-events-auto
-									cursor-default               md:hover:cursor-pointer
-									md:hover:ring-2 md:hover:ring-sky-400
+									relative size-12 rounded-md border bg-[rgba(255,255,255,0.05)] grid place-content-center overflow-hidden pointer-events-none md:pointer-events-auto 							cursor-default md:hover:cursor-pointer 							md:hover:ring-2 md:hover:accent
 								`}
 								aria-disabled='true' /* helps screen readers on mobile */
 							>
@@ -140,7 +137,7 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 					<TooltipTrigger asChild>
 						<div
 							className='relative size-12 rounded-md border
-                     bg-[rgba(255,255,255,0.05)] hover:ring-2 hover:ring-sky-400
+                     bg-[rgba(255,255,255,0.05)] hover:ring-2 
                      grid place-content-center overflow-hidden'
 						>
 							{specificGear ? (

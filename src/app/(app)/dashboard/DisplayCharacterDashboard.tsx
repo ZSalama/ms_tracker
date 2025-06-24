@@ -19,8 +19,8 @@ export default function DisplayCharacterDashboard() {
 	}
 	return (
 		<main className='mx-auto max-w-4xl px-6 py-12'>
-			<div className='mb-8 flex items-center justify-between'>
-				<h1 className='text-3xl font-extrabold'>
+			<div className='mb-8 flex flex-col items-center justify-between'>
+				<h1 className='text-xl md:text-3xl font-extrabold'>
 					{data.internalUser.email}&apos;s Characters
 				</h1>
 
