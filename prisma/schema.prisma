@@ -15,14 +15,16 @@ datasource db {
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    clerkId   String   @unique
-    stripeId  String?  @unique
-    email     String   @unique
-    name      String?
-    legion    Int      @default(0)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id                   Int      @id @default(autoincrement())
+    clerkId              String   @unique
+    stripeId             String?  @unique
+    email                String   @unique
+    name                 String?
+    subscription         String   @default("free")
+    stripeSubscriptionId String   @default("free")
+    legion               Int      @default(0)
+    createdAt            DateTime @default(now())
+    updatedAt            DateTime @updatedAt
 
     characters Character[] // One-to-many to Character
 

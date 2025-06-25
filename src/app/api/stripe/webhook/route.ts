@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { clerkClient } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma' // remove if not needed
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+import { stripe } from '@/lib/stripe'
 
 // ⬇️  Stripe sends many events; we only care about sub life-cycle
 const RELEVANT_EVENTS = new Set([
@@ -12,9 +11,9 @@ const RELEVANT_EVENTS = new Set([
 	'customer.subscription.deleted',
 ])
 
-export async function POST(req: NextRequest) {
-	const sig = req.headers.get('stripe-signature') ?? ''
+export async function POST(req: NextRequest): Promise<NextResponse> {
 	const body = await req.text()
+	const sig = req.headers.get('stripe-signature') ?? ''
 	const client = await clerkClient()
 
 	/** 1️⃣  Verify signature */
@@ -29,13 +28,13 @@ export async function POST(req: NextRequest) {
 		console.error('❌ Bad Stripe signature', err)
 		return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
 	}
-	NextResponse.json({ received: true }, { status: 200 }) // Early response to avoid timeout
 
 	/** 2️⃣  Ignore events we don’t care about */
 	if (!RELEVANT_EVENTS.has(event.type)) {
 		return NextResponse.json({ received: true })
 	}
 
+	NextResponse.json({ received: true }, { status: 200 }) // Early response to avoid timeout
 	/** 3️⃣  Determine the target role */
 	const subscription = event.data.object as Stripe.Subscription
 
@@ -81,7 +80,15 @@ export async function POST(req: NextRequest) {
 		publicMetadata: { role: targetRole },
 	})
 
-	await Promise.allSettled([clerkPromise])
+	const dbPromise = prisma.user.update({
+		where: { id: userRow.id },
+		data: {
+			subscription: targetRole === 'user' ? 'subscribed' : 'none',
+			stripeSubscriptionId: subscription.id,
+		},
+	})
+
+	await Promise.allSettled([clerkPromise, dbPromise])
 
 	console.log(
 		`🔄 Role for user ${userRow.id}: ${
@@ -93,6 +100,5 @@ export async function POST(req: NextRequest) {
 
 /** 7️⃣  Tell Next.js we need the raw body for signature verification */
 export const config = {
-	runtime: 'edge', // or 'nodejs' if you depend on Node APIs
-	api: { bodyParser: false },
+	runtime: 'nodejs', // or 'nodejs' if you depend on Node APIs
 }

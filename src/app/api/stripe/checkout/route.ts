@@ -23,7 +23,7 @@ export async function POST() {
 	try {
 		const session = await stripe.checkout.sessions.create({
 			mode: 'subscription',
-			customer: internalUser.stripeId || undefined, // or leave undefined to create new customer
+			customer: internalUser.stripeId || undefined,
 			line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
 			success_url: `${process.env
 				.DOMAIN!}/dashboard/subscribe/success/?session_id={CHECKOUT_SESSION_ID}`,
@@ -31,7 +31,7 @@ export async function POST() {
 			metadata: { userId: internalUser.id },
 		})
 
-		return NextResponse.json({ sessionId: session.url }, { status: 200 })
+		return NextResponse.json({ url: session.url }, { status: 200 })
 	} catch (err) {
 		console.error(err)
 		return NextResponse.json({ error: 'Stripe error' }, { status: 500 })
