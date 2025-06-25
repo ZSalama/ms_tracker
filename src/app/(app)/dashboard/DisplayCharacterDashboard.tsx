@@ -30,6 +30,9 @@ export default function DisplayCharacterDashboard() {
 					<Link href='/dashboard/new-character'>
 						<Button className='cursor-pointer'>+ New Character</Button>
 					</Link>
+					<Link href='/dashboard/subscribe'>
+						<Button className='cursor-pointer'>Subscribe</Button>
+					</Link>
 				</div>
 			</div>
 			{data.characters.length === 0 ? (

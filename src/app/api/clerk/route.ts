@@ -3,11 +3,13 @@ import { NextResponse } from 'next/server'
 import { Webhook } from 'svix'
 import { prisma } from '@/lib/prisma'
 import Stripe from 'stripe'
+import { clerkClient } from '@clerk/nextjs/server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: Request) {
 	const payload = await req.text()
+	const client = await clerkClient()
 
 	const svix = new Webhook(process.env.CLERK_WEBHOOK_SECRET!)
 	let evt: WebhookEvent
@@ -35,7 +37,11 @@ export async function POST(req: Request) {
 					clerkId: u.id,
 				},
 			})
-			await prisma.user.create({
+			const clerkPromise = client.users.updateUserMetadata(u.id, {
+				publicMetadata: { role: 'user' },
+			})
+
+			const dbPromise = prisma.user.create({
 				data: {
 					clerkId: u.id,
 					email: primaryEmail,
@@ -43,6 +49,8 @@ export async function POST(req: Request) {
 					stripeId: stripeCustomer.id,
 				},
 			})
+
+			await Promise.all([clerkPromise, dbPromise])
 		} catch (e) {
 			console.error('Prisma create failed:', e)
 			return NextResponse.json({ error: 'Provisioning Error' }, { status: 500 })
