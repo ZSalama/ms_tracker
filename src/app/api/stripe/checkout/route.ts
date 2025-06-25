@@ -3,6 +3,8 @@ import { stripe } from '@/lib/stripe'
 import { auth } from '@clerk/nextjs/server' // or your preferred auth
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'nodejs'
+
 export async function POST() {
 	const { userId } = await auth() // grab signed-in user
 	if (!userId) {
@@ -21,23 +23,15 @@ export async function POST() {
 	try {
 		const session = await stripe.checkout.sessions.create({
 			mode: 'subscription',
-			customer_email: internalUser.email, // pass email if you have it
-			payment_method_types: ['card'],
-			// customer: internalUser.stripeId!, // use the Stripe customer ID
-			line_items: [
-				{
-					price: process.env.STRIPE_PRICE_ID!,
-					quantity: 1,
-				},
-			],
-			success_url: `${process.env.DOMAIN}/dashboard/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${process.env.DOMAIN}/dashboard/subscribe/cancel`,
-			// optional: reference your app user for analytics
-			client_reference_id: userId,
-			metadata: { userId },
+			customer: internalUser.stripeId || undefined, // or leave undefined to create new customer
+			line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
+			success_url: `${process.env
+				.DOMAIN!}/dashboard/subscribe/success/?session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${process.env.DOMAIN!}/dashboard/subscribe/cancel/`,
+			metadata: { userId: internalUser.id },
 		})
 
-		return NextResponse.json({ url: session.url })
+		return NextResponse.json({ sessionId: session.url }, { status: 200 })
 	} catch (err) {
 		console.error(err)
 		return NextResponse.json({ error: 'Stripe error' }, { status: 500 })
