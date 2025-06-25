@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { gearSchema } from '@/lib/validators/gear'
 import { ViewGearContainer } from './components/ViewGearContainer'
-import EquipGearButton from '@/components/gear/EquipGearButton/EquipGearButton'
 import {
 	calculateFlameScore,
 	refreshCharacterFlameScore,
@@ -207,8 +206,6 @@ export default async function page({
 				<div>
 					<Suspense fallback={<div>Loading gear data...</div>}>
 						<ViewGearContainer gear={updatedGear} />
-
-						<EquipGearButton character={characterData} gear={updatedGear} />
 					</Suspense>
 				</div>
 			</div>

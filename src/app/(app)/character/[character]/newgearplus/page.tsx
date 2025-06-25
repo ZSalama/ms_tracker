@@ -16,7 +16,7 @@ export default async function page({
 		redirect(`/character/${character}`)
 	}
 
-	const isAdmin = await checkRole('admin')
+	const isAdmin = (await checkRole('admin')) || (await checkRole('user'))
 
 	return (
 		<div className='max-w-4xl mx-auto px-4 py-8 space-y-10 grid md:grid-cols-2'>

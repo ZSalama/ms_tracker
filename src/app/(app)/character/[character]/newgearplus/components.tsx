@@ -88,7 +88,7 @@ export function MultiUploader({ character }: { character: string }) {
 			{uploadedState && (
 				<div className='flex flex-col items-center justify-center'>
 					<h1 className='text-2xl font-bold text-white'>Upload Completed</h1>
-					<Button
+					{/* <Button
 						onClick={() => handleAnalyse('slow')}
 						disabled={!gearUrl || isSubmitting}
 						className='cursor-pointer mb-4'
@@ -100,7 +100,7 @@ export function MultiUploader({ character }: { character: string }) {
 						) : (
 							'Analyse Gear Item Slow'
 						)}
-					</Button>
+					</Button> */}
 					<Button
 						onClick={() => handleAnalyse('fast')}
 						disabled={!gearUrl || isSubmitting}

@@ -26,13 +26,19 @@ export default function DisplayCharacterDashboard() {
 					{data.internalUser.email}&apos;s Characters
 				</h1>
 				<div className='flex flex-row flex-wrap items-center gap-4'>
-					<p>Account type: {sessionClaims?.metadata.role}</p>
+					<p>Account type: {data.internalUser.subscription}</p>
 					<Link href='/dashboard/new-character'>
 						<Button className='cursor-pointer'>+ New Character</Button>
 					</Link>
-					<Link href='/dashboard/subscribe'>
-						<Button className='cursor-pointer'>Subscribe</Button>
-					</Link>
+					{data.internalUser.subscription !== 'user' ? (
+						<Link href='/dashboard/subscribe'>
+							<Button className='cursor-pointer'>Subscribe</Button>
+						</Link>
+					) : (
+						<Link href='/dashboard/cancelsubscription'>
+							<Button className='cursor-pointer'>Unsubscribe</Button>
+						</Link>
+					)}
 				</div>
 			</div>
 			{data.characters.length === 0 ? (

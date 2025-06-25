@@ -4,6 +4,7 @@ import { prisma } from './prisma'
 import { gearTypes } from '@/types/gearTypes'
 import { secondaryNames, weaponNames } from '@/types/gearNames'
 import { ok } from 'assert'
+import { refreshCharacterFlameScore } from './calculateFlames'
 
 type EquipGearButtonProps = {
 	character: Character
@@ -34,6 +35,7 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 					slot: await calculateSlot(gear.type), // Ensure slot is set
 				},
 			})
+			await refreshCharacterFlameScore(character.id)
 			return { ok: true, message: 'Gear item equipped successfully' }
 		}
 		if (existingGear.type === 'ring') {
@@ -49,6 +51,8 @@ export const equipGear = async ({ character, gear }: EquipGearButtonProps) => {
 				slot: await calculateSlot(gear.type), // Ensure slot is set
 			},
 		})
+
+		await refreshCharacterFlameScore(character.id)
 		return { ok: true, message: 'Gear item equipped successfully' }
 	}
 	return { ok: true }
@@ -67,6 +71,7 @@ export const unequipGear = async ({
 		data: { isEquipped: 'notEquipped', slot: '1' },
 	})
 
+	await refreshCharacterFlameScore(character.id)
 	return { ok: true, message: 'Gear item unequipped successfully' }
 }
 

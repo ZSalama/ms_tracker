@@ -7,6 +7,7 @@ type GetCharactersResponse = {
 	internalUser: {
 		id: number
 		email: string
+		subscription: string
 	}
 	characters: Character[]
 }
@@ -19,7 +20,7 @@ export async function getCharacters(): Promise<GetCharactersResponse> {
 	/* 2️⃣  Internal user */
 	const internalUser = await prisma.user.findUnique({
 		where: { clerkId: userId },
-		select: { id: true, email: true },
+		select: { id: true, email: true, subscription: true },
 	})
 	if (!internalUser) {
 		throw new Error('UNAUTHENTICATED')
