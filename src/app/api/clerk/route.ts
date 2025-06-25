@@ -22,7 +22,6 @@ export async function POST(req: Request) {
 	} catch {
 		return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
 	}
-
 	NextResponse.json({ received: true }, { status: 200 }) // Early response to avoid timeout
 
 	if (evt.type === 'user.created') {
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
 				},
 			})
 			const clerkPromise = client.users.updateUserMetadata(u.id, {
-				publicMetadata: { role: 'user' },
+				publicMetadata: { role: 'guest' },
 			})
 
 			const dbPromise = prisma.user.create({
