@@ -21,37 +21,39 @@ export function CharacterCharacterInfo({
 	internalUser: { id: number; email: string; clerkId: string } | null
 }) {
 	return (
-		<Card className='mr-8 w-fit'>
+		<Card className='mr-8 w-full h-full'>
 			{/* ---------- HEADER ---------- */}
-			<CardHeader>
-				<CardTitle className='text-3xl'>{characterProp.name}</CardTitle>
-			</CardHeader>
+			<div className='flex flex-col h-full gap-4'>
+				<CardHeader>
+					<CardTitle className='text-3xl'>{characterProp.name}</CardTitle>
+				</CardHeader>
 
-			{/* ---------- BODY ---------- */}
-			<CardContent>
-				<dl className='space-y-1'>
-					<div>
-						<dt className='inline font-medium'>Level:</dt>{' '}
-						<dd className='inline'>{characterProp.level}</dd>
-					</div>
-					<div>
-						<dt className='inline font-medium'>Class:</dt>{' '}
-						<dd className='inline'>{characterProp.class}</dd>
-					</div>
-					<div>
-						<dt className='inline font-medium'>Combat Power:</dt>{' '}
-						<dd className='inline'>
-							{characterProp.combatPower.toLocaleString()}
-						</dd>
-					</div>
-					<div>
-						<dt className='inline font-medium'>Flame Score:</dt>{' '}
-						<dd className='inline'>
-							{characterProp.totalFlameScore.toLocaleString()}
-						</dd>
-					</div>
-				</dl>
-			</CardContent>
+				{/* ---------- BODY ---------- */}
+				<CardContent>
+					<dl className='space-y-1'>
+						<div>
+							<dt className='inline font-medium'>Level:</dt>{' '}
+							<dd className='inline'>{characterProp.level}</dd>
+						</div>
+						<div>
+							<dt className='inline font-medium'>Class:</dt>{' '}
+							<dd className='inline'>{characterProp.class}</dd>
+						</div>
+						<div>
+							<dt className='inline font-medium'>Combat Power:</dt>{' '}
+							<dd className='inline'>
+								{characterProp.combatPower.toLocaleString()}
+							</dd>
+						</div>
+						<div>
+							<dt className='inline font-medium'>Flame Score:</dt>{' '}
+							<dd className='inline'>
+								{characterProp.totalFlameScore.toLocaleString()}
+							</dd>
+						</div>
+					</dl>
+				</CardContent>
+			</div>
 
 			{/* ---------- FOOTER (optional) ---------- */}
 			<SignedIn>

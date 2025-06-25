@@ -33,8 +33,8 @@ export default async function page({
 					<MultiUploader character={character} />
 				) : (
 					<p>
-						currently disabled for non admins. contact me at
-						undermouseweb@gmail.com for info
+						currently disabled for guests. purchase a subsciption or contact me
+						at undermouseweb@gmail.com for more info
 					</p>
 				)}
 			</div>
