@@ -148,63 +148,19 @@ export default function NewGearForm({
 					control={form.control}
 					name='name'
 					render={({ field }) => (
-						<FormItem className='flex flex-col'>
-							<FormLabel>Gear Name</FormLabel>
-							<Popover>
-								<PopoverTrigger asChild>
+						<FormField
+							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
 									<FormControl>
-										<Button
-											variant='outline'
-											role='combobox'
-											className={cn(
-												'justify-between',
-												!field.value && 'text-muted-foreground'
-											)}
-										>
-											{field.value
-												? allGearNamesValLab.find(
-														(language) => language[0] === field.value
-												  )?.[0]
-												: 'Select gear'}
-											<ChevronsUpDown className=' shrink-0 opacity-50' />
-										</Button>
+										<Input placeholder='hat' {...field} />
 									</FormControl>
-								</PopoverTrigger>
-								<PopoverContent className=' p-0'>
-									<Command>
-										<CommandInput placeholder='Search gear...' />
-										<CommandList>
-											<CommandEmpty>No gear found.</CommandEmpty>
-											<CommandGroup>
-												{allGearNamesValLab.map((language) => (
-													<CommandItem
-														value={language[0]}
-														key={language[1]}
-														onSelect={() => {
-															form.setValue('name', language[0])
-														}}
-													>
-														<Check
-															className={cn(
-																'',
-																language[0] === field.value
-																	? 'opacity-100'
-																	: 'opacity-0'
-															)}
-														/>
-														{language[0]}
-													</CommandItem>
-												))}
-											</CommandGroup>
-										</CommandList>
-									</Command>
-								</PopoverContent>
-							</Popover>
-							<FormDescription>
-								This is the language that will be used in the dashboard.
-							</FormDescription>
-							<FormMessage />
-						</FormItem>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 					)}
 				/>
 
@@ -270,31 +226,6 @@ export default function NewGearForm({
 													</SelectItem>
 												)
 											)}
-										</SelectContent>
-									</Select>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name='isEquipped'
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Equipped</FormLabel>
-								<FormControl>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-									>
-										<SelectTrigger>{field.value}</SelectTrigger>
-										<SelectContent>
-											{['equipped', 'notEquipped'].map((r) => (
-												<SelectItem key={r} value={r}>
-													{r}
-												</SelectItem>
-											))}
 										</SelectContent>
 									</Select>
 								</FormControl>
