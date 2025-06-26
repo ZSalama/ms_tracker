@@ -68,9 +68,9 @@ export function MultiUploader({ character }: { character: string }) {
 		<>
 			<div
 				{...getRootProps()}
-				className='w-full h-96 bg-gray-300 flex flex-col justify-center items-center 
-				hover:bg-gray-800 transition-colors duration-300 cursor-pointer
-				rounded-lg hover:text-gray-200 text-4xl gap-5'
+				className='w-full h-96 bg-secondary flex flex-col justify-center items-center 
+				hover:bg-secondary-foreground transition-colors duration-300 cursor-pointer
+				rounded-lg hover:text-secondary text-4xl gap-5'
 			>
 				<input {...getInputProps()} />
 				<FaArrowCircleDown className='text-9xl transition-colors duration-300' />

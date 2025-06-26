@@ -19,7 +19,7 @@ Track your MapleStory progress!
 
 ![character_image](public/alpha.png)
 
-#AI Analysis
+# AI Analysis
 
 ![gear_anlysis](/public/aianlyze.png)
 

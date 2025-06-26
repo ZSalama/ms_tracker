@@ -13,7 +13,6 @@ import {
 	FormLabel,
 	FormControl,
 	FormMessage,
-	FormDescription,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -23,26 +22,11 @@ import {
 	SelectItem,
 } from '@/components/ui/select'
 
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@/components/ui/command'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
-import { Check, ChevronsUpDown } from 'lucide-react'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { allGearNames, gearTypes } from '@/lib/types'
-import { cn } from '@/lib/utils'
 
 export default function NewGearForm({
 	character,
@@ -69,7 +53,6 @@ export default function NewGearForm({
 			attackPowerIncrease: 0,
 			combatPowerIncrease: 0,
 			requiredLevel: 0,
-			isEquipped: 'notEquipped',
 			baseStr: 0,
 			flameStr: 0,
 			starStr: 0,
@@ -142,28 +125,21 @@ export default function NewGearForm({
 			>
 				{/* <input type='hidden' {...form.register('characterId')} /> */}
 				<Link href={`/character/${character}`}>
-					<Button className='cursor-pointer'>back to characters</Button>
+					<Button className='cursor-pointer mb-5'>back to characters</Button>
 				</Link>
 				<FormField
 					control={form.control}
 					name='name'
 					render={({ field }) => (
-						<FormField
-							control={form.control}
-							name='name'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input placeholder='hat' {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						<FormItem>
+							<FormLabel>Name</FormLabel>
+							<FormControl>
+								<Input placeholder='Superior Gollux Ring' {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
 					)}
 				/>
-
 				<FormField
 					control={form.control}
 					name='starForce'
@@ -719,7 +695,7 @@ export default function NewGearForm({
 				<Button
 					type='submit'
 					disabled={isPending}
-					className='w-full cursor-pointer'
+					className='w-full cursor-pointer mb-5'
 				>
 					{isPending ? 'Saving…' : 'Add gear'}
 				</Button>

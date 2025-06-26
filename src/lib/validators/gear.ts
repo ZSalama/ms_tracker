@@ -12,8 +12,6 @@ export const gearSchema = z.object({
 	combatPowerIncrease: z.coerce.number().int(),
 	requiredLevel: z.coerce.number().int(),
 
-	isEquipped: z.coerce.string(),
-
 	/* ------------ core stats ------------ */
 	totalStr: z.coerce.number().int().optional(),
 	baseStr: z.coerce.number().int().optional(),

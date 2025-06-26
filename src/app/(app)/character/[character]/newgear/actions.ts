@@ -11,7 +11,6 @@ import {
 	refreshCharacterFlameScore,
 } from '@/lib/calculateFlames'
 import { GearItem } from '@prisma/client'
-import { equipGear } from '@/lib/equipGear'
 
 export async function createGearItem(formData: FormData, characterId: number) {
 	/* 1. Zod validation ----------------------------------------------------- */

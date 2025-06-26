@@ -2,12 +2,14 @@ import React from 'react'
 import Link from 'next/link'
 import { Button } from '../ui/button'
 import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs'
+import ThemeToggle from './ThemeToggle'
 
 export default async function Header({ className }: { className: string }) {
 	return (
 		<header
 			className={`flex justify-end items-center p-4 gap-4 h-16 z-10 w-full ${className}`}
 		>
+			<ThemeToggle />
 			<Link href='/learn'>
 				<Button className='cursor-pointer'>Learn</Button>
 			</Link>

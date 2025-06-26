@@ -6,6 +6,13 @@ import { getCharacters } from './actions'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@clerk/nextjs'
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card'
 
 export default function DisplayCharacterDashboard() {
 	const { data, isLoading, isError } = useSuspenseQuery({
@@ -50,20 +57,20 @@ export default function DisplayCharacterDashboard() {
 				<ul className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
 					{data.characters.map((c) => (
 						<li key={c.id}>
-							<Link
-								href={`/character/${c.name}`}
-								className='block rounded-xl border border-gray-200 bg-white p-5 dark:text-gray-900 shadow-sm transition hover:shadow-md'
-							>
-								<h2 className='truncate text-lg font-semibold'>{c.name}</h2>
-								<p className='text-sm '>
-									{c.level} &middot; {c.class}
-								</p>
-
-								<div className='mt-3 space-y-1 text-sm text-gray-600'>
-									<p>Combat Power: {c.combatPower.toLocaleString()}</p>
-									<p>Arcane Force: {c.arcaneForce}</p>
-									<p>Sacred Power: {c.sacredPower}</p>
-								</div>
+							<Link href={`/character/${c.name}`} className='block'>
+								<Card>
+									<CardHeader>
+										<CardTitle>{c.name}</CardTitle>
+										<CardDescription>
+											{c.level.toString()} {c.class}
+										</CardDescription>
+									</CardHeader>
+									<CardContent>
+										<p>Combat Power: {c.combatPower.toLocaleString()}</p>
+										<p>Arcane Force: {c.arcaneForce}</p>
+										<p>Sacred Power: {c.sacredPower}</p>
+									</CardContent>
+								</Card>
 							</Link>
 						</li>
 					))}

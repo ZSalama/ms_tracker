@@ -19,9 +19,15 @@ type GearCardProps = {
 	character: Character
 	data: GearItem
 	equiped: boolean
+	view?: 'default' | 'minimal'
 }
 
-export default function GearCard({ character, data, equiped }: GearCardProps) {
+export default function GearCard({
+	character,
+	data,
+	equiped,
+	view = 'default',
+}: GearCardProps) {
 	return (
 		<Card className='w-full max-w-lg text-md mx-auto justify-between'>
 			<Link
@@ -41,34 +47,31 @@ export default function GearCard({ character, data, equiped }: GearCardProps) {
 						</p>
 					)} */}
 						<p>
-							StarForce: {data.starForce} - Req Lvl: {data.requiredLevel}
+							{data.starForce} Stars - Lvl: {data.requiredLevel}
 						</p>
 					</div>
 				</CardHeader>
 
-				<CardContent className='grid grid-cols-1 gap-x-3 text-xs'>
+				<CardContent className='grid grid-cols-1 gap-x-3 text-xs mt-1'>
 					<p> Type: {data.type}</p>
 					<p>
-						<span className='text-sky-500'>STR : {data.totalLuk}</span>
+						<span>STR : {data.totalStr}</span>
 
-						<span className='text-sky-500'> DEX : {data.totalLuk}</span>
+						<span> DEX : {data.totalDex}</span>
 					</p>
 					<p>
-						<span className='text-sky-500'>INT : {data.totalLuk}</span>
+						<span> INT : {data.totalInt}</span>
 
-						<span className='text-sky-500'> LUK : {data.totalLuk}</span>
+						<span> LUK : {data.totalLuk}</span>
 					</p>
 					<p>
-						<span className='text-sky-500'>
-							Attack Power : {data.totalAttackPower} Magic Attack :{' '}
-							{data.totalMagicAttackPower}{' '}
+						<span>
+							Att Power : {data.totalAttackPower} <br />
+							Mat Attack : {data.totalMagicAttackPower}
 						</span>
 					</p>
 					<p>
-						<span className='text-sky-500'></span>
-					</p>
-					<p>
-						<span className='text-sky-500'>
+						<span>
 							{data.totalAllStat ? (
 								<span> All Stat : {data.totalAllStat}% </span>
 							) : (
@@ -76,7 +79,7 @@ export default function GearCard({ character, data, equiped }: GearCardProps) {
 							)}
 						</span>
 					</p>
-					<p className='text-green-500'>-Potentials-</p>
+					<p className='text-center'> -Potentials-</p>
 					<p>{data.potType1 ? `${data.potType1} : ${data.potValue1}` : ''}</p>
 					<p>{data.potType2 ? `${data.potType2} : ${data.potValue2}` : ''}</p>
 					<p>{data.potType3 ? `${data.potType3} : ${data.potValue3}` : ''}</p>
@@ -84,21 +87,25 @@ export default function GearCard({ character, data, equiped }: GearCardProps) {
 					<p>Flame Score: {data.totalFlameScore}</p>
 				</CardContent>
 			</Link>
-			<SignedIn>
-				<CardFooter className='flex flex-col w-full justify-between gap-4'>
-					<Button variant='default' className='cursor-pointer w-full' asChild>
-						<Link href={`/character/${character.name}/editgear/${data.id}`}>
-							Edit Gear
-						</Link>
-					</Button>
-					{equiped ? (
-						<UnequipGearButton character={character} gear={data} />
-					) : (
-						<EquipGearButton character={character} gear={data} />
-					)}
-					<DeleteGearButton gearItem={data} characterName={character.name} />
-				</CardFooter>
-			</SignedIn>
+			{view === 'default' ? (
+				<SignedIn>
+					<CardFooter className='flex flex-col w-full justify-between gap-4'>
+						<Button variant='default' className='cursor-pointer w-full' asChild>
+							<Link href={`/character/${character.name}/editgear/${data.id}`}>
+								Edit Gear
+							</Link>
+						</Button>
+						{equiped ? (
+							<UnequipGearButton character={character} gear={data} />
+						) : (
+							<EquipGearButton character={character} gear={data} />
+						)}
+						<DeleteGearButton gearItem={data} characterName={character.name} />
+					</CardFooter>
+				</SignedIn>
+			) : (
+				<></>
+			)}
 		</Card>
 	)
 }
