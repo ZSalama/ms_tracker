@@ -16,7 +16,7 @@ export default async function page({
 		redirect(`/character/${character}`)
 	}
 
-	const isAdmin = (await checkRole('admin')) || (await checkRole('user'))
+	const isAdmin = await checkRole('admin')
 
 	return (
 		<div className='max-w-4xl mx-auto px-4 py-8 space-y-10 grid md:grid-cols-2'>
@@ -33,8 +33,8 @@ export default async function page({
 						<MultiUploader character={character} />
 					) : (
 						<p>
-							currently disabled for guests. purchase a subsciption or contact
-							me at undermouseweb@gmail.com for more info
+							currently disabled for non-admins. contact undermouseweb@gmail.com
+							for more info
 						</p>
 					)}
 				</Suspense>
