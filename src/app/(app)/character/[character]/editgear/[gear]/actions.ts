@@ -48,21 +48,6 @@ export async function editGearItem(
 	// like id if it wants to update the gear instead of recasting an entire object that requires type imports..
 	const gearData = { id: gearId, ...parsed.data } as GearItem
 
-	if (data.isEquipped === 'equipped') {
-		await equipGear({
-			character: character,
-			gear: gearData,
-		})
-	}
-
-	if (data.isEquipped === 'notEquipped') {
-		//check to see if the gear is already equipped
-		await unequipGear({
-			character: character,
-			gear: gearData,
-		})
-	}
-
 	const gearItemFlameScore = calculateFlameScore(character, data as GearItem)
 
 	/* 4. Persist ------------------------------------------------------------ */
@@ -79,7 +64,6 @@ export async function editGearItem(
 				tradeStatus: 'untradeable',
 				starForce: Number(data.starForce),
 				requiredLevel: Number(data.requiredLevel),
-				isEquipped: data.isEquipped,
 
 				/* ─── progression bonuses ────────────────────────── */
 				attackPowerIncrease: Number(data.attackPowerIncrease),

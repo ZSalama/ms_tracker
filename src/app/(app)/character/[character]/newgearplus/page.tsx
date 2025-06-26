@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { MultiUploader } from './components'
 import { checkRole } from '@/utils/roles'
 import { redirect } from 'next/navigation'
@@ -16,7 +16,7 @@ export default async function page({
 		redirect(`/character/${character}`)
 	}
 
-	const isAdmin = (await checkRole('admin')) || (await checkRole('user'))
+	const isAdmin = await checkRole('admin')
 
 	return (
 		<div className='max-w-4xl mx-auto px-4 py-8 space-y-10 grid md:grid-cols-2'>
@@ -28,15 +28,16 @@ export default async function page({
 					processed to extract gear information. Change the UI size to 100% in
 					the MapleStory settings, and take a screenshot of your gear window.
 				</p>
-
-				{isAdmin ? (
-					<MultiUploader character={character} />
-				) : (
-					<p>
-						currently disabled for guests. purchase a subsciption or contact me
-						at undermouseweb@gmail.com for more info
-					</p>
-				)}
+				<Suspense fallback={<div className='text-center'>Loading...</div>}>
+					{isAdmin ? (
+						<MultiUploader character={character} />
+					) : (
+						<p>
+							currently disabled for non-admins. contact undermouseweb@gmail.com
+							for more info
+						</p>
+					)}
+				</Suspense>
 			</div>
 			<div className='flex flex-col items-center px-12 '>
 				<h2 className='text-2xl font-bold mb-4'>Manually Add Gear</h2>

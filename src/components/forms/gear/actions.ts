@@ -63,7 +63,6 @@ export async function editGearItem(
 				tradeStatus: 'untradeable',
 				starForce: Number(data.starForce) ?? 0,
 				requiredLevel: Number(data.requiredLevel) ?? 0,
-				isEquipped: data.isEquipped ?? 'notEquipped',
 
 				/* ─── progression bonuses ────────────────────────── */
 				attackPowerIncrease: Number(data.attackPowerIncrease) ?? 0,
