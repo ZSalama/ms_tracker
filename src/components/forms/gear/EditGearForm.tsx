@@ -70,8 +70,6 @@ export function EditGearForm({ data, gearId, characterName }: Props) {
 			potValue2: specificGear?.potValue2 ?? '',
 			potValue3: specificGear?.potValue3 ?? '',
 
-			isEquipped: specificGear?.isEquipped,
-
 			totalStr: specificGear.totalStr ?? 0,
 			baseStr: specificGear?.baseStr ?? 0,
 			flameStr: specificGear?.flameStr ?? 0,
