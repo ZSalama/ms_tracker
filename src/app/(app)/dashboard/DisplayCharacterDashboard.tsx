@@ -19,7 +19,6 @@ export default function DisplayCharacterDashboard() {
 		queryKey: ['characters'],
 		queryFn: () => getCharacters(),
 	})
-	const { sessionClaims } = useAuth()
 	if (isLoading) {
 		return <p>Loading...</p>
 	}
@@ -32,21 +31,9 @@ export default function DisplayCharacterDashboard() {
 				<h1 className='text-xl md:text-3xl font-extrabold'>
 					{data.internalUser.email}&apos;s Characters
 				</h1>
-				<div className='flex flex-row flex-wrap items-center gap-4'>
-					<p>Account type: {data.internalUser.subscription}</p>
-					<Link href='/dashboard/new-character'>
-						<Button className='cursor-pointer'>+ New Character</Button>
-					</Link>
-					{data.internalUser.subscription !== 'user' ? (
-						<Link href='/dashboard/subscribe'>
-							<Button className='cursor-pointer'>Subscribe</Button>
-						</Link>
-					) : (
-						<Link href='/dashboard/cancelsubscription'>
-							<Button className='cursor-pointer'>Unsubscribe</Button>
-						</Link>
-					)}
-				</div>
+				<Link href='/dashboard/new-character'>
+					<Button className='cursor-pointer'>+ New Character</Button>
+				</Link>
 			</div>
 			{data.characters.length === 0 ? (
 				<p className='text-gray-500'>

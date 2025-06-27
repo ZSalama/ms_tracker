@@ -79,6 +79,35 @@ export default function NewCharacterForm() {
 					)}
 				/>
 
+				<FormField
+					control={form.control}
+					name='class'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Class</FormLabel>
+							<Select
+								value={field.value}
+								onValueChange={field.onChange}
+								disabled={isPending}
+							>
+								<FormControl>
+									<SelectTrigger className='w-full'>
+										<SelectValue placeholder='Choose a class' />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									{classNames.map((cls) => (
+										<SelectItem key={cls} value={cls}>
+											{cls}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
 				{/** repeat the same pattern for the numeric fields **/}
 				{(['level', 'combatPower', 'arcaneForce', 'sacredPower'] as const).map(
 					(fieldName) => (
@@ -98,35 +127,6 @@ export default function NewCharacterForm() {
 						/>
 					)
 				)}
-
-				<FormField
-					control={form.control}
-					name='class'
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Class</FormLabel>
-							<Select
-								value={field.value}
-								onValueChange={field.onChange}
-								disabled={isPending}
-							>
-								<FormControl>
-									<SelectTrigger>
-										<SelectValue placeholder='Choose a class' />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									{classNames.map((cls) => (
-										<SelectItem key={cls} value={cls}>
-											{cls}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
 
 				<Button
 					type='submit'

@@ -38,7 +38,6 @@ export default function GearCard({
 					<CardTitle className='text-xl'>{data.name}</CardTitle>
 					<CardDescription>
 						{data.type} • {data.rarity}
-						{data.tradeStatus !== 'untradeable' && ` • ${data.tradeStatus}`}
 					</CardDescription>
 					<div>
 						{/* {data.starForce > 0 && (
@@ -53,16 +52,16 @@ export default function GearCard({
 				</CardHeader>
 
 				<CardContent className='grid grid-cols-1 gap-x-3 text-xs mt-1'>
-					<p> Type: {data.type}</p>
-					<p>
-						<span>STR : {data.totalStr}</span>
+					<p className='text-center'>{data.type}</p>
+					<p className='columns-2'>
+						<div>STR : {data.totalStr}</div>
 
-						<span> DEX : {data.totalDex}</span>
+						<div> DEX : {data.totalDex}</div>
 					</p>
-					<p>
-						<span> INT : {data.totalInt}</span>
+					<p className='columns-2'>
+						<div>INT : {data.totalInt}</div>
 
-						<span> LUK : {data.totalLuk}</span>
+						<div> LUK : {data.totalLuk}</div>
 					</p>
 					<p>
 						<span>

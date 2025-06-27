@@ -93,7 +93,8 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 
 	const GearImg = (
 		<Image
-			src='/Eqp_Fafnir_Battle_Cleaver.png'
+			// src='/weapon.png'
+			src={`/${slot}.png` || 'weapon.PNG'} // Fallback to gloves if no image
 			alt={gear?.name || ''}
 			fill
 			className='object-contain pointer-events-none'
@@ -123,6 +124,7 @@ function GearSlotCard({ gear, slot, characterName }: GearSlotCardProps) {
 							variant='ghost'
 							className='relative size-12 rounded-md border bg-background/30
                grid place-content-center hover:cursor-pointer'
+							onClick={() => console.log(slot, specificGear?.name)}
 						>
 							{specificGear ? GearImg : EmptyContent}
 						</Button>
