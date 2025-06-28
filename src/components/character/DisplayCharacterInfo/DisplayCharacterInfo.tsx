@@ -59,10 +59,10 @@ export function CharacterCharacterInfo({
 			<SignedIn>
 				<CardFooter className='flex flex-col gap-4'>
 					<Link
-						href={`/character/${characterProp.name}/newgearplus`}
+						href={`/character/${characterProp.name}/newgear`}
 						className='w-full'
 					>
-						<Button className='w-full cursor-pointer'>+ Add New Gear</Button>
+						<Button className='w-full cursor-pointer'>Add New Gear</Button>
 					</Link>
 
 					<Link

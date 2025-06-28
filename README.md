@@ -6,9 +6,11 @@ Track your MapleStory progress!
 
 ## Getting Started
 
+# AI analysis is temporarily disabled while I ensure API keys can be stored securely
+
 1. **Create an account**
-2. **Purchase** a (fake!) subscription with the Stripe test card `4242 4242 4242 4242`
-3. **Download** the image from the **Learn** tab (top-right)
+2. **Purchase** OpenAI API credits from https://openai.com/api/
+3. **Import** your API key into MS-tracker
 4. **Create** your character
 5. **Add gear** using ChatGPT image analysis
 6. **Enjoy!**

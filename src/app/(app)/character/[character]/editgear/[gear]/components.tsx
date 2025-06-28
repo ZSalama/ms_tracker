@@ -165,7 +165,7 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 py-10'>
-				<FormField
+				{/* <FormField
 					control={form.control}
 					name='name'
 					render={({ field }) => (
@@ -221,14 +221,53 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 									</Command>
 								</PopoverContent>
 							</Popover>
-							<FormDescription>
-								This is the language that will be used in the dashboard.
-							</FormDescription>
+
+							<FormMessage />
+						</FormItem>
+					)}
+				/> */}
+
+				<FormField
+					control={form.control}
+					name='name'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>gear name</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									value={
+										typeof field.value === 'object' && field.value !== null
+											? ''
+											: field.value ?? ''
+									}
+								/>
+							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-
+				<FormField
+					control={form.control}
+					name='starForce'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Star Force</FormLabel>
+							<FormControl>
+								<Input
+									type='number'
+									{...field}
+									value={
+										typeof field.value === 'object' && field.value !== null
+											? ''
+											: field.value ?? ''
+									}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 				{/* ----- Type / Rarity row ----- */}
 				<div className='grid gap-4 sm:grid-cols-2'>
 					<FormField
@@ -675,25 +714,26 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											onValueChange={field.onChange}
 											defaultValue={field.value ?? ''}
 										>
-											<SelectTrigger>
+											<SelectTrigger className='w-full'>
 												{field.value || 'Select type'}
 											</SelectTrigger>
 											<SelectContent>
 												{[
-													'Critical Damage',
-													'Boss Damage',
-													'Max HP',
-													'Max MP',
-													'Attack',
-													'Magic Attack',
-													'Str',
-													'Dex',
-													'Int',
-													'Luk',
-													'All Stat',
-													'Ignore Enemy Defense',
-													'Damage',
-													'Critical Rate',
+													'None',
+													'Critical Damage %',
+													'Boss Damage %',
+													'Max HP %',
+													'Max MP %',
+													'Attack %',
+													'Magic Attack %',
+													'Str %',
+													'Dex %',
+													'Int %',
+													'Luk %',
+													'All Stat %',
+													'Ignore Enemy Defense %',
+													'Damage %',
+													'Critical Rate %',
 												].map((t) => (
 													<SelectItem key={t} value={t}>
 														{t}
@@ -713,9 +753,9 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 							name={`potValue${idx}`}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Value</FormLabel>
+									<FormLabel>Value (integer only)</FormLabel>
 									<FormControl>
-										<Input placeholder='+8%' {...field} />
+										<Input placeholder='8' {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

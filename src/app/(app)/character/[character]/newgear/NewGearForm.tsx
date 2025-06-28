@@ -643,25 +643,26 @@ export default function NewGearForm({
 											onValueChange={field.onChange}
 											defaultValue={field.value ?? ''}
 										>
-											<SelectTrigger>
+											<SelectTrigger className='w-full'>
 												{field.value || 'Select type'}
 											</SelectTrigger>
 											<SelectContent>
 												{[
-													'Critical Damage',
-													'Boss Damage',
-													'Max HP',
-													'Max MP',
-													'Attack',
-													'Magic Attack',
-													'Str',
-													'Dex',
-													'Int',
-													'Luk',
-													'All Stat',
-													'Ignore Enemy Defense',
-													'Damage',
-													'Critical Rate',
+													'None',
+													'Critical Damage %',
+													'Boss Damage %',
+													'Max HP %',
+													'Max MP %',
+													'Attack %',
+													'Magic Attack %',
+													'Str %',
+													'Dex %',
+													'Int %',
+													'Luk %',
+													'All Stat %',
+													'Ignore Enemy Defense %',
+													'Damage %',
+													'Critical Rate %',
 												].map((t) => (
 													<SelectItem key={t} value={t}>
 														{t}
@@ -681,9 +682,9 @@ export default function NewGearForm({
 							name={`potValue${idx}`}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Value</FormLabel>
+									<FormLabel>Value (integer only)</FormLabel>
 									<FormControl>
-										<Input placeholder='+8%' {...field} />
+										<Input placeholder='8' {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
