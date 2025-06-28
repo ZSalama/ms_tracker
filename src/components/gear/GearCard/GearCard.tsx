@@ -53,22 +53,22 @@ export default function GearCard({
 
 				<CardContent className='grid grid-cols-1 gap-x-3 text-xs mt-1'>
 					<p className='text-center'>{data.type}</p>
-					<p className='columns-2'>
+					<div className='columns-2'>
 						<div>STR : {data.totalStr}</div>
 
 						<div> DEX : {data.totalDex}</div>
-					</p>
-					<p className='columns-2'>
+					</div>
+					<div className='columns-2'>
 						<div>INT : {data.totalInt}</div>
 
 						<div> LUK : {data.totalLuk}</div>
-					</p>
-					<p>
+					</div>
+					<div>
 						<span>
 							Att Power : {data.totalAttackPower} <br />
 							Mat Attack : {data.totalMagicAttackPower}
 						</span>
-					</p>
+					</div>
 					<p>
 						<span>
 							{data.totalAllStat ? (

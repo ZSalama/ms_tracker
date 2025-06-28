@@ -247,7 +247,27 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 						</FormItem>
 					)}
 				/>
-
+				<FormField
+					control={form.control}
+					name='starForce'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Star Force</FormLabel>
+							<FormControl>
+								<Input
+									type='number'
+									{...field}
+									value={
+										typeof field.value === 'object' && field.value !== null
+											? ''
+											: field.value ?? ''
+									}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 				{/* ----- Type / Rarity row ----- */}
 				<div className='grid gap-4 sm:grid-cols-2'>
 					<FormField
@@ -700,20 +720,20 @@ export function EditGearFormClient({ characterName, gearId }: Props) {
 											<SelectContent>
 												{[
 													'None',
-													'% Critical Damage',
-													'% Boss Damage',
-													'% Max HP',
-													'% Max MP',
-													'% Attack',
-													'% Magic Attack',
-													'% Str',
-													'% Dex',
-													'% Int',
-													'% Luk',
-													'% All Stat',
-													'% Ignore Enemy Defense',
-													'% Damage',
-													'% Critical Rate',
+													'Critical Damage %',
+													'Boss Damage %',
+													'Max HP %',
+													'Max MP %',
+													'Attack %',
+													'Magic Attack %',
+													'Str %',
+													'Dex %',
+													'Int %',
+													'Luk %',
+													'All Stat %',
+													'Ignore Enemy Defense %',
+													'Damage %',
+													'Critical Rate %',
 												].map((t) => (
 													<SelectItem key={t} value={t}>
 														{t}
